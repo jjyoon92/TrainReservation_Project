@@ -9,12 +9,13 @@ buildscript {
                 //SERVER_ADDR: 'http://172.20.10.5:4002', // 핫스팟
                 //SERVER_ADDR : 'http://192.168.100.46:4001',// 학원(차후) //com.halowin.android.BuildConfig.STRING_VALUE
 
-                //SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
-                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
+                SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
+//                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
 
 
                 BOOL_VALUE: true //com.halowin.android.BuildConfig.BOOL_VALUE
         ]
+        agp_version = '7.4.2'
     }
     repositories {
         google()
@@ -24,7 +25,7 @@ buildscript {
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     id 'com.android.application' version '7.4.2' apply false
-    id 'com.android.library' version '7.4.2' apply false
+    id 'com.android.library' version '7.4.1' apply false
     id 'org.jetbrains.kotlin.android' version '1.8.0' apply false
     id 'org.jetbrains.kotlin.plugin.parcelize' version '1.5.0' apply false
 }

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.sdt.trproject.adapters.trainScheduleAdapter
+import com.sdt.trproject.adapters.TrainScheduleAdapter
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
 import com.sdt.trproject.services.SearchTrainScheduleItem
@@ -31,7 +31,7 @@ import java.util.Calendar
 class TrainScheduleActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: trainScheduleAdapter
+    private lateinit var adapter: TrainScheduleAdapter
     private lateinit var btnNextDay: Button
     private lateinit var btnPreviousDay: Button
     private lateinit var tvTrainScheduleDate: TextView
@@ -45,7 +45,7 @@ class TrainScheduleActivity : AppCompatActivity() {
     private var returnDate: String? = null
     private var returnTime: Int? = null
     private var adultCount: Int? = null
-    private var kidCount: Int? = null
+    private var childCount: Int? = null
     private var oldCount: Int? = null
 
     private var nextDate: String? = null
@@ -85,7 +85,7 @@ class TrainScheduleActivity : AppCompatActivity() {
         returnDate = intent.getStringExtra("RETURNDATE")
         returnTime = intent.getIntExtra("RETURNTIME", 0)
         adultCount = intent.getIntExtra("ADULTCOUNT", 0)
-        kidCount = intent.getIntExtra("KIDCOUNT", 0)
+        childCount = intent.getIntExtra("CHILDCOUNT", 0)
         oldCount = intent.getIntExtra("OLDCOUNT", 0)
 
 
@@ -118,10 +118,10 @@ class TrainScheduleActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.trainTimeRecyclerView)
 
-        adapter = trainScheduleAdapter(
-            this,
+        adapter = TrainScheduleAdapter(
+            context = this,
             recyclerView,
-            this,
+            activity = this,
             departureStation = departureStation,
             arrivalStation = arrivalStation,
             departureDate = departureDate,
@@ -129,7 +129,7 @@ class TrainScheduleActivity : AppCompatActivity() {
             returnDate = returnDate,
             returnTime = returnTime,
             adultCount = adultCount,
-            kidCount = kidCount,
+            childCount = childCount,
             oldCount = oldCount
         )
 
@@ -287,7 +287,7 @@ class TrainScheduleActivity : AppCompatActivity() {
         jsonObject.put("arriveStation", arrivalStation)
         jsonObject.put("date", nextDate)
         jsonObject.put("adult", adultCount)
-        jsonObject.put("kid", kidCount)
+        jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
         val requestBody = jsonObject.toString()
@@ -346,7 +346,7 @@ class TrainScheduleActivity : AppCompatActivity() {
                 putExtra("DEPARTUREDATE", nextDate)
                 putExtra("DEPARTURETIME", -1)
                 putExtra("ADULTCOUNT", adultCount)
-                putExtra("KIDCOUNT", kidCount)
+                putExtra("CHILDCOUNT", childCount)
                 putExtra("OLDCOUNT", oldCount)
             }
 
