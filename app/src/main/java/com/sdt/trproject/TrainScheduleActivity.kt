@@ -1,0 +1,377 @@
+package com.sdt.trproject
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.sdt.trproject.adapters.trainScheduleAdapter
+import com.sdt.trproject.services.SearchTrainScheduleResponse
+import com.sdt.trproject.services.TrainApiService
+import com.sdt.trproject.services.SearchTrainScheduleItem
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+
+class TrainScheduleActivity : AppCompatActivity() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: trainScheduleAdapter
+    private lateinit var btnNextDay: Button
+    private lateinit var btnPreviousDay: Button
+    private lateinit var tvTrainScheduleDate: TextView
+
+    private lateinit var data: List<SearchTrainScheduleItem>
+
+    private var departureStation: String? = null
+    private var arrivalStation: String? = null
+    private var departureDate: String? = null
+    private var departureTime: Int? = null
+    private var returnDate: String? = null
+    private var returnTime: Int? = null
+    private var adultCount: Int? = null
+    private var kidCount: Int? = null
+    private var oldCount: Int? = null
+
+    private var nextDate: String? = null
+
+    private val currentDate = LocalDate.now()
+
+    companion object RetrofitBuilder {
+        var trainApiService: TrainApiService
+
+        init {
+            val retrofit = Retrofit.Builder()
+//                .baseUrl("http://172.30.1.23:4000")
+//                .baseUrl("http://192.168.100.77:4000")
+//                .baseUrl("http://192.168.100.77:4001") // 학원
+                .baseUrl("http://172.30.1.95:4001") // 집
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            trainApiService = retrofit.create(TrainApiService::class.java)
+        }
+    }
+
+    @SuppressLint("MissingInflatedId")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_train_schedule)
+
+        btnNextDay = findViewById(R.id.btnTrainScheduleNextDay)
+        btnPreviousDay = findViewById(R.id.btnTrainSchedulePreviousDay)
+        tvTrainScheduleDate = findViewById(R.id.tvTrainScheduleDate)
+
+        // MainActivity에서 넘어온 선택된 데이터
+        departureStation = intent.getStringExtra("DEPARTURESTATION")
+        arrivalStation = intent.getStringExtra("ARRIVALSTATION")
+        departureDate = intent.getStringExtra("DEPARTUREDATE")
+        departureTime = intent.getIntExtra("DEPARTURETIME", 0)
+        returnDate = intent.getStringExtra("RETURNDATE")
+        returnTime = intent.getIntExtra("RETURNTIME", 0)
+        adultCount = intent.getIntExtra("ADULTCOUNT", 0)
+        kidCount = intent.getIntExtra("KIDCOUNT", 0)
+        oldCount = intent.getIntExtra("OLDCOUNT", 0)
+
+
+        // api 요청으로 받아온 데이터
+        val result = intent.getStringExtra("RESULT")
+        val dataString = intent.getStringExtra("DATA")
+
+        // 날짜 형식 변경
+        val originalFormat = SimpleDateFormat("yyyyMMdd")
+        val targetFormat = SimpleDateFormat("MM월 dd일")
+        val date = originalFormat.parse(departureDate)
+        val formattedDate = targetFormat.format(date)
+
+        tvTrainScheduleDate.text = formattedDate
+
+        // DATA 문자열을 다시 List<TrainItem>으로 변환
+        val gson = Gson()
+        val listType = object : TypeToken<List<SearchTrainScheduleItem>>() {}.type
+        data = gson.fromJson(dataString, listType)
+
+        val itemDecorator = VerticalSpacingItemDecorator(20)
+
+        println("departureStation : $departureStation")
+        println("arrivalStation : $arrivalStation")
+        println("departureDate : $departureDate")
+        println("departureTime : $departureTime")
+        println("returnDate : $returnDate")
+        println("returnTime : $returnTime")
+
+
+        recyclerView = findViewById(R.id.trainTimeRecyclerView)
+
+        adapter = trainScheduleAdapter(
+            this,
+            recyclerView,
+            this,
+            departureStation = departureStation,
+            arrivalStation = arrivalStation,
+            departureDate = departureDate,
+            departureTime = departureTime,
+            returnDate = returnDate,
+            returnTime = returnTime,
+            adultCount = adultCount,
+            kidCount = kidCount,
+            oldCount = oldCount
+        )
+
+
+        recyclerView.adapter = adapter
+        recyclerView.addItemDecoration(itemDecorator)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val seatGradeSelectRadioGroup = findViewById<RadioGroup>(R.id.radioGroupSeatGradeSelect)
+        val radioBtnPremiumSeatSelect = findViewById<RadioButton>(R.id.radioBtnPremiumSeatSelect)
+        val radioBtnStandardSeatSelect = findViewById<RadioButton>(R.id.radioBtnStandardSeatSelect)
+        val trainScheduleDropdownMenu = findViewById<LinearLayout>(R.id.trainScheduleDropdownMenuLl)
+
+        btnPreviousDay = findViewById(R.id.btnTrainSchedulePreviousDay)
+        btnNextDay = findViewById(R.id.btnTrainScheduleNextDay)
+
+        // 입력 받은 날짜 별 로직
+        val trainDateFormat = SimpleDateFormat("yyyyMMdd")
+        val localDepartureDate =
+            LocalDate.parse(departureDate, DateTimeFormatter.ofPattern("yyyyMMdd"))
+
+        val lastDate = currentDate.plusDays(6)
+
+        if (localDepartureDate.isEqual(currentDate)) {
+            // 넘어온 출발 날짜와 현재 날짜가 같은 경우
+            println("날짜가 같음")
+            filterData(departureTime!!)
+
+            // 조회날짜가 오늘과 같을경우 이전날 선택 버튼 안보이게
+            btnPreviousDay.visibility = View.GONE
+
+            if (localDepartureDate.isEqual(lastDate)) {
+                btnNextDay.visibility = View.GONE
+            }
+
+        } else if (localDepartureDate.isAfter(currentDate)) {
+            // 넘어온 출발 날짜가 현재 날짜보다 이후인 경우
+            println("다음 날짜임")
+
+            filterData(departureTime!!)
+
+            if (localDepartureDate.isEqual(lastDate)) {
+                btnNextDay.visibility = View.GONE
+            }
+        }
+
+
+
+
+        btnPreviousDay.setOnClickListener {
+            println("이전날 클릭")
+            searchTrainScheduleForPreviousDay()
+        }
+
+        btnNextDay.setOnClickListener {
+            searchTrainScheduleForNextDay()
+        }
+
+//        trainScheduleDropdownMenu.visibility = View.GONE
+
+//        radioBtnPremiumSeatSelect.setOnClickListener {
+//            trainScheduleDropdownMenu.visibility = View.VISIBLE
+//        }
+//
+//        radioBtnStandardSeatSelect.setOnClickListener {
+//            trainScheduleDropdownMenu.visibility = View.VISIBLE
+//        }
+
+
+//        val filteredData = data.filter { item ->
+//            val trainDateTimeFormat = SimpleDateFormat("yyyyMMddHHmmss")
+//            val trainDateTime = trainDateTimeFormat.parse(item.date + item.depPlandTime)
+//
+//            // 지정된 시간 설정
+//            val specificHour = departureTime
+//            val specificDateTime = Calendar.getInstance().apply {
+//                set(Calendar.HOUR_OF_DAY, specificHour!!)
+//                set(Calendar.MINUTE, 0)
+//                set(Calendar.SECOND, 0)
+//            }.time
+//
+//            // 현재 시간 설정
+//            val currentDateTime = Calendar.getInstance().time
+//
+//            // 현재 시간과 지정한 시간 중 늦은 시간을 기준으로 선택
+//            val latestDateTime =
+//                if (specificDateTime.after(currentDateTime)) specificDateTime else currentDateTime
+//
+//            trainDateTime.after(latestDateTime)
+//        }
+
+
+//        adapter.setData(filteredData) // 어댑터에 데이터 설정
+
+
+
+
+    }
+
+    private fun filterData(departureTime: Int) {
+        val currentTime = LocalDateTime.now().hour
+
+        val filteredData = data.filter { item ->
+            val trainDateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            val trainDateTime =
+                LocalDateTime.parse(item.date + item.depPlandTime, trainDateTimeFormat)
+            val localDepartureDate =
+                LocalDate.parse(departureDate, DateTimeFormatter.ofPattern("yyyyMMdd"))
+
+//            입력받은 departureTime 이후의 시간만 필터링
+            if (localDepartureDate.isEqual(currentDate)) {
+                trainDateTime.hour >= departureTime && trainDateTime.hour >= currentTime
+            } else {
+                trainDateTime.hour >= departureTime
+            }
+
+
+            // 지정된 시간 설정
+//            val specificHour = departureTime
+//            val specificDateTime = Calendar.getInstance().apply {
+//                set(Calendar.HOUR_OF_DAY, specificHour!!)
+//                set(Calendar.MINUTE, 0)
+//                set(Calendar.SECOND, 0)
+//            }.time
+//
+//            // 현재 시간 설정
+//            val currentDateTime = Calendar.getInstance().time
+//
+//            // 현재 시간과 지정한 시간 중 늦은 시간을 기준으로 선택
+//            val latestDateTime =
+//                if (specificDateTime.after(currentDateTime)) specificDateTime else currentDateTime
+
+//            trainDateTime.after(latestDateTime)
+        }
+
+        adapter.setData(filteredData) // 어댑터에 데이터 설정
+
+    }
+
+    // *********** 다른 날짜 기차 스케줄 조회 ***********
+    private fun searchTrainScheduleForDate(value: Int) {
+        val currentDate = SimpleDateFormat("yyyyMMdd").parse(departureDate)
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        calendar.add(Calendar.DATE, value)
+        nextDate = SimpleDateFormat("yyyyMMdd").format(calendar.time)
+
+        // 검색에 필요한 정보를 Intent에 추가
+        val intent = Intent(this, TrainScheduleActivity::class.java)
+
+        // 새로운 날짜 표시
+
+        val jsonObject = JSONObject()
+        jsonObject.put("departStation", departureStation)
+        jsonObject.put("arriveStation", arrivalStation)
+        jsonObject.put("date", nextDate)
+        jsonObject.put("adult", adultCount)
+        jsonObject.put("kid", kidCount)
+        jsonObject.put("old", oldCount)
+
+        val requestBody = jsonObject.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val call = trainApiService.searchTrainSchedule(requestBody)
+        call.enqueue(object : Callback<SearchTrainScheduleResponse> {
+            override fun onResponse(
+                call: Call<SearchTrainScheduleResponse>,
+                response: Response<SearchTrainScheduleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    // 서버 응답 처리
+                    val apiResponse = response.body()
+//                    println("response.message() : " + response.message())
+                    // TODO: 서버 응답에 대한 로직 추가
+                    println("요청 성공")
+                    handleTrainResponse(apiResponse)
+                } else {
+                    // 서버 응답 실패
+                    // TODO: 실패에 대한 처리 로직 추가
+                    println("요청 실패")
+                    handleTrainError()
+                }
+            }
+
+            override fun onFailure(call: Call<SearchTrainScheduleResponse>, t: Throwable) {
+                // 요청 실패
+                // TODO: 실패에 대한 처리 로직을 추가하세요.
+                handleTrainError()
+            }
+        })
+    }
+
+    fun handleTrainResponse(searchTrainScheduleResponse: SearchTrainScheduleResponse?) {
+        // TODO : 서버 응답에 대한 로직 구현
+        searchTrainScheduleResponse?.let {
+            val gson = Gson()
+            val dataString = gson.toJson(it.data)
+            val result = it.result
+            if (it.data == null) {
+                println("데이터 조회가 불가능합니다.")
+                Toast.makeText(applicationContext, "데이터 조회가 불가능합니다.", Toast.LENGTH_LONG).show()
+                return
+            }
+            val data = it.data
+            println("result : $result")
+            println("data : $data")
+
+            // 열차 시간 조회 액티비티 시작 & 데이터 전달
+            val intent = Intent(this, TrainScheduleActivity::class.java).apply {
+                putExtra("RESULT", result)
+                putExtra("DATA", dataString)
+                putExtra("DEPARTURESTATION", departureStation)
+                putExtra("ARRIVALSTATION", arrivalStation)
+                putExtra("DEPARTUREDATE", nextDate)
+                putExtra("DEPARTURETIME", -1)
+                putExtra("ADULTCOUNT", adultCount)
+                putExtra("KIDCOUNT", kidCount)
+                putExtra("OLDCOUNT", oldCount)
+            }
+
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    fun handleTrainError() {
+        // TODO : 서버 응답 실패 또는 요청 실패에 대한 로직 처리 구현
+        // ex: Error message, 재시도 ...
+    }
+
+    // 이전날 조회
+    private fun searchTrainScheduleForPreviousDay() {
+        println("이전날 조회")
+        searchTrainScheduleForDate(-1)
+    }
+
+    // 다음날 조회
+    private fun searchTrainScheduleForNextDay() {
+        println("다음날 조회")
+        searchTrainScheduleForDate(1)
+    }
+
+    // *********** 기차 스케줄 검색 조회 끝 ***********
+
+}

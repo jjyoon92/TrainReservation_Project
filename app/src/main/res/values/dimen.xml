@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_top">20dp</dimen>
+    <dimen name="margin_bottom">20dp</dimen>
+    <dimen name="margin_left">20dp</dimen>
+    <dimen name="margin_right">20dp</dimen>
+    <dimen name="padding_top">10dp</dimen>
+    <dimen name="padding_bottom">10dp</dimen>
+    <dimen name="padding_left">10dp</dimen>
+    <dimen name="padding_right">10dp</dimen>
+    <dimen name="text_size_small">16sp</dimen>
+    <dimen name="text_size_medium">18sp</dimen>
+    <dimen name="text_size_large">36sp</dimen>
+
+    <dimen name="shadow_size">0.5dp</dimen>
+    <dimen name="shadow_radius">3dp</dimen>
+    <dimen name="shadow_radius_2">2dp</dimen>
+
+    <dimen name="layout_width">105dp</dimen>
+</resources>
