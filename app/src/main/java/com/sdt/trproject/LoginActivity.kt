@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import com.sdt.trproject.databinding.ActivityLoginBinding
 import okhttp3.JavaNetCookieJar
@@ -69,6 +70,8 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this@LoginActivity,FindPasswordActivity::class.java)
             startActivity(intent)
         }
+
+
     }
 
     fun fragmentController(name: String, add: Boolean) {

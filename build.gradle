@@ -3,14 +3,14 @@ buildscript {
         //Clean > Rebuild
         buildConfigConstants = [
 
-                //SERVER_ADDR : 'http://192.168.100.46:4002',//학원용 // com.halowin.android.BuildConfig.STRING_VALUE
+                SERVER_ADDR : 'http://192.168.100.46:4001',//학원용 // com.halowin.android.BuildConfig.STRING_VALUE
                 //SERVER_ADDR: 'http://192.168.0.15:4002',
                 //SERVER_ADDR: 'http://192.168.0.121:4002', // 고바슨
                 //SERVER_ADDR: 'http://172.20.10.5:4002', // 핫스팟
                 //SERVER_ADDR : 'http://192.168.100.46:4001',// 학원(차후) //com.halowin.android.BuildConfig.STRING_VALUE
 
                 //SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
-                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
+                //SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
 
 
                 BOOL_VALUE: true //com.halowin.android.BuildConfig.BOOL_VALUE

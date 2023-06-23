@@ -73,9 +73,9 @@ class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var btnAdultMinus: Button
     private lateinit var btnAdultPlus: Button
     private lateinit var tvAdultCount: TextView
-    private lateinit var btnKidMinus: Button
-    private lateinit var btnKidPlus: Button
-    private lateinit var tvKidCount: TextView
+    private lateinit var btnChildMinus: Button
+    private lateinit var btnChildPlus: Button
+    private lateinit var tvChildCount: TextView
     private lateinit var btnOldMinus: Button
     private lateinit var btnOldPlus: Button
     private lateinit var tvOldCount: TextView
@@ -108,6 +108,25 @@ class MainActivity : BaseActivity(), OnClickListener {
     }
     // ******* 차후 작업 공간 끝 *******
 
+//    private var trainApiService: TrainApiService
+
+//    private lateinit var appCookieJar: AppCookieJar
+//
+//    private val client: OkHttpClient by lazy {
+//        OkHttpClient.Builder()
+//            .cookieJar(appCookieJar)
+//            .build()
+//    }
+//
+//    init {
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl(BuildConfig.SERVER_ADDR)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(client)
+//            .build()
+//
+//        trainApiService = retrofit.create(TrainApiService::class.java)
+//    }
 
     companion object RetrofitBuilder {
         var trainApiService: TrainApiService
@@ -126,6 +145,9 @@ class MainActivity : BaseActivity(), OnClickListener {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // appCookieJar 초기화
+//        appCookieJar = AppCookieJar(this)
 
 //        addTrailing(R.layout.item_trailing)?.setOnClickListener {
 //            Toast.makeText(this@MainActivity, "Hello", Toast.LENGTH_SHORT).show()
@@ -237,27 +259,27 @@ class MainActivity : BaseActivity(), OnClickListener {
         btnAdultMinus = findViewById<Button>(R.id.btnAdultMinus)
         btnAdultPlus = findViewById<Button>(R.id.btnAdultPlus)
         tvAdultCount = findViewById<TextView>(R.id.tvAdultCount)
-        btnKidMinus = findViewById<Button>(R.id.btnChildMinus)
-        btnKidPlus = findViewById<Button>(R.id.btnChildPlus)
-        tvKidCount = findViewById<TextView>(R.id.tvChildCount)
+        btnChildMinus = findViewById<Button>(R.id.btnChildMinus)
+        btnChildPlus = findViewById<Button>(R.id.btnChildPlus)
+        tvChildCount = findViewById<TextView>(R.id.tvChildCount)
         btnOldMinus = findViewById<Button>(R.id.btnOldMinus)
         btnOldPlus = findViewById<Button>(R.id.btnOldPlus)
         tvOldCount = findViewById<TextView>(R.id.tvOldCount)
 
         val adultCount = 1
-        val kidCount = 0
+        val childCount = 0
         val oldCount = 0
 
         val formattedAdultCount = getString(R.string.adult_count)
-        val formattedKidCount = getString(R.string.child_count)
+        val formattedChildCount = getString(R.string.child_count)
         val formattedOldCount = getString(R.string.old_count)
 
         tvAdultCount.text = formattedAdultCount
-        tvKidCount.text = formattedKidCount
+        tvChildCount.text = formattedChildCount
         tvOldCount.text = formattedOldCount
 
         setupCounterButton(btnAdultPlus, btnAdultMinus, tvAdultCount)
-        setupCounterButton(btnKidPlus, btnKidMinus, tvKidCount)
+        setupCounterButton(btnChildPlus, btnChildMinus, tvChildCount)
         setupCounterButton(btnOldPlus, btnOldMinus, tvOldCount)
 
         btnSearchTrain = findViewById(R.id.btnSearchTrain)
@@ -360,7 +382,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        
+
         loginBtnInAppbarFooter = navigationFooter.findViewById(R.id.loginBtnInAppbarFooter)
         authorized(loginBtnInAppbarFooter)
 
@@ -389,7 +411,7 @@ class MainActivity : BaseActivity(), OnClickListener {
             btnArrivalStationSelect.text = btnArrivalStationSelectText
         }
 
-    // 출발 일정 선택 
+    // 출발 일정 선택
     @SuppressLint("SetTextI18n")
     private val departureCalendarActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -597,7 +619,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         val departureDate = departureDate
         val departureTime = selectedDepartureTime
         val adultCount = tvAdultCount.text
-        val kidCount = tvKidCount.text
+        val childCount = tvChildCount.text
         val oldCount = tvOldCount.text
 
 
@@ -606,7 +628,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         jsonObject.put("arriveStation", arrivalStation)
         jsonObject.put("date", departureDate)
         jsonObject.put("adult", adultCount)
-        jsonObject.put("kid", kidCount)
+        jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
         val requestBody = jsonObject.toString()
@@ -620,6 +642,11 @@ class MainActivity : BaseActivity(), OnClickListener {
             ) {
                 if (response.isSuccessful) {
                     // 서버 응답 처리
+                    val headers = response.headers()
+                    val cookies = headers.values("Set-Cookie")
+                    for (cookie in cookies) {
+                        println("받은 쿠키 : $cookie")
+                    }
                     val apiResponse = response.body()
 //                    println("response.message() : " + response.message())
                     // TODO: 서버 응답에 대한 로직 추가
@@ -665,7 +692,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("DEPARTUREDATE", departureDate)
                 putExtra("DEPARTURETIME", selectedDepartureTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text.toString().toInt())
-                putExtra("KIDCOUNT", tvKidCount.text.toString().toInt())
+                putExtra("CHILDCOUNT", tvChildCount.text.toString().toInt())
                 putExtra("OLDCOUNT", tvOldCount.text.toString().toInt())
             }
 
@@ -688,7 +715,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         val returnDate = returnDate
         val returnDateTime = selectedReturnTime
         val adultCount = tvAdultCount.text
-        val kidCount = tvKidCount.text
+        val childCount = tvChildCount.text
         val oldCount = tvOldCount.text
 
 
@@ -697,7 +724,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         jsonObject.put("arriveStation", arrivalStation)
         jsonObject.put("date", departureDate)
         jsonObject.put("adult", adultCount)
-        jsonObject.put("kid", kidCount)
+        jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
         val requestBody = jsonObject.toString()
@@ -760,7 +787,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("RETURNDATE", returnDate)
                 putExtra("RETURNTIME", selectedReturnTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text)
-                putExtra("KIDCOUNT", tvKidCount.text)
+                putExtra("CHILDCOUNT", tvChildCount.text)
                 putExtra("OLDCOUNT", tvOldCount.text)
             }
 
@@ -775,7 +802,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
     fun authorized(loginBtnInAppbarFooter: TextView) {
-        val url = "${BuildConfig.SERVER_ADDR}/member/authorized"
+        val url = "${BuildConfig.SERVER_ADDR}/member/authorized/member"
         val gson = Gson()
         val data = ""
         val json = gson.toJson(data)
@@ -858,7 +885,6 @@ class MainActivity : BaseActivity(), OnClickListener {
     }
 
 }
-
 
 
 

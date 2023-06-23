@@ -222,7 +222,7 @@ class LoginUserNumFragment : Fragment() {
                     val jsonString = JSONObject(responseData)
 
                     val responseResult = jsonString.getString("result")
-                    val messageResult = jsonString.getString("message")
+
 
                     // SingUpActivity 로 넘기기
                     // key : JSESSIONID
@@ -243,10 +243,13 @@ class LoginUserNumFragment : Fragment() {
                             activity.finish()
                         }
 
-                        "아이디 없다" -> {
-                            Log.d("message","message : ${messageResult}")
-                            showToast("아이디 비밀번호를 확인해주세요.")
+                        "failure" -> {
+                            val messageResult: String? = jsonString.getString("message")
 
+                            if (messageResult.equals("input_error")) showToast("아이디가 존재하지 않습니다.")
+                            if (messageResult.equals("password_no_match")) showToast("비밀번호를 확인해주세요.")
+
+                            Log.d("message", "message : ${messageResult}")
                         }
                     }
                 }

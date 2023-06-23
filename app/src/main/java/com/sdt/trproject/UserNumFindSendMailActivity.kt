@@ -37,12 +37,12 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
     private lateinit var inputEmail3: TextView
     private lateinit var emailAutoComplete: AutoCompleteTextView
 
-    private lateinit var userFindTokenSendBtn: Button
+    private lateinit var userFindTokenSendBtn: TextView
     private lateinit var timerTextView: TextView
 
     //토큰 인증 관련 변수
     private lateinit var userFindTokenText: TextView
-    private lateinit var userFindTokenMatchBtn: Button
+    private lateinit var userFindTokenMatchBtn: TextView
 
     // 타이머 관련 변수
     private var timer: Timer? = null
@@ -169,9 +169,9 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
                     when (responseResult) {
 
-                        "Not Duplication" -> showToast("이메일과 일치하는 회원이 없습니다.")
+                        "success" -> showToast("이메일과 일치하는 회원이 없습니다.")
 
-                        "Duplication" -> {
+                        "failure" -> {
                             userFindSendEmail(email)
                             showToast("이메일 값을 성공적으로 전송했습니다.")}
 
@@ -233,15 +233,23 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
                 val responseData = response.body?.string()
                 // 응답 데이터 처리
                 println(responseData)
+
+                val jsonString = JSONObject(responseData)
+
+                val responseResult = jsonString.getString("result")
+
                 lifecycleScope.launch(Dispatchers.Main) {
                     showToast("이메일 전송에 성공.")
-                    if (responseData == "{\"result\":\"success\"}") {
+
+                    if (responseResult == "success") {
                         if (remainingSeconds != 0 or 90) {
                             remainingSeconds = 90
                             timerTextView.text = remainingSeconds.toString()
                             timer = null
+
                         }
                         startTimer()
+
                     } else {
                         showToast("코드오류")
                     }
@@ -300,6 +308,8 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
                 // 응답 데이터 처리
                 println(responseData)
 
+                val responseResult = "result"
+
                 lifecycleScope.launch(Dispatchers.Main) {
 
                     when (timerTextView.text) {
@@ -309,24 +319,20 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
                         else ->
 
                             when (responseData) {
-                                "{\"result\":\"EmailFail\"}" -> {
+                                "EmailFail" -> {
 
                                     showToast("인증번호를 확인해주세요")
 
                                 }
 
-                                "{\"result\":\"expired\"}" -> {
+                                "expired" -> {
                                     showToast("인증번호 기한이 만료되었습니다.")
                                 }
 
-                                "{\"result\":\"success\"}" -> {
+                                "success" -> {
                                     showToast("인증에 성공했습니다.")
-                                    val intent =
-                                        Intent(
-                                            this@UserNumFindSendMailActivity,
-                                            UserNumPage::class.java
-                                        )
-                                    this@UserNumFindSendMailActivity.startActivity(intent)
+                                    val intent = Intent(this@UserNumFindSendMailActivity, UserNumPage::class.java)
+                                    startActivity(intent)
                                     stopTimer()
                                     timerTextView.text = ""
                                 }
