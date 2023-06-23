@@ -158,6 +158,7 @@ class LoginUserNumFragment : Fragment() {
         // 요청을 보낼 URL 설정
         val url = "${BuildConfig.SERVER_ADDR}/member/login"
 
+
         val gson = Gson()
         val data = MyData(id, pw)
         val json = gson.toJson(data)
@@ -183,6 +184,7 @@ class LoginUserNumFragment : Fragment() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                println("응답 뭐옴 : ? $response")
 
                 if (!response.isSuccessful) {
 
@@ -195,9 +197,10 @@ class LoginUserNumFragment : Fragment() {
                 }
 
                 val responseData = response.body?.string()
+                println("responseData : $responseData")
                 // 응답 데이터 처리
                 lifecycleScope.launch(Dispatchers.Main) {
-
+                    println("여기 실행됨?????")
 //                    response.headers.forEach {
 //                        println("${it.first} : ${it.second} ")
 //
@@ -218,11 +221,16 @@ class LoginUserNumFragment : Fragment() {
 
                     // 쿠키 변수
                     val cookies = response.headers(SharedPrefKeys.SET_COOKIE)
+                    println("cookies : $cookies")
 
                     val jsonString = JSONObject(responseData)
 
                     val responseResult = jsonString.getString("result")
-                    val messageResult = jsonString.getString("message")
+//                    val messageResult: String? = jsonString.getString("message")
+
+//                    Log.d("login에러확인", "$responseResult, $messageResult")
+                    println("responseResult : $responseResult")
+//                    println("messageResult : $messageResult")
 
                     // SingUpActivity 로 넘기기
                     // key : JSESSIONID
@@ -242,12 +250,19 @@ class LoginUserNumFragment : Fragment() {
                             startActivity(intent)
                             activity.finish()
                         }
+                        "failure" -> {
+                            val messageResult: String? = jsonString.getString("message")
 
-                        "아이디 없다" -> {
-                            Log.d("message","message : ${messageResult}")
-                            showToast("아이디 비밀번호를 확인해주세요.")
+                            if (messageResult.equals("input_error")) showToast("아이디가 존재하지 않습니다.")
+                            if (messageResult.equals("password_no_match")) showToast("비밀번호를 확인해주세요.")
 
+                            Log.d("message", "message : ${messageResult}")
                         }
+
+//                        "아이디 없다" -> {
+//                            Log.d("message", "message : ${messageResult}")
+//                            showToast("아이디 비밀번호를 확인해주세요.")
+//                        }
                     }
                 }
             }
