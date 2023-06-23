@@ -10,6 +10,7 @@
         android:id="@+id/title_co"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_top"
         app:layout_constraintBottom_toTopOf="@+id/content_co"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -19,7 +20,7 @@
             android:id="@+id/image"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_search"
+            android:src="@drawable/ic_qna"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/title"
@@ -29,8 +30,10 @@
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="title"
-            android:textSize="30dp"
+            android:layout_marginStart="10dp"
+            android:text="[앱] 개선된 SRT앱 서비스는 언제부터 이용할 수 있나요?"
+            android:textSize="@dimen/text_size_medium"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/image"
             app:layout_constraintRight_toRightOf="parent"
@@ -43,6 +46,10 @@
         android:id="@+id/content_co"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_top"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="@drawable/custom_faq_background"
         app:layout_constraintBottom_toTopOf="@+id/button_co"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -52,9 +59,9 @@
             android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="title"
-            android:textSize="100dp"
-
+            android:text="@string/faq_notice"
+            android:textColor="@color/dark_gray"
+            android:textSize="@dimen/text_size_medium"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -68,16 +75,44 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/content_co"
         >
-
-        <Button
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/btnPast"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
-            android:text="button"
+            android:layout_marginTop="@dimen/margin_top"
+            android:src="@drawable/ic_arrow"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+            app:layout_constraintRight_toLeftOf="@+id/btnList"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnList"
+            android:layout_width="230dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_medium"
+            android:text="@string/list"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="@dimen/margin_top"
+            android:background="@drawable/custom_faq_button_background"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/btnNext"
+            app:layout_constraintLeft_toRightOf="@+id/btnPast"/>
+        <ImageView
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_top"
+            android:src="@drawable/ic_arrow_forward"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/btnList"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
