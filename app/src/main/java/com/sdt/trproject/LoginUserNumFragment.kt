@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.sdt.trproject.databinding.FragmentLoginUserNumBinding
 import com.google.gson.Gson
+import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -48,7 +49,8 @@ class LoginUserNumFragment : Fragment() {
     // OkHttpClient 인스턴스 생성
     private val httpClient by lazy {
         OkHttpClient().newBuilder().apply {
-            cookieJar(JavaNetCookieJar(CookieManager()))
+//            cookieJar(JavaNetCookieJar(CookieManager()))
+            cookieJar(AppCookieJar(requireContext()))
         }.build()
     }
 
@@ -120,6 +122,9 @@ class LoginUserNumFragment : Fragment() {
         loginBtn.setOnClickListener {
             val memberId = userNumId.text.toString()
             val memberPw = userPw.text.toString()
+
+            println("memberId : $memberId")
+            println("memberPw : $memberPw")
 
             if (saveUserNumBtn.isChecked) { // 회원번호 저장 체크박스가 체크된 경우
                 // 사용자 번호 저장

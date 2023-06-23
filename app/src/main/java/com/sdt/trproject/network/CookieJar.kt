@@ -5,6 +5,7 @@ import com.sdt.trproject.SharedPrefKeys
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
+import okhttp3.internal.cookieToString
 
 class AppCookieJar(private val context: Context): CookieJar {
     // SharedPreferences를 사용하기 위해 context 저장
@@ -21,6 +22,9 @@ class AppCookieJar(private val context: Context): CookieJar {
         val editor = sharedPreferences.edit()
         editor.putString("cookie", cookieValue)
         editor.apply()
+
+        println("cookieValue : ${cookieValue.toString()}")
+        println("cookies : ${cookies.joinToString("  /  ")}")
     }
 
     // 요청을 위해 쿠키 불러오기

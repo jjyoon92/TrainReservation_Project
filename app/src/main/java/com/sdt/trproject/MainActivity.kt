@@ -30,6 +30,8 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
+import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -41,11 +43,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.properties.Delegates
 
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
@@ -98,13 +103,16 @@ class MainActivity : BaseActivity(), OnClickListener {
     // 앱 바 맴버 END
     // appbar 작업
 
+    // Retrofit HILT
+    @Inject
+    lateinit var trainApiService: TrainApiService
 
     // httpClient
-    private val httpClient by lazy { OkHttpClient() }
+//    private val httpClient by lazy { OkHttpClient() }
 
     // SharedPreferences 인스턴스 생성
     private val sharedPreferences by lazy {
-        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
+//        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
         getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
     }
     // ******* 차후 작업 공간 끝 *******
@@ -113,11 +121,12 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 //    private lateinit var appCookieJar: AppCookieJar
 //
-//    private val client: OkHttpClient by lazy {
-//        OkHttpClient.Builder()
-//            .cookieJar(appCookieJar)
-//            .build()
-//    }
+    private val httpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .cookieJar(JavaNetCookieJar(CookieManager()))
+//        .cookieJar(appCookieJar)
+            .build()
+    }
 //
 //    init {
 //        val retrofit = Retrofit.Builder()
@@ -129,18 +138,18 @@ class MainActivity : BaseActivity(), OnClickListener {
 //        trainApiService = retrofit.create(TrainApiService::class.java)
 //    }
 
-    companion object RetrofitBuilder {
-        var trainApiService: TrainApiService
-
-        init {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BuildConfig.SERVER_ADDR)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            trainApiService = retrofit.create(TrainApiService::class.java)
-        }
-    }
+//    companion object RetrofitBuilder {
+//        var trainApiService: TrainApiService
+//
+//        init {
+//            val retrofit = Retrofit.Builder()
+//                .baseUrl(BuildConfig.SERVER_ADDR)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+//
+//            trainApiService = retrofit.create(TrainApiService::class.java)
+//        }
+//    }
 
 
     @SuppressLint("SetTextI18n")
@@ -854,7 +863,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
                     val responseResult = jsonString.getString("result")
 
-                    Log.d("/member/authorized3", "${responseData}")
+//                    Log.d("/member/authorized3", "${responseData}")
                     Log.d("이거 확인좀", (SharedPrefKeys.SET_COOKIE))
                     Log.d(
                         "이거 확인좀",

@@ -14,6 +14,7 @@ import com.sdt.trproject.adapters.TrainScheduleAdapter
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
 import com.sdt.trproject.services.SearchTrainScheduleItem
+import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
@@ -27,46 +28,52 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TrainScheduleActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TrainScheduleAdapter
+    @Inject
+    lateinit var adapter: TrainScheduleAdapter
     private lateinit var btnNextDay: Button
     private lateinit var btnPreviousDay: Button
     private lateinit var tvTrainScheduleDate: TextView
 
     private lateinit var data: List<SearchTrainScheduleItem>
 
-    private var departureStation: String? = null
-    private var arrivalStation: String? = null
-    private var departureDate: String? = null
-    private var departureTime: Int? = null
-    private var returnDate: String? = null
-    private var returnTime: Int? = null
-    private var adultCount: Int? = null
-    private var childCount: Int? = null
-    private var oldCount: Int? = null
+    private var departureStation: String = ""
+    private var arrivalStation: String = ""
+    private var departureDate: String = ""
+    private var departureTime: Int = 0
+    private var returnDate: String = ""
+    private var returnTime: Int = 0
+    private var adultCount: Int = 0
+    private var childCount: Int = 0
+    private var oldCount: Int = 0
 
     private var nextDate: String? = null
 
     private val currentDate = LocalDate.now()
 
-    companion object RetrofitBuilder {
-        var trainApiService: TrainApiService
+    @Inject
+    lateinit var trainApiService: TrainApiService
 
-        init {
-            val retrofit = Retrofit.Builder()
-//                .baseUrl("http://172.30.1.23:4000")
-//                .baseUrl("http://192.168.100.77:4000")
-//                .baseUrl("http://192.168.100.77:4001") // 학원
-                .baseUrl("http://172.30.1.95:4001") // 집
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
 
-            trainApiService = retrofit.create(TrainApiService::class.java)
-        }
-    }
+//    companion object RetrofitBuilder {
+
+//        init {
+//            val retrofit = Retrofit.Builder()
+////                .baseUrl("http://172.30.1.23:4000")
+////                .baseUrl("http://192.168.100.77:4000")
+////                .baseUrl("http://192.168.100.77:4001") // 학원
+//                .baseUrl("http://172.30.1.95:4001") // 집
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+
+//            trainApiService = retrofit.create(TrainApiService::class.java)
+//        }
+//    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,11 +85,11 @@ class TrainScheduleActivity : AppCompatActivity() {
         tvTrainScheduleDate = findViewById(R.id.tvTrainScheduleDate)
 
         // MainActivity에서 넘어온 선택된 데이터
-        departureStation = intent.getStringExtra("DEPARTURESTATION")
-        arrivalStation = intent.getStringExtra("ARRIVALSTATION")
-        departureDate = intent.getStringExtra("DEPARTUREDATE")
+        departureStation = intent.getStringExtra("DEPARTURESTATION")?: ""
+        arrivalStation = intent.getStringExtra("ARRIVALSTATION")?: ""
+        departureDate = intent.getStringExtra("DEPARTUREDATE")?: ""
         departureTime = intent.getIntExtra("DEPARTURETIME", 0)
-        returnDate = intent.getStringExtra("RETURNDATE")
+        returnDate = intent.getStringExtra("RETURNDATE")?: ""
         returnTime = intent.getIntExtra("RETURNTIME", 0)
         adultCount = intent.getIntExtra("ADULTCOUNT", 0)
         childCount = intent.getIntExtra("CHILDCOUNT", 0)
@@ -118,10 +125,11 @@ class TrainScheduleActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.trainTimeRecyclerView)
 
-        adapter = TrainScheduleAdapter(
-            context = this,
+//        adapter = TrainScheduleAdapter(
+//            context = this,
+//            null,
+        adapter.initData(
             recyclerView,
-            activity = this,
             departureStation = departureStation,
             arrivalStation = arrivalStation,
             departureDate = departureDate,
