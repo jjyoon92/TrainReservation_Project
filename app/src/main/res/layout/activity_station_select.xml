@@ -3,76 +3,133 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <include layout="@layout/include_guideline_left" />
+
+    <include layout="@layout/include_guideline_right" />
+
+    <include layout="@layout/include_guideline_top" />
+
+    <include layout="@layout/include_guideline_bottom" />
 
 
-    <TextView
-        android:id="@+id/tvSelectedDepartureStation"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:paddingVertical="15dp"
-        android:text="@string/departure_station"
-        android:textAlignment="center"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="@id/stationSelectGuidelineVerticalCenter"
-        app:layout_constraintStart_toStartOf="@id/stationSelectGuidelineVerticalLeft"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/mainGuidelineHorizontalBottom"
+        app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
+        app:layout_constraintRight_toLeftOf="@+id/mainGuidelineVerticalRight"
+        app:layout_constraintTop_toBottomOf="@+id/mainGuidelineHorizontalTop">
 
-    <TextView
-        android:id="@+id/tvSelectedArrivalStation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:paddingVertical="15dp"
-        android:text="@string/arrival_station"
-        android:textAlignment="center"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="@id/stationSelectGuidelineVerticalRight"
-        app:layout_constraintStart_toStartOf="@id/stationSelectGuidelineVerticalCenter"
-        app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/selectStationContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <GridView
-        android:id="@+id/stationGridview"
-        android:layout_width="0dp"
-        android:layout_height="288dp"
-        android:layout_marginTop="30dp"
-        android:background="#dedede"
-        android:numColumns="3"
-        app:layout_constraintEnd_toEndOf="@id/stationSelectGuidelineVerticalRight"
-        app:layout_constraintStart_toStartOf="@+id/stationSelectGuidelineVerticalLeft"
-        app:layout_constraintTop_toBottomOf="@+id/tvSelectedDepartureStation" />
 
-    <Button
-        android:id="@+id/btnStationSelect"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="선택하기"
-        app:layout_constraintTop_toBottomOf="@+id/stationGridview"
-        app:layout_constraintStart_toStartOf="@id/stationSelectGuidelineVerticalLeft"
-        app:layout_constraintEnd_toEndOf="@id/stationSelectGuidelineVerticalRight"
-        />
+            <TextView
+                android:id="@+id/reservationDetailDepartureLl"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="20dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/departure_station"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/reservationDetailArrivalLl"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/stationSelectGuidelineVerticalLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.05" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/stationSelectGuidelineVerticalRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.95" />
+            <TextView
+                android:id="@+id/reservationDetailArrivalLl"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/arrival_station"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/reservationDetailDepartureLl"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/stationSelectGuidelineVerticalCenter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/selectStationContainerBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/selectStationContainer">
+
+
+            <TextView
+                android:id="@+id/DepartureLlbox"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/discount_select_box_background"
+                android:padding="13dp"
+                app:layout_constraintEnd_toStartOf="@id/ArrivalLlbox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+
+                />
+
+            <TextView
+                android:id="@+id/ArrivalLlbox"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:padding="13dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/discount_select_box_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/DepartureLlbox"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <GridView
+            android:id="@+id/stationGridview"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="30dp"
+            android:background="#dedede"
+            android:numColumns="3"
+            app:layout_constraintBottom_toTopOf="@+id/btnStationSelect"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/selectStationContainer" />
+
+        <Button
+            android:id="@+id/btnStationSelect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/custom_button_background"
+            android:text="@string/select"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_medium"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
