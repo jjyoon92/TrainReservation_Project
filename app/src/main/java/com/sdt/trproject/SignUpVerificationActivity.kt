@@ -64,8 +64,8 @@ class SignUpVerificationActivity : AppCompatActivity() {
         var emailEditText = ""
 
         // 미리 정의된 이메일 주소 설정
-        sendInputEmailName.setText("cks12369")
-        sendInputEmailAddr.setText("gmail.com")
+        sendInputEmailName.setText("")
+        sendInputEmailAddr.setText("")
 
         sendButton = findViewById(R.id.sendButton)
         // 'Send' 버튼을 비활성화하여 중복 클릭 방지

@@ -71,10 +71,10 @@ class SignUpActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
+
+
         input_name = findViewById(R.id.input_name)
         input_birth = findViewById(R.id.input_birth)
         input_email_1 = findViewById(R.id.input_email_1)
@@ -171,9 +171,9 @@ class SignUpActivity : AppCompatActivity() {
             var birthStr = input_birth.text.toString()
 
 
-            if (input_birth.text.toString().length != 6) {
+            if (input_birth.text.toString().length != 8) {
 
-                showToast("생년월일이 6자리 인지 확인해 주세요")
+                showToast("생년월일이 8자리 인지 확인해 주세요")
 
             } else if (gender == " ") {
 
@@ -192,9 +192,7 @@ class SignUpActivity : AppCompatActivity() {
                 // DB 로 넣는 로직 추가~
                 // 조건 만족 못했을시 로직추가해야함.~~!!!!!!!!!!!!!!!!!!!!!!!
                 sendUser(emailStr, phoneStr, pwStr, nameStr, gender, birthStr)
-                showToast("회원가입에 성공했습니다")
-                val intent = Intent(this, MainActivity::class.java)
-                this.startActivity(intent)
+
 
 
             }
@@ -262,11 +260,12 @@ class SignUpActivity : AppCompatActivity() {
 
                     val jsonString = JSONObject(responseData)
                     val responseResult = jsonString.getString("result")
-                    val responseMessage = jsonString.getString("message")
+
 
                     when (responseResult) {
 
                         "failure" -> {
+                            val responseMessage = jsonString.getString("message")
                             showToast("사용 불가능한 전화번호 입니다.")
                             Log.d("responseMessage", "responseMessage : ${responseMessage}")
                             Log.d("/isDuplication/phone", "responseResult : ${responseResult}")
@@ -344,13 +343,18 @@ class SignUpActivity : AppCompatActivity() {
                     val responseResult = jsonString.getString("result")
 
                     when (responseResult) {
-
+                        "failure" -> {
+                            val responsMessage = jsonString.getString("message")
+                            Log.d("responsMessage", responsMessage)
+                        }
                         "success" -> {
                             showToast("개인정보 값을 성공적으로 전송 했습니다.")
                             showToast("회원가입이 완료 되었습니다")
+                            val intent = Intent(this@SignUpActivity, MainActivity::class.java)
+                            startActivity(intent)
+
                             println(request.toString())
                         }
-
                         else -> showToast("코드오류")
 
                     }

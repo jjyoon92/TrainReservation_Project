@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -105,6 +106,8 @@ class ChangePasswordActivity : AppCompatActivity() {
                 println("김승현")
                 println(response.code)
                 println("김승현")
+                Log.d("dddddqweqwewqdqwdqwd","${response.code}")
+
                 if (!response.isSuccessful) {
 
                     // 요청 실패 처리

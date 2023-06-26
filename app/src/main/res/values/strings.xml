@@ -102,6 +102,14 @@
     <string name="footer_logout"> 로그아웃</string>
     <string name="bottom_logo">혁신 선도, 국민의 철도 플랫폼</string>
 
+    <string name="member_pw_find" translatable="false">
+        <u>비밀번호 찾기</u>
+      </string>
+
+    <string name="num_find_text" translatable="false">
+<b>회원님의
+회원번호는 아래와 같습니다.</b>
+    </string>
 
     <string name="member_pw_find" translatable="false">
         <u>비밀번호 찾기</u>
@@ -154,7 +162,7 @@
 
     <string name="refund_fee_text" translatable="false">
 <b>본 승차권은 환불 하실 때
-<font color ="#8A62A9">위약금0원</font>이 발생합니다.
+<font color="#8A62A9">위약금0원</font>이 발생합니다.
 
 환불일로부터 약 7일이후 결제가 취소되며,
 카드사에서는 고객님의 결제일에 신용으로
@@ -170,7 +178,7 @@
 외 30배 이내의 부가운임이
 발생됨을 알려드립니다.
 
-<font color ="#8A62A9">환불하시겠습니까?</font></b>
+<font color="#8A62A9">환불하시겠습니까?</font></b>
     </string>
 
     <string name="refund_done_text" translatable="false">

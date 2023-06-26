@@ -123,9 +123,6 @@ class LoginUserNumFragment : Fragment() {
             val memberId = userNumId.text.toString()
             val memberPw = userPw.text.toString()
 
-            println("memberId : $memberId")
-            println("memberPw : $memberPw")
-
             if (saveUserNumBtn.isChecked) { // 회원번호 저장 체크박스가 체크된 경우
                 // 사용자 번호 저장
                 val editor = sharedPreferences.edit()
@@ -162,7 +159,6 @@ class LoginUserNumFragment : Fragment() {
     private fun sendCredentials(id: String, pw: String) {
         // 요청을 보낼 URL 설정
         val url = "${BuildConfig.SERVER_ADDR}/member/login"
-
 
         val gson = Gson()
         val data = MyData(id, pw)
@@ -237,6 +233,7 @@ class LoginUserNumFragment : Fragment() {
                     println("responseResult : $responseResult")
 //                    println("messageResult : $messageResult")
 
+
                     // SingUpActivity 로 넘기기
                     // key : JSESSIONID
                     when (responseResult) {
@@ -255,6 +252,7 @@ class LoginUserNumFragment : Fragment() {
                             startActivity(intent)
                             activity.finish()
                         }
+
                         "failure" -> {
                             val messageResult: String? = jsonString.getString("message")
 
@@ -263,11 +261,6 @@ class LoginUserNumFragment : Fragment() {
 
                             Log.d("message", "message : ${messageResult}")
                         }
-
-//                        "아이디 없다" -> {
-//                            Log.d("message", "message : ${messageResult}")
-//                            showToast("아이디 비밀번호를 확인해주세요.")
-//                        }
                     }
                 }
             }

@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"
                             android:background="@drawable/inputbox_background"
-                            android:enabled="false"
+                            android:enabled="true"
                             android:inputType="textEmailAddress"
                             android:text=""
                             android:textSize="@dimen/text_size_medium"
