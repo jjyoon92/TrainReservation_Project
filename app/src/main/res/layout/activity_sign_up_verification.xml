@@ -3,9 +3,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/SignUpVerificationActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <include layout="@layout/include_guideline_left" />
     <include layout="@layout/include_guideline_right" />
@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"
                             android:background="@drawable/inputbox_background"
-                            android:enabled="false"
+                            android:enabled="true"
                             android:inputType="textEmailAddress"
                             android:text=""
                             android:textSize="@dimen/text_size_medium"

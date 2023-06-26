@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -59,8 +60,8 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         changedPwBtn.setOnClickListener() {
             if (newPwText.text.toString() == newPwMatchText.text.toString()) {
-                updatePw(INPUT_USER_NUM, newPwMatchText.text.toString())
-                println("!!!!!!!!!!!!!!!" + updatePw( UserNum , newPwMatchText.text.toString()))
+                updatePw(UserNum, newPwMatchText.text.toString())
+
             } else {
                 showToast("비밀번호와 확인 비밀번호를 확인해주세요. ")
             }
@@ -102,6 +103,11 @@ class ChangePasswordActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                println("김승현")
+                println(response.code)
+                println("김승현")
+                Log.d("dddddqweqwewqdqwdqwd","${response.code}")
+
                 if (!response.isSuccessful) {
 
                     // 요청 실패 처리
@@ -118,8 +124,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                 }
 
                 val responseData = response.body?.string()
-
-
 
                 // 응답 데이터 처리
                 println(responseData)

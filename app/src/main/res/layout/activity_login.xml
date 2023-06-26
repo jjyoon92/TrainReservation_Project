@@ -98,7 +98,7 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_size_small" />
 
-        </LinearLayout>
 
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

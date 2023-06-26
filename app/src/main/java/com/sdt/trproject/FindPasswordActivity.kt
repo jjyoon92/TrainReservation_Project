@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -43,18 +44,17 @@ class FindPasswordActivity : AppCompatActivity() {
     private lateinit var userNumText: TextView
 
     private lateinit var inputEmail4Text: TextView
-    private lateinit var emailAutoComplete1Text: AutoCompleteTextView
-    private lateinit var sendEmailBtn: Button
+    private lateinit var emailAutoCompleteView: AutoCompleteTextView
+    private lateinit var sendEmailBtn: TextView
 
     private lateinit var authCodeText: TextView
     private lateinit var timerTextView: TextView
-    private lateinit var authCodeBtn: Button
+    private lateinit var authCodeBtn: TextView
 
-    private lateinit var changedPwBtn: Button
-
+    private lateinit var findUserPw: TextView
 
     private lateinit var userNum: String
-
+    private var userEmailSave: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,63 +63,53 @@ class FindPasswordActivity : AppCompatActivity() {
         userNumText = findViewById(R.id.userNumText)
         inputEmail4Text = findViewById(R.id.inputEmail4)
 
-        emailAutoComplete1Text = findViewById(R.id.emailAutoComplete1)
+        emailAutoCompleteView = findViewById<AutoCompleteTextView>(R.id.emailAutoCompleteView)
         val emailItems = arrayOf("gmail.com", "naver.com", "daum.net")
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, emailItems)
-        emailAutoComplete1Text.setAdapter(adapter)
-        emailAutoComplete1Text.setOnItemClickListener() { parent, view, position, id ->
+        emailAutoCompleteView.setAdapter(adapter)
+        emailAutoCompleteView.setOnItemClickListener() { parent, view, position, id ->
             val selectedEmailItem = parent.getItemAtPosition(position).toString()
             showToast("Selected : $selectedEmailItem")
         }
 
 
-        sendEmailBtn = findViewById(R.id.sendEmailBtn)
-
-        var userEmailSave: String = ""
-
-        sendEmailBtn.setOnClickListener() {
-
-            val userEmail: String =
-                inputEmail4Text.text.toString() + "@" + emailAutoComplete1Text.text.toString()
-            userEmailSave = userEmail
-            existEmailAndId(
-                userNumText.text.toString(),
-                userEmail
-            )
-            println(
-                "!!!!!!!!!!!!!!!!!!" + existEmailAndId(
+        sendEmailBtn = findViewById<TextView>(R.id.sendEmailBtn).apply {
+            setOnClickListener() {
+                val userEmail: String =
+                    inputEmail4Text.text.toString() + "@" + emailAutoCompleteView.text.toString()
+                userEmailSave = userEmail
+                existEmailAndId(
                     userNumText.text.toString(),
                     userEmail
                 )
-            )
+                println(
+                    "!!!!!!!!!!!!!!!!!!" +
+                            "${userNumText.text.toString()}, ${userEmail}"
+                )
 
-
+            }
         }
 
         authCodeText = findViewById(R.id.authCodeText)
         timerTextView = findViewById(R.id.timerTextView)
-        authCodeBtn = findViewById(R.id.authCodeBtn)
-
-        authCodeBtn.setOnClickListener() {
-
-            userNum = userNumText.text.toString()
-            sendEmailToken(userEmailSave, authCodeText.text.toString())
-
+        authCodeBtn = findViewById<TextView>(R.id.authCodeBtn).apply {
+            setOnClickListener() {
+                userNum = userNumText.text.toString()
+                sendEmailToken(userEmailSave, authCodeText.text.toString())
+            }
         }
-
-        changedPwBtn = findViewById(R.id.changedPwBtn)
-
-        changedPwBtn.setOnClickListener() {
-            val intent =
-                Intent(this@FindPasswordActivity, ChangePasswordActivity::class.java)
-            intent.putExtra(ChangePasswordActivity.INPUT_USER_NUM, userNumText.text.toString())
-            this@FindPasswordActivity.startActivity(intent)
+        findUserPw = findViewById<TextView>(R.id.findUserPw).apply {
+            setOnClickListener() {
+                val intent = Intent(
+                    this@FindPasswordActivity,
+                    ChangePasswordActivity::class.java
+                )
+                intent.putExtra(ChangePasswordActivity.INPUT_USER_NUM, userNumText.text.toString())
+                this@FindPasswordActivity.startActivity(intent)
+            }
+            isEnabled = false
         }
-
-        changedPwBtn.isEnabled = false
-
-
     }
 
     @Parcelize
@@ -193,6 +183,8 @@ class FindPasswordActivity : AppCompatActivity() {
 
                     val responseResult = jsonString.getString("result")
 
+                    Log.d("responseResult", responseResult)
+
                     showToast("이메일 전송에 성공.")
                     if (responseResult == "success") {
                         if (remainingSeconds != 0 or 90) {
@@ -263,7 +255,6 @@ class FindPasswordActivity : AppCompatActivity() {
                         else ->
 
 
-
                             when (responseResult) {
                                 "EmailFail" -> {
 
@@ -279,7 +270,7 @@ class FindPasswordActivity : AppCompatActivity() {
                                     showToast("인증에 성공했습니다.")
                                     stopTimer()
                                     timerTextView.text = ""
-                                    changedPwBtn.isEnabled = true
+                                    findUserPw.isEnabled = true
 
                                 }
 
@@ -348,13 +339,21 @@ class FindPasswordActivity : AppCompatActivity() {
 
                     val responseResult = jsonString.getString("result")
 
+                    Log.d ("existEmailAndId" , responseResult)
+
                     when (responseResult) {
 
-                        "Exist" -> changedSendEmail(email)
+                        "success" -> {
+                            changedSendEmail(email)
+                        }
 
-                        "Not Exist" -> showToast("회원번호 및 이메일을 확인해주세요.")
+                        "failure" -> {
+                            showToast("회원번호 및 이메일을 확인해주세요.")
+                        }
 
-                        else -> showToast("코드 오류")
+                        else -> {
+                            showToast("코드 오류")
+                        }
                     }
 
 
