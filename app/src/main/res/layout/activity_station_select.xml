@@ -34,7 +34,7 @@
 
 
             <TextView
-                android:id="@+id/reservationDetailDepartureLl"
+                android:id="@+id/tvDepartureStationLabel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -43,13 +43,13 @@
                 android:text="@string/departure_station"
                 android:textSize="20dp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/reservationDetailArrivalLl"
+                app:layout_constraintEnd_toStartOf="@id/tvArrivalStationLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
             <TextView
-                android:id="@+id/reservationDetailArrivalLl"
+                android:id="@+id/tvArrivalStationLabel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -60,7 +60,7 @@
                 android:textSize="20dp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/reservationDetailDepartureLl"
+                app:layout_constraintStart_toEndOf="@id/tvDepartureStationLabel"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -78,27 +78,27 @@
 
 
             <TextView
-                android:id="@+id/DepartureLlbox"
+                android:id="@+id/tvPreSelectedDepartureStation"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
                 android:background="@drawable/discount_select_box_background"
                 android:padding="13dp"
-                app:layout_constraintEnd_toStartOf="@id/ArrivalLlbox"
+                app:layout_constraintEnd_toStartOf="@id/tvPreSelectedArrivalStation"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
 
                 />
 
             <TextView
-                android:id="@+id/ArrivalLlbox"
+                android:id="@+id/tvPreSelectedArrivalStation"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:padding="13dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/discount_select_box_background"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/DepartureLlbox"
+                app:layout_constraintStart_toEndOf="@id/tvPreSelectedDepartureStation"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
