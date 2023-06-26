@@ -26,7 +26,7 @@ interface TrainApiService : RetrofitRequestService {
     @POST("/train/seat")
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
-    @POST("/train/reservation")
+//    @POST("/train/reservation")
     fun requestTrainReservation(@Body requestData: RequestBody): Call<ResponseBody>
 
     @POST("{path}")
@@ -34,11 +34,15 @@ interface TrainApiService : RetrofitRequestService {
         @Path("path") requestPath: String,
         @Body requestBody: RequestBody
     ): Call<ResponseBody> {
+        println("requestPath : $requestPath")
+        println("requestBody : $requestBody")
         return when (requestPath) {
             TRAIN_RESERVATION -> {
+                println("TRAIN_RESERVATION")
                 requestTrainReservation(requestBody) as Call<ResponseBody>
             }
             else -> {
+                println("TRAIN_RESERVATION???")
                 requestTrainReservation(requestBody) as Call<ResponseBody>
             }
         }
@@ -106,4 +110,6 @@ data class RequestTrainSeatsResponse(
 data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
+    @SerializedName("data")
+    val data: String
 )

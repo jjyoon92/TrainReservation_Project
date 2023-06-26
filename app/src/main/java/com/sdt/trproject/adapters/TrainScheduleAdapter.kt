@@ -86,20 +86,20 @@ class TrainScheduleAdapter @Inject constructor(
     }
 
 
-    private val client: OkHttpClient = OkHttpClient.Builder()
-        .cookieJar(JavaNetCookieJar(CookieManager()))
-//        .cookieJar(AppCookieJar(context))
-        .build()
+//    private val client: OkHttpClient = OkHttpClient.Builder()
+//        .cookieJar(JavaNetCookieJar(CookieManager()))
+////        .cookieJar(AppCookieJar(context))
+//        .build()
 
-    init {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BuildConfig.SERVER_ADDR)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
-            .build()
-
-        trainApiService = retrofit.create(TrainApiService::class.java)
-    }
+//    init {
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl(BuildConfig.SERVER_ADDR)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(client)
+//            .build()
+//
+//        trainApiService = retrofit.create(TrainApiService::class.java)
+//    }
 
 
     fun setData(data: List<SearchTrainScheduleItem>) {
@@ -221,11 +221,14 @@ class TrainScheduleAdapter @Inject constructor(
             jsonArray.put(jsonObject)
 
             println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
+            println("jsonArray : $jsonArray")
             trainApiService.request<RequestTrainReservationResponse>(
                 context = context,
                 requestPath = TrainApiService.TRAIN_RESERVATION,
                 data = jsonArray,
-                failListener = null
+                failListener = { message: String, httpCode: Int ->
+                    println("message : $message, httpCode : $httpCode")
+                }
             ) {
                 handleRequestTrainReservationResponse(it, scheduleItems[adapterPosition])
             }
@@ -322,6 +325,8 @@ class TrainScheduleAdapter @Inject constructor(
                     }
 
                     val apiResponse = response.body()
+
+
                     handleRequestTrainSeatsResponse(apiResponse, item, carriage)
                 }
 

@@ -22,6 +22,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.sdt.trproject.di.SampleModule
 import com.sdt.trproject.ksh.HelloworldActivity
 import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
@@ -121,12 +122,15 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 //    private lateinit var appCookieJar: AppCookieJar
 //
-    private val httpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .cookieJar(JavaNetCookieJar(CookieManager()))
-//        .cookieJar(appCookieJar)
-            .build()
-    }
+
+    @Inject
+    lateinit var httpClient: OkHttpClient
+//    private val httpClient: OkHttpClient by lazy {
+//        OkHttpClient.Builder()
+//            .cookieJar(JavaNetCookieJar(CookieManager()))
+////        .cookieJar(appCookieJar)
+//            .build()
+//    }
 //
 //    init {
 //        val retrofit = Retrofit.Builder()
@@ -654,6 +658,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                     // 서버 응답 처리
                     val headers = response.headers()
                     val cookies = headers.values("Set-Cookie")
+                    println("cookies 확인 : $cookies")
                     for (cookie in cookies) {
                         println("받은 쿠키 : $cookie")
                     }
@@ -661,6 +666,16 @@ class MainActivity : BaseActivity(), OnClickListener {
 //                    println("response.message() : " + response.message())
                     // TODO: 서버 응답에 대한 로직 추가
                     println("요청 성공")
+
+                    val cookieHeaderValue =
+                        response.headers()["Set-Cookie"]?: ""
+                    if ( cookieHeaderValue.isNotEmpty()) {
+                        val editor = sharedPreferences.edit()
+                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
+                        editor.apply()
+                    }
+
+
                     handleOnewayTrainResponse(apiResponse)
                 } else {
                     // 서버 응답 실패
@@ -699,12 +714,16 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("DATA", dataString)
                 putExtra("DEPARTURESTATION", btnDepartureStationSelectText)
                 putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
+                putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
                 putExtra("DEPARTUREDATE", departureDate)
                 putExtra("DEPARTURETIME", selectedDepartureTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text.toString().toInt())
                 putExtra("CHILDCOUNT", tvChildCount.text.toString().toInt())
                 putExtra("OLDCOUNT", tvOldCount.text.toString().toInt())
             }
+
+//            var cookie = SampleModule.provideSharedPref(this.applicationContext)
+            println("main cookie : ${sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: ""}")
 
             startActivity(intent)
         }

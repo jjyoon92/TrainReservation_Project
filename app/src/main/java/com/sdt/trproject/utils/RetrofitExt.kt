@@ -2,6 +2,7 @@ package com.sdt.trproject.utils
 
 import android.content.Context
 import com.google.gson.Gson
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -55,25 +56,29 @@ inline fun <reified RESPONSE> RetrofitRequestService.requestOperation(
     crossinline successListener: (response: RESPONSE) -> Unit
 ) {
     val call = onRequest(requestPath, requestBody)
+    println("call : $call")
+    println("보낸거 있음? : ${requestBody.toString()}")
     call.enqueue(object : Callback<ResponseBody> {
         override fun onResponse(
             call: Call<ResponseBody>,
             response: Response<ResponseBody>
         ) {
+            println("응답 있음? : ${response.body()}")
             if (!response.isSuccessful) {
                 onFailure(
                     call, t = HttpException(
-                        Response.error<RESPONSE>(response.code(), "요청 실패".toResponseBody(null))
+                        Response.error<RESPONSE>(1000 + response.code(), "요청 실패".toResponseBody("text/plain".toMediaType()))
                     )
                 )
                 return
             }
 
             val apiResponse = response.body()
+            println("응답 확인 : $apiResponse")
             if (apiResponse == null) {
                 onFailure(
                     call, t = HttpException(
-                        Response.error<RESPONSE>(500, "응답 없음".toResponseBody(null))
+                        Response.error<RESPONSE>(1000 + 500, "응답 없음".toResponseBody("text/plain".toMediaType()))
                     )
                 )
                 return

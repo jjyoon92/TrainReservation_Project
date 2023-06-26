@@ -50,11 +50,12 @@ object SampleModule { // 싱글톤 객체, 상수화된 객체
         return OkHttpClient.Builder()
             .cookieJar(AppCookieJar(context))
             .addInterceptor {
+                val cookie = sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: "";
                 val newRequest = it.request().newBuilder().headers(
                     Headers.headersOf(
                         //SharedPrefKeys.SET_COOKIE
                         SharedPrefKeys.COOKIE,
-                        sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: ""
+                        cookie
                         //, sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") !!
                     )
                 ).build()
@@ -67,7 +68,6 @@ object SampleModule { // 싱글톤 객체, 상수화된 객체
                 response
             }
             .build()
-
     }
 
     @Provides
