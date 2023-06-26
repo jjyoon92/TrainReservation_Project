@@ -4,12 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import com.sdt.trproject.databinding.ActivityLoginBinding
-import okhttp3.JavaNetCookieJar
-import okhttp3.OkHttpClient
-import java.net.CookieManager
 
 
 class LoginActivity : AppCompatActivity() {
@@ -60,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
         member_find_btn = findViewById(R.id.member_find_btn)
 
         member_find_btn.setOnClickListener(){
-            val intent = Intent(this@LoginActivity,UserNumFindMainActivity::class.java)
+            val intent = Intent(this@LoginActivity,FindUserIdMainActivity::class.java)
             startActivity(intent)
         }
 
