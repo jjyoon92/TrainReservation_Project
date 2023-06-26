@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/mid_gray"
-    style=""
-    tools:context=".MainActivity">
+    >
 
     <include layout="@layout/include_guideline_left"/>
     <include layout="@layout/include_guideline_right"/>
@@ -183,23 +182,41 @@
         app:layout_constraintTop_toBottomOf="@+id/btnOpenDepartureCalendar" />
 
     <!-- 인원 선택 버튼 -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/llAgeCountContainer"
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal"
+        android:background="@drawable/station_select_button_style"
         app:layout_constraintEnd_toEndOf="@+id/mainGuidelineVerticalRight"
         app:layout_constraintStart_toStartOf="@+id/mainGuidelineVerticalLeft"
         app:layout_constraintTop_toBottomOf="@+id/btnOpenReturnCalendar">
-
+        <TextView
+            android:id="@+id/adulttext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/adult"
+            android:textSize="14dp"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toTopOf="@+id/llAdultAgeCountWrap"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/childrentext"
+            />
         <LinearLayout
             android:id="@+id/llAdultAgeCountWrap"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="3dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/llChildAgeCountWrap"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+
 
             <Button
                 android:id="@+id/btnAdultMinus"
@@ -235,14 +252,29 @@
                 android:textSize="@dimen/text_size_medium"
                 android:text="@string/plus" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/childrentext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/children"
+            android:textSize="14dp"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toTopOf="@+id/llChildAgeCountWrap"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/adulttext"
+            app:layout_constraintRight_toLeftOf="@+id/oldtext"
 
+            />
         <LinearLayout
             android:id="@+id/llChildAgeCountWrap"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="3dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toRightOf="@+id/llAdultAgeCountWrap"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/llChildOldCountWrap">
 
             <Button
                 android:id="@+id/btnChildMinus"
@@ -278,13 +310,27 @@
                 android:textSize="@dimen/text_size_medium"
                 android:text="@string/plus" />
         </LinearLayout>
-
+        <TextView
+            android:id="@+id/oldtext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/old"
+            android:textSize="14dp"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toTopOf="@+id/llChildOldCountWrap"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/childrentext"
+            />
         <LinearLayout
             android:id="@+id/llChildOldCountWrap"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/llChildAgeCountWrap"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <Button
                 android:id="@+id/btnOldMinus"
@@ -321,16 +367,17 @@
                 android:text="@string/plus" />
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/btnSearchTrain"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:text="@string/search_for_train"
         android:textStyle="bold"
         android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/white"
         android:background="@drawable/custom_button_background"
         app:layout_constraintEnd_toEndOf="@+id/mainGuidelineVerticalRight"
         app:layout_constraintStart_toStartOf="@+id/mainGuidelineVerticalLeft"
@@ -342,6 +389,7 @@
         android:id="@+id/mainBannerImage"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/must_travel"
         app:layout_constraintStart_toStartOf="@id/mainGuidelineVerticalLeft"
         app:layout_constraintEnd_toEndOf="@id/mainGuidelineVerticalRight"
