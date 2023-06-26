@@ -22,13 +22,17 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.sdt.trproject.di.SampleModule
 import com.sdt.trproject.ksh.HelloworldActivity
+import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
+import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -40,11 +44,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.properties.Delegates
 
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
@@ -73,9 +80,9 @@ class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var btnAdultMinus: Button
     private lateinit var btnAdultPlus: Button
     private lateinit var tvAdultCount: TextView
-    private lateinit var btnKidMinus: Button
-    private lateinit var btnKidPlus: Button
-    private lateinit var tvKidCount: TextView
+    private lateinit var btnChildMinus: Button
+    private lateinit var btnChildPlus: Button
+    private lateinit var tvChildCount: TextView
     private lateinit var btnOldMinus: Button
     private lateinit var btnOldPlus: Button
     private lateinit var tvOldCount: TextView
@@ -97,35 +104,64 @@ class MainActivity : BaseActivity(), OnClickListener {
     // 앱 바 맴버 END
     // appbar 작업
 
+    // Retrofit HILT
+    @Inject
+    lateinit var trainApiService: TrainApiService
 
     // httpClient
-    private val httpClient by lazy { OkHttpClient() }
+//    private val httpClient by lazy { OkHttpClient() }
 
     // SharedPreferences 인스턴스 생성
     private val sharedPreferences by lazy {
-        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
+//        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
         getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
     }
     // ******* 차후 작업 공간 끝 *******
 
+//    private var trainApiService: TrainApiService
 
-    companion object RetrofitBuilder {
-        var trainApiService: TrainApiService
+//    private lateinit var appCookieJar: AppCookieJar
+//
 
-        init {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BuildConfig.SERVER_ADDR)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+    @Inject
+    lateinit var httpClient: OkHttpClient
+//    private val httpClient: OkHttpClient by lazy {
+//        OkHttpClient.Builder()
+//            .cookieJar(JavaNetCookieJar(CookieManager()))
+////        .cookieJar(appCookieJar)
+//            .build()
+//    }
+//
+//    init {
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl(BuildConfig.SERVER_ADDR)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(client)
+//            .build()
+//
+//        trainApiService = retrofit.create(TrainApiService::class.java)
+//    }
 
-            trainApiService = retrofit.create(TrainApiService::class.java)
-        }
-    }
+//    companion object RetrofitBuilder {
+//        var trainApiService: TrainApiService
+//
+//        init {
+//            val retrofit = Retrofit.Builder()
+//                .baseUrl(BuildConfig.SERVER_ADDR)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+//
+//            trainApiService = retrofit.create(TrainApiService::class.java)
+//        }
+//    }
 
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // appCookieJar 초기화
+//        appCookieJar = AppCookieJar(this)
 
 //        addTrailing(R.layout.item_trailing)?.setOnClickListener {
 //            Toast.makeText(this@MainActivity, "Hello", Toast.LENGTH_SHORT).show()
@@ -237,27 +273,27 @@ class MainActivity : BaseActivity(), OnClickListener {
         btnAdultMinus = findViewById<Button>(R.id.btnAdultMinus)
         btnAdultPlus = findViewById<Button>(R.id.btnAdultPlus)
         tvAdultCount = findViewById<TextView>(R.id.tvAdultCount)
-        btnKidMinus = findViewById<Button>(R.id.btnChildMinus)
-        btnKidPlus = findViewById<Button>(R.id.btnChildPlus)
-        tvKidCount = findViewById<TextView>(R.id.tvChildCount)
+        btnChildMinus = findViewById<Button>(R.id.btnChildMinus)
+        btnChildPlus = findViewById<Button>(R.id.btnChildPlus)
+        tvChildCount = findViewById<TextView>(R.id.tvChildCount)
         btnOldMinus = findViewById<Button>(R.id.btnOldMinus)
         btnOldPlus = findViewById<Button>(R.id.btnOldPlus)
         tvOldCount = findViewById<TextView>(R.id.tvOldCount)
 
         val adultCount = 1
-        val kidCount = 0
+        val childCount = 0
         val oldCount = 0
 
         val formattedAdultCount = getString(R.string.adult_count)
-        val formattedKidCount = getString(R.string.child_count)
+        val formattedChildCount = getString(R.string.child_count)
         val formattedOldCount = getString(R.string.old_count)
 
         tvAdultCount.text = formattedAdultCount
-        tvKidCount.text = formattedKidCount
+        tvChildCount.text = formattedChildCount
         tvOldCount.text = formattedOldCount
 
         setupCounterButton(btnAdultPlus, btnAdultMinus, tvAdultCount)
-        setupCounterButton(btnKidPlus, btnKidMinus, tvKidCount)
+        setupCounterButton(btnChildPlus, btnChildMinus, tvChildCount)
         setupCounterButton(btnOldPlus, btnOldMinus, tvOldCount)
 
         btnSearchTrain = findViewById(R.id.btnSearchTrain)
@@ -597,7 +633,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         val departureDate = departureDate
         val departureTime = selectedDepartureTime
         val adultCount = tvAdultCount.text
-        val kidCount = tvKidCount.text
+        val childCount = tvChildCount.text
         val oldCount = tvOldCount.text
 
 
@@ -606,7 +642,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         jsonObject.put("arriveStation", arrivalStation)
         jsonObject.put("date", departureDate)
         jsonObject.put("adult", adultCount)
-        jsonObject.put("kid", kidCount)
+        jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
         val requestBody = jsonObject.toString()
@@ -620,10 +656,26 @@ class MainActivity : BaseActivity(), OnClickListener {
             ) {
                 if (response.isSuccessful) {
                     // 서버 응답 처리
+                    val headers = response.headers()
+                    val cookies = headers.values("Set-Cookie")
+                    println("cookies 확인 : $cookies")
+                    for (cookie in cookies) {
+                        println("받은 쿠키 : $cookie")
+                    }
                     val apiResponse = response.body()
 //                    println("response.message() : " + response.message())
                     // TODO: 서버 응답에 대한 로직 추가
                     println("요청 성공")
+
+                    val cookieHeaderValue =
+                        response.headers()["Set-Cookie"]?: ""
+                    if ( cookieHeaderValue.isNotEmpty()) {
+                        val editor = sharedPreferences.edit()
+                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
+                        editor.apply()
+                    }
+
+
                     handleOnewayTrainResponse(apiResponse)
                 } else {
                     // 서버 응답 실패
@@ -662,12 +714,16 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("DATA", dataString)
                 putExtra("DEPARTURESTATION", btnDepartureStationSelectText)
                 putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
+                putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
                 putExtra("DEPARTUREDATE", departureDate)
                 putExtra("DEPARTURETIME", selectedDepartureTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text.toString().toInt())
-                putExtra("KIDCOUNT", tvKidCount.text.toString().toInt())
+                putExtra("CHILDCOUNT", tvChildCount.text.toString().toInt())
                 putExtra("OLDCOUNT", tvOldCount.text.toString().toInt())
             }
+
+//            var cookie = SampleModule.provideSharedPref(this.applicationContext)
+            println("main cookie : ${sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: ""}")
 
             startActivity(intent)
         }
@@ -688,7 +744,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         val returnDate = returnDate
         val returnDateTime = selectedReturnTime
         val adultCount = tvAdultCount.text
-        val kidCount = tvKidCount.text
+        val childCount = tvChildCount.text
         val oldCount = tvOldCount.text
 
 
@@ -697,7 +753,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         jsonObject.put("arriveStation", arrivalStation)
         jsonObject.put("date", departureDate)
         jsonObject.put("adult", adultCount)
-        jsonObject.put("kid", kidCount)
+        jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
         val requestBody = jsonObject.toString()
@@ -760,7 +816,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("RETURNDATE", returnDate)
                 putExtra("RETURNTIME", selectedReturnTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text)
-                putExtra("KIDCOUNT", tvKidCount.text)
+                putExtra("CHILDCOUNT", tvChildCount.text)
                 putExtra("OLDCOUNT", tvOldCount.text)
             }
 
@@ -775,7 +831,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
     fun authorized(loginBtnInAppbarFooter: TextView) {
-        val url = "${BuildConfig.SERVER_ADDR}/member/authorized"
+        val url = "${BuildConfig.SERVER_ADDR}/member/authorized/member"
         val gson = Gson()
         val data = ""
         val json = gson.toJson(data)
@@ -826,7 +882,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
                     val responseResult = jsonString.getString("result")
 
-                    Log.d("/member/authorized3", "${responseData}")
+//                    Log.d("/member/authorized3", "${responseData}")
                     Log.d("이거 확인좀", (SharedPrefKeys.SET_COOKIE))
                     Log.d(
                         "이거 확인좀",

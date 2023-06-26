@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.sdt.trproject.databinding.FragmentLoginUserNumBinding
 import com.google.gson.Gson
+import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -48,7 +49,8 @@ class LoginUserNumFragment : Fragment() {
     // OkHttpClient 인스턴스 생성
     private val httpClient by lazy {
         OkHttpClient().newBuilder().apply {
-            cookieJar(JavaNetCookieJar(CookieManager()))
+//            cookieJar(JavaNetCookieJar(CookieManager()))
+            cookieJar(AppCookieJar(requireContext()))
         }.build()
     }
 
@@ -121,6 +123,9 @@ class LoginUserNumFragment : Fragment() {
             val memberId = userNumId.text.toString()
             val memberPw = userPw.text.toString()
 
+            println("memberId : $memberId")
+            println("memberPw : $memberPw")
+
             if (saveUserNumBtn.isChecked) { // 회원번호 저장 체크박스가 체크된 경우
                 // 사용자 번호 저장
                 val editor = sharedPreferences.edit()
@@ -158,6 +163,7 @@ class LoginUserNumFragment : Fragment() {
         // 요청을 보낼 URL 설정
         val url = "${BuildConfig.SERVER_ADDR}/member/login"
 
+
         val gson = Gson()
         val data = MyData(id, pw)
         val json = gson.toJson(data)
@@ -183,6 +189,7 @@ class LoginUserNumFragment : Fragment() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                println("응답 뭐옴 : ? $response")
 
                 if (!response.isSuccessful) {
 
@@ -195,9 +202,10 @@ class LoginUserNumFragment : Fragment() {
                 }
 
                 val responseData = response.body?.string()
+                println("responseData : $responseData")
                 // 응답 데이터 처리
                 lifecycleScope.launch(Dispatchers.Main) {
-
+                    println("여기 실행됨?????")
 //                    response.headers.forEach {
 //                        println("${it.first} : ${it.second} ")
 //
@@ -218,11 +226,16 @@ class LoginUserNumFragment : Fragment() {
 
                     // 쿠키 변수
                     val cookies = response.headers(SharedPrefKeys.SET_COOKIE)
+                    println("cookies : $cookies")
 
                     val jsonString = JSONObject(responseData)
 
                     val responseResult = jsonString.getString("result")
-                    val messageResult = jsonString.getString("message")
+//                    val messageResult: String? = jsonString.getString("message")
+
+//                    Log.d("login에러확인", "$responseResult, $messageResult")
+                    println("responseResult : $responseResult")
+//                    println("messageResult : $messageResult")
 
                     // SingUpActivity 로 넘기기
                     // key : JSESSIONID
@@ -242,12 +255,19 @@ class LoginUserNumFragment : Fragment() {
                             startActivity(intent)
                             activity.finish()
                         }
+                        "failure" -> {
+                            val messageResult: String? = jsonString.getString("message")
 
-                        "아이디 없다" -> {
-                            Log.d("message","message : ${messageResult}")
-                            showToast("아이디 비밀번호를 확인해주세요.")
+                            if (messageResult.equals("input_error")) showToast("아이디가 존재하지 않습니다.")
+                            if (messageResult.equals("password_no_match")) showToast("비밀번호를 확인해주세요.")
 
+                            Log.d("message", "message : ${messageResult}")
                         }
+
+//                        "아이디 없다" -> {
+//                            Log.d("message", "message : ${messageResult}")
+//                            showToast("아이디 비밀번호를 확인해주세요.")
+//                        }
                     }
                 }
             }
