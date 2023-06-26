@@ -38,7 +38,7 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.View
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.title);
-            date = itemView.findViewById(R.id.date);
+
 
         }
 
@@ -46,13 +46,7 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.View
             return title;
         }
 
-        public TextView getDate() {
-            return date;
-        }
 
-        public void setDate(TextView date) {
-            this.date = date;
-        }
 
         public void setTitle(TextView title) {
             this.title = title;
@@ -74,13 +68,13 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.View
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String title ="";
                 int position = viewHolder.getAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) {
                     return;
                 }
-                BoardVo context = mDataSet.get(position);
-                itemClickListener.onItemClicked(position,context);
+                BoardVo boardVo = mDataSet.get(position);
+
+                itemClickListener.onItemClicked(position,boardVo);
             }
         });
         //==================================================================
@@ -96,7 +90,6 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.View
 
         BoardVo context = mDataSet.get(position);
         holder.title.setText(context.getTitle());
-        holder.date.setText(context.getCreateDate());
 
     }
 

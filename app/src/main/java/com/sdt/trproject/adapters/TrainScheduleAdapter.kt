@@ -1,6 +1,5 @@
 package com.sdt.trproject.adapters
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -20,12 +19,18 @@ import com.google.gson.Gson
 import com.sdt.trproject.BuildConfig
 import com.sdt.trproject.R
 import com.sdt.trproject.ReservationDetailActivity
+import com.sdt.trproject.network.AppCookieJar
 import com.sdt.trproject.services.RequestTrainReservationResponse
 import com.sdt.trproject.services.RequestTrainSeatsItem
 import com.sdt.trproject.services.RequestTrainSeatsResponse
 import com.sdt.trproject.services.TrainApiService
 import com.sdt.trproject.services.SearchTrainScheduleItem
+import com.sdt.trproject.utils.request
+import com.sdt.trproject.utils.showToast
+import dagger.hilt.android.qualifiers.ActivityContext
+import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
@@ -34,24 +39,17 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
-class trainScheduleAdapter(
-    private val context: Context,
-    private val recyclerView: RecyclerView,
-    private val activity: Activity,
-    private val departureStation: String?,
-    private val arrivalStation: String?,
-    private val departureDate: String?,
-    private val departureTime: Int?,
-    private val returnDate: String?,
-    private val returnTime: Int?,
-    private val adultCount: Int?,
-    private val kidCount: Int?,
-    private val oldCount: Int?,
-) : RecyclerView.Adapter<trainScheduleAdapter.ViewHolder>() {
+class TrainScheduleAdapter @Inject constructor(
+    @ActivityContext private val context: Context,
+    private var trainApiService: TrainApiService,
+
+    ) : RecyclerView.Adapter<TrainScheduleAdapter.ViewHolder>() {
     private val scheduleItems: MutableList<SearchTrainScheduleItem> = mutableListOf()
     private val seatItems: MutableList<RequestTrainSeatsItem> = mutableListOf()
     private var lastCheckedPosition = -1
@@ -59,29 +57,49 @@ class trainScheduleAdapter(
     private var currentPosition = -1
     private var remainingSeats: List<String>? = null
 
+    private lateinit var recyclerView: RecyclerView
+    private var departureStation: String = ""
+    private var arrivalStation: String = ""
+    private var departureDate: String = ""
+    private var departureTime: Int = 0
+    private var returnDate: String = ""
+    private var returnTime: Int = 0
+    private var adultCount: Int = 0
+    private var childCount: Int = 0
+    private var oldCount: Int = 0
 
 
-    companion object RetrofitBuilder {
-        private var trainApiService: TrainApiService
-
-        init {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BuildConfig.SERVER_ADDR)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            trainApiService = retrofit.create(TrainApiService::class.java)
-        }
-
-        const val TRAIN_NO = "TRAIN_NO"
-        const val CARRIAGE = "CARRIAGE"
-        const val SEAT = "SEAT"
-        const val DATE = "DATE"
-        const val DEPARTSTATION = "DEPARTSTATION"
-        const val ARRIVESTATION = "ARRIVESTATION"
-        const val DEPARTTIME = "DEPARTTIME"
-        const val ARRIVETIME = "ARRIVETIME"
+    fun initData(
+        recyclerView: RecyclerView,
+        departureStation: String,
+        arrivalStation: String,
+        departureDate: String,
+        departureTime: Int,
+        returnDate: String,
+        returnTime: Int,
+        adultCount: Int,
+        childCount: Int,
+        oldCount: Int
+    ) {
+        this.recyclerView = recyclerView
+        this.departureStation = departureStation
     }
+
+
+//    private val client: OkHttpClient = OkHttpClient.Builder()
+//        .cookieJar(JavaNetCookieJar(CookieManager()))
+////        .cookieJar(AppCookieJar(context))
+//        .build()
+
+//    init {
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl(BuildConfig.SERVER_ADDR)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(client)
+//            .build()
+//
+//        trainApiService = retrofit.create(TrainApiService::class.java)
+//    }
 
 
     fun setData(data: List<SearchTrainScheduleItem>) {
@@ -93,30 +111,48 @@ class trainScheduleAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): trainScheduleAdapter.ViewHolder {
-        val view = LayoutInflater.from(parent.context)
+    ): TrainScheduleAdapter.ViewHolder {
+        val view = LayoutInflater.from(context)
             .inflate(R.layout.train_schedule_list_item, parent, false)
-        return ViewHolder(view, context, departureStation, arrivalStation, departureDate, adultCount, kidCount, oldCount)
+        return ViewHolder(
+            view,
+            departureStation,
+            arrivalStation,
+            departureDate,
+            adultCount,
+            childCount,
+            oldCount
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = scheduleItems[position]
         holder.bind(item, position)
-
     }
 
     override fun getItemCount(): Int {
         return scheduleItems.size
     }
 
-    inner class ViewHolder(itemView: View, private val context: Context, departureStation: String?, arrivalStation: String?, departureDate: String?, adultCount: Int?, kidCount: Int?, oldCount: Int?) :
+    inner class ViewHolder(
+        itemView: View,
+        departureStation: String?,
+        arrivalStation: String?,
+        departureDate: String?,
+        adultCount: Int?,
+        childCount: Int?,
+        oldCount: Int?
+    ) :
         RecyclerView.ViewHolder(itemView) {
+
+        private val context: Context
+            get() = itemView.context
 
         private val departureStation: String? = departureStation
         private val arrivalStation: String? = arrivalStation
         private val departureDate: String? = departureDate
         private val adultCount: Int? = adultCount
-        private val kidCount: Int? = kidCount
+        private val childCount: Int? = childCount
         private val oldCount: Int? = oldCount
 
         private val selectedColor = ContextCompat.getColor(context, R.color.primary)
@@ -157,15 +193,19 @@ class trainScheduleAdapter(
 
         }
 
-        fun sendRequestReservationTrain(item: RequestTrainSeatsItem, seat: String) {
+        fun sendRequestReservationTrain(
+            item: SearchTrainScheduleItem,
+            carriage: Int,
+            seat: String
+        ) {
             val trainNo = item.trainNo
-            val carriage = item.carriage
+            val carriage = carriage
             val seat = seat
-            val departureStation = departureStation
-            val departureTime = item.departureTime.replace(":", "")
-            val arrivalStation = arrivalStation
-            val arrivalTime = item.arrivalTime.replace(":", "")
-            val date = item.date.replace("-", "")
+            val departureStation = item.depPlaceName
+            val departureTime = item.depPlandTime
+            val arrivalStation = item.arrPlaceName
+            val arrivalTime = item.arrPlandTime
+            val date = item.date
 
             val jsonObject = JSONObject()
             jsonObject.put("trainNo", trainNo)
@@ -181,38 +221,60 @@ class trainScheduleAdapter(
             jsonArray.put(jsonObject)
 
             println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
-
-            val requestBody = jsonArray.toString()
-                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
-            val call = trainApiService.requestTrainReservation(requestBody)
-            call.enqueue(object : Callback<RequestTrainReservationResponse> {
-                override fun onResponse(
-                    call: Call<RequestTrainReservationResponse>,
-                    response: Response<RequestTrainReservationResponse>
-                ) {
-                    if (!response.isSuccessful) {
-                        println("예약 실패")
-
-                        return
-                    }
-
-                    val apiResponse = response.body()
-                    handleRequestTrainReservationResponse(apiResponse, item)
-
+            println("jsonArray : $jsonArray")
+            trainApiService.request<RequestTrainReservationResponse>(
+                context = context,
+                requestPath = TrainApiService.TRAIN_RESERVATION,
+                data = jsonArray,
+                failListener = { message: String, httpCode: Int ->
+                    println("message : $message, httpCode : $httpCode")
                 }
-
-                override fun onFailure(call: Call<RequestTrainReservationResponse>, t: Throwable) {
-                    TODO("Not yet implemented")
-                }
-            })
-
+            ) {
+                handleRequestTrainReservationResponse(it, scheduleItems[adapterPosition])
+            }
+//            val requestBody = jsonArray.toString()
+//                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+//
+//            val call = trainApiService.requestTrainReservation(requestBody)
+//            call.enqueue(object : Callback<RequestTrainReservationResponse> {
+//                override fun onResponse(
+//                    call: Call<RequestTrainReservationResponse>,
+//                    response: Response<RequestTrainReservationResponse>
+//                ) {
+//                    if (!response.isSuccessful) {
+//                        onFailure(call, t = HttpException(
+//                            Response.error<RequestTrainReservationResponse>(response.code(), "예약 실패".toResponseBody(null))
+//                        ))
+//                        return
+//                    }
+//
+//                    val apiResponse = response.body()
+//                    if (apiResponse == null ) {
+//                        onFailure(call, t = HttpException(
+//                            Response.error<RequestTrainReservationResponse>(500, "응답 없음".toResponseBody(null))
+//                        ))
+//                        return
+//                    }
+//                    println("apiResponse : $apiResponse.toString()")
+//                    handleRequestTrainReservationResponse(apiResponse, scheduleItems[adapterPosition])
+//                }
+//
+//                override fun onFailure(call: Call<RequestTrainReservationResponse>, t: Throwable) {
+//                    TODO("Not yet implemented")
+//                }
+//            })
         }
 
         fun handleRequestTrainReservationResponse(
-            requestTrainReservationResponse: RequestTrainReservationResponse?,
-            item: RequestTrainSeatsItem,
+            response: RequestTrainReservationResponse,
+            item: SearchTrainScheduleItem,
         ) {
+
+            if (response.result == "failure") {
+                context.showToast("예약 실패")
+                return
+            }
+
             println("예약 성공!")
 
             val intent = Intent(context, ReservationDetailActivity::class.java).apply {
@@ -220,12 +282,12 @@ class trainScheduleAdapter(
                 putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
 //                    putExtra("SEAT", selected)
                 putExtra("DATE", item.date)
-                putExtra("DEPARTSTATION", item.departureStation)
-                putExtra("DEPARTTIME", item.departureTime)
-                putExtra("ARRIVESTATION", item.arrivalStation)
-                putExtra("ARRIVETIME", item.arrivalTime)
+                putExtra("DEPARTSTATION", item.depPlaceName)
+                putExtra("DEPARTTIME", item.depPlandTime)
+                putExtra("ARRIVESTATION", item.arrPlaceName)
+                putExtra("ARRIVETIME", item.arrPlandTime)
                 putExtra("ADULTCOUNT", adultCount)
-                putExtra("CHILDCOUNT", kidCount)
+                putExtra("CHILDCOUNT", childCount)
                 putExtra("OLDCOUNT", oldCount)
             }
 
@@ -263,6 +325,8 @@ class trainScheduleAdapter(
                     }
 
                     val apiResponse = response.body()
+
+
                     handleRequestTrainSeatsResponse(apiResponse, item, carriage)
                 }
 
@@ -306,7 +370,7 @@ class trainScheduleAdapter(
                 val allStandardSeats =
                     listOf("1A", "2A", "3A", "4A", "1B", "2B", "3B", "4B", "1C", "2C", "3C", "4C")
                 val remainingSeats =
-                    if ( carriage == 2 ) {
+                    if (carriage == 2) {
                         allPremiumSeats.filter { !seatList.contains(it) }
                     } else {
                         allStandardSeats.filter { !seatList.contains(it) }
@@ -317,14 +381,18 @@ class trainScheduleAdapter(
                 println("예약 가능한 좌석: $remainingSeats")
 
                 // seatItems 리스트에 데이터 추가
-                seatItems.clear()
-                seatItems.addAll(data)
+//                seatItems.clear()
+//                seatItems.addAll(data)
 
                 // 예약을 위한 정보 전달
-                val selectedSeatItem = seatItems.find { it.trainNo == item.trainNo.toString() }
-                selectedSeatItem?.let {
-                    sendRequestReservationTrain(it, seat = remainingSeats[0])
-                }
+//                val selectedSeatItem = seatItems.find { it.trainNo == item.trainNo.toString() }
+//                selectedSeatItem?.let {
+                sendRequestReservationTrain(
+                    scheduleItems[adapterPosition],
+                    carriage,
+                    seat = remainingSeats[0]
+                )
+//                }
 
 //                seatSelectionListener.onSeatAndPersonSelected(selectedSeat, )
             }
@@ -350,7 +418,6 @@ class trainScheduleAdapter(
             }
 
             // 드롭다운 메뉴 숨기기
-
 
 
             if (lastCheckedPosition != adapterPosition) {

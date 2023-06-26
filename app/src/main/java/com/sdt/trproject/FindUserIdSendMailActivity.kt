@@ -4,9 +4,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +28,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.Timer
 
-class UserNumFindSendMailActivity : AppCompatActivity() {
+class FindUserIdSendMailActivity : AppCompatActivity() {
 
 
     // 비밀번호 변수
@@ -37,12 +37,12 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
     private lateinit var inputEmail3: TextView
     private lateinit var emailAutoComplete: AutoCompleteTextView
 
-    private lateinit var userFindTokenSendBtn: Button
+    private lateinit var userFindTokenSendBtn: TextView
     private lateinit var timerTextView: TextView
 
     //토큰 인증 관련 변수
     private lateinit var userFindTokenText: TextView
-    private lateinit var userFindTokenMatchBtn: Button
+    private lateinit var userFindTokenMatchBtn: TextView
 
     // 타이머 관련 변수
     private var timer: Timer? = null
@@ -54,7 +54,7 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_user_num_find_send_mail)
+        setContentView(R.layout.activity_find_user_id_send_mail)
 
         inputEmail3 = findViewById(R.id.inputEmail3)
 
@@ -78,13 +78,13 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
         timerTextView = findViewById(R.id.timerTextView)
 
 
-        var emailSvae: String = ""
+        var emailSave: String = ""
 
         userFindTokenSendBtn.setOnClickListener() {
 
             val emailJoin: String =
                 inputEmail3.text.toString() + "@" + emailAutoComplete.text.toString()
-            emailSvae = emailJoin
+            emailSave = emailJoin
             // 'Send' 버튼을 비활성화하여 중복 클릭 방지
             userFindTokenSendBtn.isEnabled = false
 
@@ -99,9 +99,9 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
         // 이메일 코드 매칭
         userFindTokenMatchBtn.setOnClickListener() {
+             Log.d("matchEmailCode 저장 함수" , " ${emailSave},${userFindTokenText.text.toString()}")
+            matchEmailCode(emailSave, userFindTokenText.text.toString())
 
-            matchEmailCode(emailSvae, userFindTokenText.text.toString())
-            println(matchEmailCode(emailSvae, userFindTokenText.text.toString()))
 
         }
 
@@ -169,11 +169,12 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
                     when (responseResult) {
 
-                        "Not Duplication" -> showToast("이메일과 일치하는 회원이 없습니다.")
+                        "success" -> showToast("이메일과 일치하는 회원이 없습니다.")
 
-                        "Duplication" -> {
+                        "failure" -> {
                             userFindSendEmail(email)
-                            showToast("이메일 값을 성공적으로 전송했습니다.")}
+                            showToast("이메일 값을 성공적으로 전송했습니다.")
+                        }
 
                         else -> showToast("알 수 없는 오류")
 
@@ -185,6 +186,56 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
             }
         })
     }
+
+//    private fun matchEmailCodeAndGiveId(email: String, authCode: String) {
+//
+//        val url = "${BuildConfig.SERVER_ADDR}/member/findid/matchEmailCodeAndGiveId"
+//        val gson = Gson()
+//        val data = AuthCode(email, authCode)
+//        val json = gson.toJson(data)
+//        val mediaType = "application/json".toMediaType()
+//        val requestBody = json.toRequestBody(mediaType)
+//
+//        val request = Request.Builder()
+//            .url(url)
+//            .post(requestBody)
+//            .build()
+//
+//        httpClient.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                e.printStackTrace()
+//                lifecycleScope.launch(Dispatchers.Main) {
+//                    Log.d("matchEmailCodeAndGiveId_ERROR", "IOException")
+//                    showToast("회원번호를 받아오는데 실패 했습니다")
+//                }
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                if (!response.isSuccessful) {
+//                    lifecycleScope.launch(Dispatchers.Main) {
+//                        Log.d("matchEmailCodeAndGiveId_ERROR", "Response")
+//                        showToast("회원번호를 받아오는데 실패 했습니다")
+//                    }
+//                    return
+//                }
+//
+//                val responseData = response.body?.string()
+//
+//                println(responseData)
+//
+//                val responseResult = "result"
+//
+//                lifecycleScope.launch(Dispatchers.Main) {
+//
+//                }
+//
+//            }
+//
+//        })
+//
+//
+//    }
+
 
     private fun userFindSendEmail(email: String) {
         // 이메일 요청 구현
@@ -233,15 +284,23 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
                 val responseData = response.body?.string()
                 // 응답 데이터 처리
                 println(responseData)
+
+                val jsonString = JSONObject(responseData)
+
+                val responseResult = jsonString.getString("result")
+
                 lifecycleScope.launch(Dispatchers.Main) {
                     showToast("이메일 전송에 성공.")
-                    if (responseData == "{\"result\":\"success\"}") {
+
+                    if (responseResult == "success") {
                         if (remainingSeconds != 0 or 90) {
                             remainingSeconds = 90
                             timerTextView.text = remainingSeconds.toString()
                             timer = null
+
                         }
                         startTimer()
+
                     } else {
                         showToast("코드오류")
                     }
@@ -256,7 +315,7 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
     private fun matchEmailCode(email: String, authCode: String) {
         // 요청을 보낼 URL 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/register/matchEmailCode"
+        val url = "${BuildConfig.SERVER_ADDR}/member/findId/matchEmailCodeAndGiveId"
 
         val gson = Gson()
         val data = AuthCode(email, authCode)
@@ -268,6 +327,8 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
             .url(url)
             .post(requestBody)
             .build()
+
+        Log.d("matchEmailCode", "matchEmailCode 함수 시작")
 
         httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -300,6 +361,9 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
                 // 응답 데이터 처리
                 println(responseData)
 
+                val JsonString = JSONObject(responseData)
+                val responseResult = JsonString.getString("result")
+
                 lifecycleScope.launch(Dispatchers.Main) {
 
                     when (timerTextView.text) {
@@ -308,32 +372,34 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
                         else ->
 
-                            when (responseData) {
-                                "{\"result\":\"EmailFail\"}" -> {
+                            when (responseResult) {
+
+                                "email_no_match" -> {
 
                                     showToast("인증번호를 확인해주세요")
 
                                 }
 
-                                "{\"result\":\"expired\"}" -> {
+                                "auth_code_expired" -> {
                                     showToast("인증번호 기한이 만료되었습니다.")
                                 }
 
-                                "{\"result\":\"success\"}" -> {
+                                "success" -> {
                                     showToast("인증에 성공했습니다.")
-                                    val intent =
-                                        Intent(
-                                            this@UserNumFindSendMailActivity,
-                                            UserNumPage::class.java
-                                        )
-                                    this@UserNumFindSendMailActivity.startActivity(intent)
+                                    val userId = JsonString.getString("data")
+                                    Log.d("UserID",userId)
+//                                    matchEmailCodeAndGiveId(email, authCode)
+
+                                    val intent = Intent(this@FindUserIdSendMailActivity, FindUserIdResultPage::class.java)
+                                    intent.putExtra(FindUserIdResultPage.INPUT_USER_ID, userId)
+                                    startActivity(intent)
                                     stopTimer()
                                     timerTextView.text = ""
                                 }
 
                                 else -> {
                                     showToast("코드오류")
-                                    println(responseData)
+                                    println(responseResult)
 
                                 }
                             }
@@ -385,7 +451,8 @@ class UserNumFindSendMailActivity : AppCompatActivity() {
 
 
     private fun showToast(message: String) {
-        Toast.makeText(this@UserNumFindSendMailActivity, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@FindUserIdSendMailActivity, message, Toast.LENGTH_SHORT).show()
     }
 
 }
+
