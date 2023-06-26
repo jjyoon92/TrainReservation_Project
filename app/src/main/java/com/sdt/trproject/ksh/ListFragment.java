@@ -1,6 +1,7 @@
 package com.sdt.trproject.ksh;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.sdt.trproject.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -25,32 +27,30 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ListFragment extends Fragment implements View.OnClickListener {
+    private View mRootView;
     private BoardListAdapter mBoardAdapter;
     private EditText mSearchText;
+    private List<BoardVo> boardVo;
+    private ArrayList<Integer> integerArrayList;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_list, container, false);
-        return view;
-    }
+        if(mRootView != null) {
+            return mRootView;
+        }
+        mRootView = inflater.inflate(R.layout.fragment_list, container, false);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        RecyclerView mRecyclerView = view.findViewById(R.id.recyclerView);
+        RecyclerView mRecyclerView = mRootView.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mRecyclerView.getContext());
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mBoardAdapter = new BoardListAdapter();
         mRecyclerView.setAdapter(mBoardAdapter);
 
-        ImageButton mSearchButton = view.findViewById(R.id.search_btn);
-        mSearchText = view.findViewById(R.id.search_edt);
+        ImageButton mSearchButton = mRootView.findViewById(R.id.search_btn);
+        mSearchText = mRootView.findViewById(R.id.search_edt);
         mSearchButton.setOnClickListener(this);
-
-        refresh();
-
 
         mBoardAdapter.setOnItemClickListener(new BoardListAdapter.OnItemClickListener() {
             @Override
@@ -59,11 +59,28 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 if (!(activity instanceof BoardActivity)) {
                     return;
                 }
-                ((BoardActivity) activity).navigate(DetailFragment.newInstance(data.getIndex()));
+                ((BoardActivity) activity).navigate(DetailFragment.newInstance(position,integerArrayList));
+
             }
         });
+
+        refresh();
+
+        return mRootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (mRootView.getParent() != null) {
+            ((ViewGroup)mRootView.getParent()).removeView(mRootView);
+        }
+        super.onDestroyView();
+    }
 
     public void refresh() {
 
@@ -71,14 +88,21 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         String searchText = mSearchText.getText().toString();
 
         Call<ResponseVo> mCall = searchText.length() == 0 ? apiService.get_board() : apiService.get_board_search(new BoardVo(searchText));
+
         mCall.enqueue(new Callback<>() {
             //콜백 받는 부분
             @Override
             public void onResponse(@NonNull Call<ResponseVo> call, @NonNull Response<ResponseVo> response) {
                 ResponseVo responses = response.body();
                 if (responses.getResult().equals("success") && responses.getDataList().size() != 0) {
-                    List<BoardVo> boardVo = responses.getDataList();
+                    boardVo = responses.getDataList();
+
+                    integerArrayList = new ArrayList<>();
+                    for (BoardVo vo : boardVo) {
+                        integerArrayList.add(vo.getIndex());
+                    }
                     mBoardAdapter.addAll(boardVo);
+
                 } else {
                     Toast.makeText(requireContext(), "정보 없다", Toast.LENGTH_LONG).show();
                     mBoardAdapter.clear();
@@ -88,12 +112,13 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onFailure(Call<ResponseVo> call, Throwable t) {
                 Toast.makeText(requireContext(), "재요청", Toast.LENGTH_LONG).show();
-                System.out.println("hello");
                 System.out.println(t.getMessage());
                 t.printStackTrace();
-                //mBoardAdapter.clear();
+
             }
         });
+
+
     }
 
     @Override
@@ -108,4 +133,9 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRootView = null;
+    }
 }

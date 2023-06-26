@@ -41,7 +41,7 @@ public class BoardActivity extends AppCompatActivity  {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.replace(R.id.fragmentView, fragment,null);
-        transaction.addToBackStack("list");
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 
