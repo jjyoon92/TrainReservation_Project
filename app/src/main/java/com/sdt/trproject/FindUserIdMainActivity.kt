@@ -19,6 +19,7 @@ class FindUserIdMainActivity : AppCompatActivity() {
         email_user_find_btn.setOnClickListener(){
             intent = Intent(this@FindUserIdMainActivity,FindUserIdSendMailActivity::class.java)
             this@FindUserIdMainActivity.startActivity(intent)
+            finish()
         }
     }
 }

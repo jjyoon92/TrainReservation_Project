@@ -43,6 +43,7 @@
     <string name="pw_search">비밀번호 찾기</string>
     <string name="confirmation_num">인증번호</string>
     <string name="confirmation">인증하기</string>
+    <string name="changeThisToMain">메인화면으로</string>
 
 
     <string name="gender">성별</string>
@@ -102,6 +103,9 @@
     <string name="num_find_text" translatable="false">
 <b>회원님의
 회원번호는 아래와 같습니다.</b>
+    </string>
+    <string name="num_find_text2" translatable="false">
+<b>(회원번호를 터치하면 회원번호가 복사됩니다.)</b>
     </string>
 
     <string name="membernum_notice" translatable="false">

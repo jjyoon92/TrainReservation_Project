@@ -395,6 +395,7 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
                                     startActivity(intent)
                                     stopTimer()
                                     timerTextView.text = ""
+                                    finish()
                                 }
 
                                 else -> {
