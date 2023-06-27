@@ -24,4 +24,6 @@ public interface BoardService {
     @POST("/board/select/index")
     Call<ResponseVo> get_board_index(@Body BoardVo index);
 
+
+
 }

@@ -22,13 +22,17 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.sdt.trproject.di.SampleModule
 import com.sdt.trproject.ksh.HelloworldActivity
+import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
+import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -40,11 +44,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.properties.Delegates
 
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
@@ -97,13 +104,16 @@ class MainActivity : BaseActivity(), OnClickListener {
     // 앱 바 맴버 END
     // appbar 작업
 
+    // Retrofit HILT
+    @Inject
+    lateinit var trainApiService: TrainApiService
 
     // httpClient
-    private val httpClient by lazy { OkHttpClient() }
+//    private val httpClient by lazy { OkHttpClient() }
 
     // SharedPreferences 인스턴스 생성
     private val sharedPreferences by lazy {
-        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
+//        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
         getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
     }
     // ******* 차후 작업 공간 끝 *******
@@ -112,9 +122,13 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 //    private lateinit var appCookieJar: AppCookieJar
 //
-//    private val client: OkHttpClient by lazy {
+
+    @Inject
+    lateinit var httpClient: OkHttpClient
+//    private val httpClient: OkHttpClient by lazy {
 //        OkHttpClient.Builder()
-//            .cookieJar(appCookieJar)
+//            .cookieJar(JavaNetCookieJar(CookieManager()))
+////        .cookieJar(appCookieJar)
 //            .build()
 //    }
 //
@@ -128,18 +142,18 @@ class MainActivity : BaseActivity(), OnClickListener {
 //        trainApiService = retrofit.create(TrainApiService::class.java)
 //    }
 
-    companion object RetrofitBuilder {
-        var trainApiService: TrainApiService
-
-        init {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BuildConfig.SERVER_ADDR)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            trainApiService = retrofit.create(TrainApiService::class.java)
-        }
-    }
+//    companion object RetrofitBuilder {
+//        var trainApiService: TrainApiService
+//
+//        init {
+//            val retrofit = Retrofit.Builder()
+//                .baseUrl(BuildConfig.SERVER_ADDR)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+//
+//            trainApiService = retrofit.create(TrainApiService::class.java)
+//        }
+//    }
 
 
     @SuppressLint("SetTextI18n")
@@ -382,7 +396,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     override fun onStart() {
         super.onStart()
-
+        
         loginBtnInAppbarFooter = navigationFooter.findViewById(R.id.loginBtnInAppbarFooter)
         authorized(loginBtnInAppbarFooter)
 
@@ -411,7 +425,7 @@ class MainActivity : BaseActivity(), OnClickListener {
             btnArrivalStationSelect.text = btnArrivalStationSelectText
         }
 
-    // 출발 일정 선택
+    // 출발 일정 선택 
     @SuppressLint("SetTextI18n")
     private val departureCalendarActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -644,6 +658,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                     // 서버 응답 처리
                     val headers = response.headers()
                     val cookies = headers.values("Set-Cookie")
+                    println("cookies 확인 : $cookies")
                     for (cookie in cookies) {
                         println("받은 쿠키 : $cookie")
                     }
@@ -651,6 +666,16 @@ class MainActivity : BaseActivity(), OnClickListener {
 //                    println("response.message() : " + response.message())
                     // TODO: 서버 응답에 대한 로직 추가
                     println("요청 성공")
+
+                    val cookieHeaderValue =
+                        response.headers()["Set-Cookie"]?: ""
+                    if ( cookieHeaderValue.isNotEmpty()) {
+                        val editor = sharedPreferences.edit()
+                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
+                        editor.apply()
+                    }
+
+
                     handleOnewayTrainResponse(apiResponse)
                 } else {
                     // 서버 응답 실패
@@ -689,12 +714,16 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("DATA", dataString)
                 putExtra("DEPARTURESTATION", btnDepartureStationSelectText)
                 putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
+                putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
                 putExtra("DEPARTUREDATE", departureDate)
                 putExtra("DEPARTURETIME", selectedDepartureTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text.toString().toInt())
                 putExtra("CHILDCOUNT", tvChildCount.text.toString().toInt())
                 putExtra("OLDCOUNT", tvOldCount.text.toString().toInt())
             }
+
+//            var cookie = SampleModule.provideSharedPref(this.applicationContext)
+            println("main cookie : ${sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: ""}")
 
             startActivity(intent)
         }
@@ -853,7 +882,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
                     val responseResult = jsonString.getString("result")
 
-                    Log.d("/member/authorized3", "${responseData}")
+//                    Log.d("/member/authorized3", "${responseData}")
                     Log.d("이거 확인좀", (SharedPrefKeys.SET_COOKIE))
                     Log.d(
                         "이거 확인좀",
@@ -885,6 +914,7 @@ class MainActivity : BaseActivity(), OnClickListener {
     }
 
 }
+
 
 
 

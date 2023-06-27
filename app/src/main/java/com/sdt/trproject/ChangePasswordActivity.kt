@@ -103,19 +103,28 @@ class ChangePasswordActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                println("김승현")
+                println(response.code)
+                println("김승현")
                 Log.d("dddddqweqwewqdqwdqwd","${response.code}")
 
                 if (!response.isSuccessful) {
+
                     // 요청 실패 처리
                     println("Request failed")
+
                     lifecycleScope.launch(Dispatchers.Main) {
+
                         showToast("비밀번호 변경에 실패하였습니다, 리퀘스트 요청 실패")
                         println(id)
+
                         changedPwBtn.isEnabled = true
                     }
                     return
                 }
+
                 val responseData = response.body?.string()
+
                 // 응답 데이터 처리
                 println(responseData)
                 lifecycleScope.launch(Dispatchers.Main) {

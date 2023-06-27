@@ -456,3 +456,4 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
     }
 
 }
+
