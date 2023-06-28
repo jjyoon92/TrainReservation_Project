@@ -2,6 +2,8 @@ package com.sdt.trproject.utils
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -14,83 +16,97 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
-import retrofit2.http.POST
-import retrofit2.http.Path
 
-interface RetrofitRequestService {
-    @POST("{path}")
-    fun onRequest(@Path("path") requestPath: String, requestBody: RequestBody): Call<ResponseBody>
-}
+fun JSONArray.requestBody(): RequestBody =
+    this.toString().requestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-inline fun <reified RESPONSE> RetrofitRequestService.request(
+fun JSONObject.requestBody(): RequestBody =
+    toString().requestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+fun String.requestBody(mediaType: MediaType? = null): RequestBody =
+    toRequestBody(mediaType)
+
+
+//interface A {
+//    fun a() {}
+//}
+//
+//interface B {
+//    fun b() {}
+//}
+//
+//abstract class AC {
+//    fun ac() {}
+//}
+//
+//
+//
+//fun call(a: A) {
+//    if(a is AC) {
+//
+//    }
+//}
+//
+//inline fun <reified G, T> callG(g: T) where T: A, T: AC, T: B{
+//    g.a()
+//    g.ac()
+//    g.b()
+//
+//    var gg: G = G::class.java.newInstance()
+//}
+
+//fun <T,R> List<T>.fn(): List<R> {
+//
+//}
+
+inline fun <RESPONSE, reified CONVERT> Call<RESPONSE>.handle(
     context: Context,
-    requestPath: String,
-    data: JSONArray,
-    noinline failListener: ((message: String, httpCode: Int) -> Unit)? = null,
-    crossinline successListener: (response: RESPONSE) -> Unit
+    noinline onFail: ((message: String, httpCode: Int) -> Unit)? = null,
+    crossinline onSuccess: (response: CONVERT) -> Unit
 ) {
-    val requestBody = data.toString()
-        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
-    requestOperation<RESPONSE>(context, requestPath, requestBody, failListener, successListener)
-}
-
-inline fun <reified RESPONSE> RetrofitRequestService.request(
-    context: Context,
-    requestPath: String,
-    data: JSONObject,
-    noinline failListener: ((message: String, httpCode: Int) -> Unit)? = null,
-    crossinline successListener: (response: RESPONSE) -> Unit
-) {
-    val requestBody = data.toString()
-        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
-    requestOperation<RESPONSE>(context, requestPath, requestBody, failListener, successListener)
-}
-
-inline fun <reified RESPONSE> RetrofitRequestService.requestOperation(
-    context: Context,
-    requestPath: String,
-    requestBody: RequestBody,
-    noinline failListener: ((message: String, httpCode: Int) -> Unit)? = null,
-    crossinline successListener: (response: RESPONSE) -> Unit
-) {
-    val call = onRequest(requestPath, requestBody)
-    println("call : $call")
-    println("보낸거 있음? : ${requestBody.toString()}")
-    call.enqueue(object : Callback<ResponseBody> {
+    enqueue(object : Callback<RESPONSE> {
         override fun onResponse(
-            call: Call<ResponseBody>,
-            response: Response<ResponseBody>
+            call: Call<RESPONSE>,
+            response: Response<RESPONSE>
         ) {
-            println("응답 있음? : ${response.body()}")
             if (!response.isSuccessful) {
                 onFailure(
                     call, t = HttpException(
-                        Response.error<RESPONSE>(1000 + response.code(), "요청 실패".toResponseBody("text/plain".toMediaType()))
+                        Response.error<CONVERT>(
+                            1000 + response.code(),
+                            "요청 실패".toResponseBody("text/plain".toMediaType())
+                        )
                     )
                 )
                 return
             }
 
-            val apiResponse = response.body()
-            println("응답 확인 : $apiResponse")
-            if (apiResponse == null) {
+            val resp = response.body()
+            if (resp == null) {
                 onFailure(
                     call, t = HttpException(
-                        Response.error<RESPONSE>(1000 + 500, "응답 없음".toResponseBody("text/plain".toMediaType()))
+                        Response.error<CONVERT>(
+                            1000 + 500,
+                            "응답 없음".toResponseBody("text/plain".toMediaType())
+                        )
                     )
                 )
                 return
             }
-            println("apiResponse : $apiResponse.toString()")
-            val response: RESPONSE = Gson().fromJson(apiResponse.string(), RESPONSE::class.java)
-            successListener.invoke(response)
+            println("resp : ${resp is ResponseBody}")
+            val converted: CONVERT = if(resp is ResponseBody) {
+                //val respBody = resp as ResponseBody
+                val type = object : TypeToken<CONVERT>() {}.type
+                Gson().fromJson(resp.string(), CONVERT::class.java)
+            } else {
+                CONVERT::class.java.cast(resp)
+            }
+            onSuccess.invoke(converted)
         }
 
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-            failListener?.invoke(t.message?: "", if (t is HttpException) t.code() else 0)
-                ?: context.showToast(t.message?: "")
+        override fun onFailure(call: Call<RESPONSE>, t: Throwable) {
+            onFail?.invoke(t.message ?: "", if (t is HttpException) t.code() else 0)
+                ?: context.showToast(t.message ?: "")
         }
     })
 }

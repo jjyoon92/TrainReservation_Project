@@ -1,21 +1,13 @@
 package com.sdt.trproject.services
 
 import com.google.gson.annotations.SerializedName
-import com.sdt.trproject.SharedPrefKeys
-import com.sdt.trproject.utils.RetrofitRequestService
+//import com.sdt.trproject.utils.RetrofitRequestService
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
-interface TrainApiService : RetrofitRequestService {
-    companion object {
-        const val TRAIN_RESERVATION = "/train/reservation"
-    }
-
+interface TrainApiService {
     @Headers(
         "accept: application/json",
         "content-type: application/json",
@@ -26,27 +18,14 @@ interface TrainApiService : RetrofitRequestService {
     @POST("/train/seat")
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
-//    @POST("/train/reservation")
+    @POST("/train/reservation")
     fun requestTrainReservation(@Body requestData: RequestBody): Call<ResponseBody>
 
-    @POST("{path}")
-    override fun onRequest(
-        @Path("path") requestPath: String,
-        @Body requestBody: RequestBody
-    ): Call<ResponseBody> {
-        println("requestPath : $requestPath")
-        println("requestBody : $requestBody")
-        return when (requestPath) {
-            TRAIN_RESERVATION -> {
-                println("TRAIN_RESERVATION")
-                requestTrainReservation(requestBody) as Call<ResponseBody>
-            }
-            else -> {
-                println("TRAIN_RESERVATION???")
-                requestTrainReservation(requestBody) as Call<ResponseBody>
-            }
-        }
-    }
+//    @POST("{path}")
+//    override fun onPostRequest(
+//        @Path("path", encoded = true) requestPath: String,
+//        @Body requestBody: RequestBody
+//    ): Call<ResponseBody>
 }
 
 data class SearchTrainScheduleItem(
@@ -111,5 +90,7 @@ data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: String
+    val data: String,
+    @SerializedName("message")
+    var message: String?
 )

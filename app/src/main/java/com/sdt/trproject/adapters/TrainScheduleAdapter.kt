@@ -7,42 +7,26 @@ import android.text.SpannableString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.sdt.trproject.BuildConfig
 import com.sdt.trproject.R
 import com.sdt.trproject.ReservationDetailActivity
-import com.sdt.trproject.network.AppCookieJar
-import com.sdt.trproject.services.RequestTrainReservationResponse
-import com.sdt.trproject.services.RequestTrainSeatsItem
-import com.sdt.trproject.services.RequestTrainSeatsResponse
-import com.sdt.trproject.services.TrainApiService
-import com.sdt.trproject.services.SearchTrainScheduleItem
-import com.sdt.trproject.utils.request
+import com.sdt.trproject.services.*
+import com.sdt.trproject.utils.handle
+import com.sdt.trproject.utils.requestBody
 import com.sdt.trproject.utils.showToast
 import dagger.hilt.android.qualifiers.ActivityContext
-import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.net.CookieManager
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 
 class TrainScheduleAdapter @Inject constructor(
@@ -222,16 +206,19 @@ class TrainScheduleAdapter @Inject constructor(
 
             println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
             println("jsonArray : $jsonArray")
-            trainApiService.request<RequestTrainReservationResponse>(
-                context = context,
-                requestPath = TrainApiService.TRAIN_RESERVATION,
-                data = jsonArray,
-                failListener = { message: String, httpCode: Int ->
-                    println("message : $message, httpCode : $httpCode")
+
+            trainApiService
+                .requestTrainReservation(jsonArray.requestBody())
+                .handle(
+                    context = context,
+                    onFail = { message: String, httpCode: Int ->
+                        println("message : $message, httpCode : $httpCode")
+                    }
+                ) { response: RequestTrainReservationResponse ->
+                    println("Success: $response")
+                    // 응답 로직 처리
+                    handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
                 }
-            ) {
-                handleRequestTrainReservationResponse(it, scheduleItems[adapterPosition])
-            }
 //            val requestBody = jsonArray.toString()
 //                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 //
@@ -252,15 +239,18 @@ class TrainScheduleAdapter @Inject constructor(
 //                    if (apiResponse == null ) {
 //                        onFailure(call, t = HttpException(
 //                            Response.error<RequestTrainReservationResponse>(500, "응답 없음".toResponseBody(null))
-//                        ))
+//                        )
+//                        )
 //                        return
 //                    }
 //                    println("apiResponse : $apiResponse.toString()")
+//                    println("result : ${apiResponse.result}")
+//                    println("data : ${apiResponse.data}")
 //                    handleRequestTrainReservationResponse(apiResponse, scheduleItems[adapterPosition])
 //                }
 //
 //                override fun onFailure(call: Call<RequestTrainReservationResponse>, t: Throwable) {
-//                    TODO("Not yet implemented")
+//                    println("실패 ${t.message}")
 //                }
 //            })
         }
@@ -308,6 +298,11 @@ class TrainScheduleAdapter @Inject constructor(
             jsonObject.put("date", date)
             jsonObject.put("departTime", departureTime)
             jsonObject.put("arriveTime", arrivalTime)
+
+//            trainApiService
+//                .requestTrainSeats(jsonObject.requestBody())
+
+
 
             val requestBody = jsonObject.toString()
                 .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
