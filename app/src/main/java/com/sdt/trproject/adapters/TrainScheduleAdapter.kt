@@ -14,12 +14,14 @@ import com.google.gson.Gson
 import com.sdt.trproject.R
 import com.sdt.trproject.ReservationDetailActivity
 import com.sdt.trproject.services.*
-import com.sdt.trproject.utils.handle
+import com.sdt.trproject.utils.RetrofitModule
+//import com.sdt.trproject.utils.handle
 import com.sdt.trproject.utils.requestBody
 import com.sdt.trproject.utils.showToast
 import dagger.hilt.android.qualifiers.ActivityContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
@@ -34,7 +36,7 @@ class TrainScheduleAdapter @Inject constructor(
     private var trainApiService: TrainApiService,
 
     ) : RecyclerView.Adapter<TrainScheduleAdapter.ViewHolder>() {
-    private val scheduleItems: MutableList<SearchTrainScheduleItem> = mutableListOf()
+    private val scheduleItems: MutableList<RequestTrainScheduleItem> = mutableListOf()
     private val seatItems: MutableList<RequestTrainSeatsItem> = mutableListOf()
     private var lastCheckedPosition = -1
     private var selectedRadio = -1;
@@ -86,7 +88,7 @@ class TrainScheduleAdapter @Inject constructor(
 //    }
 
 
-    fun setData(data: List<SearchTrainScheduleItem>) {
+    fun setData(data: List<RequestTrainScheduleItem>) {
         scheduleItems.clear()
         scheduleItems.addAll(data)
         notifyDataSetChanged() // 리스트의 크기와 아이템이 둘 다 변경되는 경우 ( 대체 가능? )
@@ -178,7 +180,7 @@ class TrainScheduleAdapter @Inject constructor(
         }
 
         fun sendRequestReservationTrain(
-            item: SearchTrainScheduleItem,
+            item: RequestTrainScheduleItem,
             carriage: Int,
             seat: String
         ) {
@@ -207,18 +209,38 @@ class TrainScheduleAdapter @Inject constructor(
             println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
             println("jsonArray : $jsonArray")
 
-            trainApiService
-                .requestTrainReservation(jsonArray.requestBody())
-                .handle(
-                    context = context,
-                    onFail = { message: String, httpCode: Int ->
-                        println("message : $message, httpCode : $httpCode")
-                    }
-                ) { response: RequestTrainReservationResponse ->
-                    println("Success: $response")
-                    // 응답 로직 처리
+            val requestBody = jsonArray.requestBody()
+
+            val call = trainApiService.requestTrainReservation(requestBody)
+
+            RetrofitModule.executeCall(call, object: RetrofitModule.ApiResponseCallback<RequestTrainReservationResponse> {
+                override fun onSuccess(response: RequestTrainReservationResponse) {
+                    println("response.toString() : ${response.toString()}")
+                    println("id 확인 : ${response.data.reservationId}")
                     handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
                 }
+
+                override fun onFailure(errorMessage: String) {
+                    println("Error: $errorMessage")
+                }
+            })
+
+
+//            trainApiService
+//                .requestTrainReservation(jsonArray.requestBody())
+//                .handle(
+//                    context = context,
+//                    onFail = { message: String, httpCode: Int ->
+//                        println("message : $message, httpCode : $httpCode")
+//                        println("실패뜸?")
+//                    }
+//                ) { response: RequestTrainReservationResponse? ->
+//                    println("Success: $response")
+//                    // 응답 로직 처리
+//                    handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
+//                }
+
+
 //            val requestBody = jsonArray.toString()
 //                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 //
@@ -256,37 +278,45 @@ class TrainScheduleAdapter @Inject constructor(
         }
 
         fun handleRequestTrainReservationResponse(
-            response: RequestTrainReservationResponse,
-            item: SearchTrainScheduleItem,
+            response: RequestTrainReservationResponse?,
+            item: RequestTrainScheduleItem,
         ) {
+            println("response!!! : $response")
+            if (response != null) {
+                if (response.result == "failure") {
+                    context.showToast("예약 실패")
+                    return
+                }
 
-            if (response.result == "failure") {
-                context.showToast("예약 실패")
-                return
-            }
+                println("예약 성공!")
 
-            println("예약 성공!")
-
-            val intent = Intent(context, ReservationDetailActivity::class.java).apply {
-                putExtra("TRAIN_NO", item.trainNo)
-                putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
+                val intent = Intent(context, ReservationDetailActivity::class.java).apply {
+                    putExtra("TRAIN_NO", item.trainNo)
+                    putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
 //                    putExtra("SEAT", selected)
-                putExtra("DATE", item.date)
-                putExtra("DEPARTSTATION", item.depPlaceName)
-                putExtra("DEPARTTIME", item.depPlandTime)
-                putExtra("ARRIVESTATION", item.arrPlaceName)
-                putExtra("ARRIVETIME", item.arrPlandTime)
-                putExtra("ADULTCOUNT", adultCount)
-                putExtra("CHILDCOUNT", childCount)
-                putExtra("OLDCOUNT", oldCount)
+                    putExtra("DATE", item.date)
+                    putExtra("DEPARTSTATION", item.depPlaceName)
+                    putExtra("DEPARTTIME", item.depPlandTime)
+                    putExtra("ARRIVESTATION", item.arrPlaceName)
+                    putExtra("ARRIVETIME", item.arrPlandTime)
+                    putExtra("ADULTCOUNT", adultCount)
+                    putExtra("CHILDCOUNT", childCount)
+                    putExtra("OLDCOUNT", oldCount)
+                }
+
+                context.startActivity(intent)
+            } else {
+                println("response가 null")
             }
 
-            context.startActivity(intent)
+
+
+
         }
 
 
         // 좌석 예약하기
-        fun sendRequestSeatsTrain(item: SearchTrainScheduleItem, carriage: Int) {
+        fun sendRequestSeatsTrain(item: RequestTrainScheduleItem, carriage: Int) {
             // 우선 해당 열차 및 호차에 좌석이 있는지 확인 위해 예약된 좌석 요청
             val trainNo = item.trainNo
             val date = item.date
@@ -333,7 +363,7 @@ class TrainScheduleAdapter @Inject constructor(
 
         fun handleRequestTrainSeatsResponse(
             requestTrainSeatsResponse: RequestTrainSeatsResponse?,
-            item: SearchTrainScheduleItem,
+            item: RequestTrainScheduleItem,
             carriage: Int
         ) {
             // TODO: 좌석 요청에 대한 서버 응답 처리 로직
@@ -398,17 +428,17 @@ class TrainScheduleAdapter @Inject constructor(
         }
 
 
-        fun bind(searchTrainScheduleItem: SearchTrainScheduleItem, position: Int) {
+        fun bind(requestTrainScheduleItem: RequestTrainScheduleItem, position: Int) {
 
             // 텍스트 적용
             radioBtnPremiumSeatSelect.text = premiumSeatText
             radioBtnStandardSeatSelect.text = standardSeatText
 
             // 매진 텍스트 적용
-            if (searchTrainScheduleItem.vip) {
+            if (requestTrainScheduleItem.vip) {
                 radioBtnPremiumSeatSelect.text = "매진"
             }
-            if (searchTrainScheduleItem.common) {
+            if (requestTrainScheduleItem.common) {
                 radioBtnStandardSeatSelect.text = "매진"
             }
 
@@ -481,8 +511,8 @@ class TrainScheduleAdapter @Inject constructor(
             val hourMinFormat = SimpleDateFormat("HHmm", Locale.getDefault())
             val hourFormat = SimpleDateFormat("HH", Locale.getDefault())
             val minFormat = SimpleDateFormat("mm", Locale.getDefault())
-            val departureTime = originalFormat.parse(searchTrainScheduleItem.depPlandTime)
-            val arrivalTime = originalFormat.parse(searchTrainScheduleItem.arrPlandTime)
+            val departureTime = originalFormat.parse(requestTrainScheduleItem.depPlandTime)
+            val arrivalTime = originalFormat.parse(requestTrainScheduleItem.arrPlandTime)
             val formattedDepartureTime = targetFormat.format(departureTime)
             val formattedArrivalTime = targetFormat.format(arrivalTime)
 
@@ -516,10 +546,10 @@ class TrainScheduleAdapter @Inject constructor(
 
             tvEstimatedTime.text = timeDifference
 
-            tvTrainNo.text = searchTrainScheduleItem.trainNo.toString()
-            tvDepartureStation.text = searchTrainScheduleItem.depPlaceName
+            tvTrainNo.text = requestTrainScheduleItem.trainNo.toString()
+            tvDepartureStation.text = requestTrainScheduleItem.depPlaceName
             tvDepartureTime.text = formattedDepartureTime
-            tvArrivalStation.text = searchTrainScheduleItem.arrPlaceName
+            tvArrivalStation.text = requestTrainScheduleItem.arrPlaceName
             tvArrivalTime.text = formattedArrivalTime
 
 
@@ -536,7 +566,7 @@ class TrainScheduleAdapter @Inject constructor(
                 when (checkedId) {
                     R.id.radioBtnPremiumSeatSelect -> {
                         btnTrainScheduleReservation.text = "특실 예약하기"
-                        if (searchTrainScheduleItem.vip == true) {
+                        if (requestTrainScheduleItem.vip == true) {
                             radioBtnPremiumSeatSelect.text = "매진"
                             btnTrainScheduleReservation.isEnabled = false
                             btnTrainScheduleReservation.setBackgroundColor(Color.GRAY)
@@ -557,7 +587,7 @@ class TrainScheduleAdapter @Inject constructor(
 
                     R.id.radioBtnStandardSeatSelect -> {
                         btnTrainScheduleReservation.text = "일반실 예약하기"
-                        if (searchTrainScheduleItem.common == true) {
+                        if (requestTrainScheduleItem.common == true) {
                             radioBtnStandardSeatSelect.text = "매진"
                             btnTrainScheduleReservation.isEnabled = false
                             btnTrainScheduleReservation.setBackgroundColor(Color.GRAY)

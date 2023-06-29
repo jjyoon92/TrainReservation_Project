@@ -1,34 +1,56 @@
 package com.sdt.trproject.services
 
 import com.google.gson.annotations.SerializedName
-//import com.sdt.trproject.utils.RetrofitRequestService
+import com.sdt.trproject.utils.RetrofitRequestService
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
+import retrofit2.http.Path
 
-interface TrainApiService {
+interface TrainApiService : RetrofitRequestService {
+    companion object {
+        const val TRAIN_RESERVATION = "/train/reservation"
+    }
+
     @Headers(
         "accept: application/json",
         "content-type: application/json",
     )
+
     @POST("/train/inquiry")
-    fun searchTrainSchedule(@Body requestData: RequestBody): Call<SearchTrainScheduleResponse>
+    fun requestTrainSchedule(@Body requestData: RequestBody): Call<RequestTrainScheduleResponse>
 
     @POST("/train/seat")
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
     @POST("/train/reservation")
-    fun requestTrainReservation(@Body requestData: RequestBody): Call<ResponseBody>
+    fun requestTrainReservation(@Body requestData: RequestBody): Call<RequestTrainReservationResponse>
 
-//    @POST("{path}")
-//    override fun onPostRequest(
-//        @Path("path", encoded = true) requestPath: String,
-//        @Body requestBody: RequestBody
-//    ): Call<ResponseBody>
+    @POST("{path}")
+    override fun onRequest(
+        @Path("path") requestPath: String,
+        @Body requestBody: RequestBody
+    ): Call<ResponseBody> {
+        println("requestPath : $requestPath")
+        println("requestBody : $requestBody")
+        return when (requestPath) {
+            TRAIN_RESERVATION -> {
+                println("TRAIN_RESERVATION")
+                requestTrainReservation(requestBody) as Call<ResponseBody>
+            }
+            else -> {
+                println("TRAIN_RESERVATION???")
+                requestTrainReservation(requestBody) as Call<ResponseBody>
+            }
+        }
+    }
 }
 
-data class SearchTrainScheduleItem(
+data class RequestTrainScheduleItem(
     @SerializedName("adultcharge")
     val adultCharge: String,
     @SerializedName("arrplacename")
@@ -71,12 +93,12 @@ data class RequestTrainSeatsItem(
 )
 
 
-data class SearchTrainScheduleResponse(
+data class RequestTrainScheduleResponse(
     // 응답 데이터 필드 정의
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: List<SearchTrainScheduleItem>
+    val data: List<RequestTrainScheduleItem>
 )
 
 data class RequestTrainSeatsResponse(
@@ -90,7 +112,12 @@ data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: String,
+    val data: RequestTrainReservationItem,
     @SerializedName("message")
-    var message: String?
+    val message: String
+)
+
+data class RequestTrainReservationItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
 )

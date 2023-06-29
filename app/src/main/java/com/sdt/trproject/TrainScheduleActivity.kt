@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.sdt.trproject.adapters.TrainScheduleAdapter
-import com.sdt.trproject.services.SearchTrainScheduleResponse
+import com.sdt.trproject.services.RequestTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
-import com.sdt.trproject.services.SearchTrainScheduleItem
+import com.sdt.trproject.services.RequestTrainScheduleItem
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,8 +21,6 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -40,7 +38,7 @@ class TrainScheduleActivity : AppCompatActivity() {
     private lateinit var btnPreviousDay: Button
     private lateinit var tvTrainScheduleDate: TextView
 
-    private lateinit var data: List<SearchTrainScheduleItem>
+    private lateinit var data: List<RequestTrainScheduleItem>
 
     private var departureStation: String = ""
     private var arrivalStation: String = ""
@@ -110,7 +108,7 @@ class TrainScheduleActivity : AppCompatActivity() {
 
         // DATA 문자열을 다시 List<TrainItem>으로 변환
         val gson = Gson()
-        val listType = object : TypeToken<List<SearchTrainScheduleItem>>() {}.type
+        val listType = object : TypeToken<List<RequestTrainScheduleItem>>() {}.type
         data = gson.fromJson(dataString, listType)
 
         val itemDecorator = VerticalSpacingItemDecorator(20)
@@ -301,11 +299,11 @@ class TrainScheduleActivity : AppCompatActivity() {
         val requestBody = jsonObject.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-        val call = trainApiService.searchTrainSchedule(requestBody)
-        call.enqueue(object : Callback<SearchTrainScheduleResponse> {
+        val call = trainApiService.requestTrainSchedule(requestBody)
+        call.enqueue(object : Callback<RequestTrainScheduleResponse> {
             override fun onResponse(
-                call: Call<SearchTrainScheduleResponse>,
-                response: Response<SearchTrainScheduleResponse>
+                call: Call<RequestTrainScheduleResponse>,
+                response: Response<RequestTrainScheduleResponse>
             ) {
                 if (response.isSuccessful) {
                     // 서버 응답 처리
@@ -322,7 +320,7 @@ class TrainScheduleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<SearchTrainScheduleResponse>, t: Throwable) {
+            override fun onFailure(call: Call<RequestTrainScheduleResponse>, t: Throwable) {
                 // 요청 실패
                 // TODO: 실패에 대한 처리 로직을 추가하세요.
                 handleTrainError()
@@ -330,9 +328,9 @@ class TrainScheduleActivity : AppCompatActivity() {
         })
     }
 
-    fun handleTrainResponse(searchTrainScheduleResponse: SearchTrainScheduleResponse?) {
+    fun handleTrainResponse(requestTrainScheduleResponse: RequestTrainScheduleResponse?) {
         // TODO : 서버 응답에 대한 로직 구현
-        searchTrainScheduleResponse?.let {
+        requestTrainScheduleResponse?.let {
             val gson = Gson()
             val dataString = gson.toJson(it.data)
             val result = it.result
