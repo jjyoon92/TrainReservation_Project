@@ -66,35 +66,81 @@ fun String.requestBody(mediaType: MediaType? = null): RequestBody =
 
 object RetrofitModule {
 
-    interface ApiResponseCallback<T> {
-        fun onSuccess(response: T)
-        fun onFailure(errorMessage: String)
-    }
+//    interface ApiResponseCallback<T> {
+//        fun onSuccess(response: T)
+//        fun onFailure(errorMessage: String)
+//    }
 
-    fun <T> executeCall(call: Call<T>, callback: ApiResponseCallback<T>) {
+    // inline 함수로 정의. 제네릭 타입 T를 사용
+    // 인자로 Retrofit의 Call<T> 객체, onFailure 람다 함수, onSuccess 람다 함수를 받음.
+    fun <T> executeCall(
+        call: Call<T>, // Retrofit의 Call<T> 객체
+        // OnFailure 람다 함수, 문자열 메시지와 http 상태 코드를 인자로 받음. 기본값은 null
+        onFailure: ((message: String, httpCode: Int) -> Unit)? = null,
+        // onSuccess 람다 함수, 타입 T의 응답 객체를 인자로 받음.
+        onSuccess: (response: T) -> Unit
+    ) {
+        // Retrofit의 enqueue 메소드를 사용하여 네트워크 요청을 비동기로 실행.
         call.enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>, response: Response<T>) {
+                // 응답이 성공적인 경우 (200 ~ 299 상태 코드)
                 if (response.isSuccessful) {
+                    // 응답 객체가 존재하는지 확인 후 onSuccess 람다 함수를 호출
                     response.body()?.let {
-                        callback.onSuccess(it)
-                    } ?: callback.onFailure("Response body is null")
+                        onSuccess(it)
+                    } ?: this.onFailure(
+                        call, t = HttpException(
+                            Response.error<T>(
+                                response.code(),
+                                "응답 값 없음".toResponseBody("text/plain".toMediaType())
+                            )
+                        )
+                    ) // 응답 객체가 없는 경우 onFailure 람다 함수를 호출.
                 } else {
-                    callback.onFailure("Response error ${response.code()}")
+                    // 응답이 실패할 경우 onFailure 람다 함수를 호출.
+                    this.onFailure(
+                        call, t = HttpException(
+                            Response.error<T>(
+                                response.code(),
+                                "응답이 올바르지 않음.".toResponseBody("text/plain".toMediaType())
+                            )
+                        )
+                    )
                 }
             }
 
+            // onFailure는 네트워크 요청이 실패했을 때 호출. (인터넷 연결 문제 등)
             override fun onFailure(call: Call<T>, t: Throwable) {
-                callback.onFailure(t.message ?: "Unknown error")
+                // onFailure 람다 함수를 호출하고 Throwable 객체로부터 메시지를 전달.
+                // HttpException 의 경우 상태 코드를 전달하고, 그렇지 않은 경우 0을 전달.
+                onFailure?.invoke(t.message ?: "알 수 없는 에러", if (t is HttpException) t.code() else 0)
             }
         })
     }
+
+//    fun <T> executeCall(call: Call<T>, callback: ApiResponseCallback<T>) {
+//        call.enqueue(object : Callback<T> {
+//            override fun onResponse(call: Call<T>, response: Response<T>) {
+//                if (response.isSuccessful) {
+//                    response.body()?.let {
+//                        callback.onSuccess(it)
+//                    } ?: callback.onFailure("Response body is null")
+//                } else {
+//                    callback.onFailure("Response error ${response.code()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<T>, t: Throwable) {
+//                callback.onFailure(t.message ?: "Unknown error")
+//            }
+//        })
+//    }
 }
 
 //interface RetrofitRequestService {
 //    @POST("{path}")
 //    fun onRequest(@Path("path") requestPath: String, requestBody: RequestBody): Call<ResponseBody>
 //}
-
 
 
 //inline fun <reified RequestTrainReservationResponse> Call<RequestTrainReservationResponse>.handle(

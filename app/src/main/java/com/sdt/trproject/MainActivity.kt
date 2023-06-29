@@ -644,16 +644,16 @@ class MainActivity : BaseActivity(), OnClickListener {
         val requestBody = jsonObject.requestBody()
         val call = trainApiService.requestTrainSchedule(requestBody)
 
-        RetrofitModule.executeCall(call, object: RetrofitModule.ApiResponseCallback<RequestTrainScheduleResponse> {
-            override fun onSuccess(response: RequestTrainScheduleResponse) {
-                println("TrainSchedule: ${response.data}")
+        RetrofitModule.executeCall(
+            call,
+            onFailure = { message, httpCode ->
+                println("TrainSchedule 요청 실패 : Message = $message, HttpCode = $httpCode")
+            },
+            onSuccess = { response ->
+                println("TrainSchedule 요청 성공 : Response = $response")
                 handleOnewayTrainResponse(response)
             }
-
-            override fun onFailure(errorMessage: String) {
-                println("Error: $errorMessage")
-            }
-        })
+        )
 
 
 //        val requestBody = jsonObject.toString()
