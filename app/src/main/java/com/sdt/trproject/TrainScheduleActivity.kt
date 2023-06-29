@@ -136,7 +136,8 @@ class TrainScheduleActivity : AppCompatActivity() {
             returnTime = returnTime,
             adultCount = adultCount,
             childCount = childCount,
-            oldCount = oldCount
+            oldCount = oldCount,
+            personCount = adultCount + childCount + oldCount
         )
 
 
