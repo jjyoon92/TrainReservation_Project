@@ -6,6 +6,7 @@ import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -20,8 +21,14 @@ interface TrainApiService {
     @POST("/train/inquiry")
     fun requestTrainSchedule(@Body requestData: RequestBody): Call<RequestTrainScheduleResponse>
 
+    @POST("/train/seat/list")
+    fun requestTrainSeatList(): Call<RequestTrainSeatListResponse>
+
     @POST("/train/seat")
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
+
+    @POST("/train/time")
+    fun requestTrainTimes(@Body requestData: RequestBody): Call<RequestTrainTimeResponse>
 
     @POST("/train/reservation")
     fun requestTrainReservation(@Body requestData: RequestBody): Call<RequestTrainReservationResponse>
@@ -88,6 +95,14 @@ data class RequestTrainSeatsItem(
     val trainNo: String
 )
 
+data class RequestTrainTime(
+    @SerializedName("stationName")
+    val stationName: String,
+    @SerializedName("trainNo")
+    val trainNo: Int,
+    @SerializedName("departAt")
+    val departAt: String
+)
 
 data class RequestTrainScheduleResponse(
     // 응답 데이터 필드 정의
@@ -95,6 +110,13 @@ data class RequestTrainScheduleResponse(
     val result: String,
     @SerializedName("data")
     val data: List<RequestTrainScheduleItem>
+)
+
+data class RequestTrainTimeResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainTime>
 )
 
 data class RequestTrainSeatsResponse(
@@ -116,4 +138,18 @@ data class RequestTrainReservationResponse(
 data class RequestTrainReservationItem(
     @SerializedName("reservationId")
     val reservationId: String,
+)
+
+data class RequestTrainSeatListResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: RequestTrainSeatListItem
+)
+
+data class RequestTrainSeatListItem(
+    @SerializedName("standard")
+    val standard: List<String>,
+    @SerializedName("premium")
+    val premium: List<String>
 )
