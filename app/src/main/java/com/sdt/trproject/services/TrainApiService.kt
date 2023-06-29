@@ -19,7 +19,7 @@ interface TrainApiService {
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
     @POST("/train/reservation")
-    fun requestTrainReservation(@Body requestData: RequestBody): Call<ResponseBody>
+    fun requestTrainReservation(@Body requestData: RequestBody): Call<RequestTrainReservationResponse>
 
 //    @POST("{path}")
 //    override fun onPostRequest(
@@ -90,7 +90,7 @@ data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: String,
+    val data: String?,
     @SerializedName("message")
     var message: String?
 )

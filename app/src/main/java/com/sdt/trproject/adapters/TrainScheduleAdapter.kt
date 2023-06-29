@@ -14,12 +14,14 @@ import com.google.gson.Gson
 import com.sdt.trproject.R
 import com.sdt.trproject.ReservationDetailActivity
 import com.sdt.trproject.services.*
-import com.sdt.trproject.utils.handle
+import com.sdt.trproject.utils.RetrofitModule
+//import com.sdt.trproject.utils.handle
 import com.sdt.trproject.utils.requestBody
 import com.sdt.trproject.utils.showToast
 import dagger.hilt.android.qualifiers.ActivityContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
@@ -207,18 +209,35 @@ class TrainScheduleAdapter @Inject constructor(
             println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
             println("jsonArray : $jsonArray")
 
-            trainApiService
-                .requestTrainReservation(jsonArray.requestBody())
-                .handle(
-                    context = context,
-                    onFail = { message: String, httpCode: Int ->
-                        println("message : $message, httpCode : $httpCode")
-                    }
-                ) { response: RequestTrainReservationResponse ->
-                    println("Success: $response")
-                    // 응답 로직 처리
-                    handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
+            val requestBody = jsonArray.requestBody()
+            val call = trainApiService.requestTrainReservation(requestBody)
+
+            RetrofitModule.executeCall(call, object: RetrofitModule.ApiResponseCallback<RequestTrainReservationResponse> {
+                override fun onSuccess(response: RequestTrainReservationResponse) {
+                    println(response.data)
                 }
+
+                override fun onFailure(errorMessage: String) {
+                    println("Error: $errorMessage")
+                }
+            })
+
+
+//            trainApiService
+//                .requestTrainReservation(jsonArray.requestBody())
+//                .handle(
+//                    context = context,
+//                    onFail = { message: String, httpCode: Int ->
+//                        println("message : $message, httpCode : $httpCode")
+//                        println("실패뜸?")
+//                    }
+//                ) { response: RequestTrainReservationResponse? ->
+//                    println("Success: $response")
+//                    // 응답 로직 처리
+//                    handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
+//                }
+
+
 //            val requestBody = jsonArray.toString()
 //                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 //
@@ -256,32 +275,39 @@ class TrainScheduleAdapter @Inject constructor(
         }
 
         fun handleRequestTrainReservationResponse(
-            response: RequestTrainReservationResponse,
+            response: RequestTrainReservationResponse?,
             item: SearchTrainScheduleItem,
         ) {
+            if (response != null) {
+                if (response.result == "failure") {
+                    context.showToast("예약 실패")
+                    return
+                }
 
-            if (response.result == "failure") {
-                context.showToast("예약 실패")
-                return
-            }
+                println("예약 성공!")
 
-            println("예약 성공!")
-
-            val intent = Intent(context, ReservationDetailActivity::class.java).apply {
-                putExtra("TRAIN_NO", item.trainNo)
-                putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
+                val intent = Intent(context, ReservationDetailActivity::class.java).apply {
+                    putExtra("TRAIN_NO", item.trainNo)
+                    putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
 //                    putExtra("SEAT", selected)
-                putExtra("DATE", item.date)
-                putExtra("DEPARTSTATION", item.depPlaceName)
-                putExtra("DEPARTTIME", item.depPlandTime)
-                putExtra("ARRIVESTATION", item.arrPlaceName)
-                putExtra("ARRIVETIME", item.arrPlandTime)
-                putExtra("ADULTCOUNT", adultCount)
-                putExtra("CHILDCOUNT", childCount)
-                putExtra("OLDCOUNT", oldCount)
+                    putExtra("DATE", item.date)
+                    putExtra("DEPARTSTATION", item.depPlaceName)
+                    putExtra("DEPARTTIME", item.depPlandTime)
+                    putExtra("ARRIVESTATION", item.arrPlaceName)
+                    putExtra("ARRIVETIME", item.arrPlandTime)
+                    putExtra("ADULTCOUNT", adultCount)
+                    putExtra("CHILDCOUNT", childCount)
+                    putExtra("OLDCOUNT", oldCount)
+                }
+
+                context.startActivity(intent)
+            } else {
+                println("response가 null")
             }
 
-            context.startActivity(intent)
+
+
+
         }
 
 
