@@ -1,15 +1,21 @@
 package com.sdt.trproject.utils
 
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.sdt.trproject.services.RequestTrainReservationResponse
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -56,13 +62,10 @@ fun String.requestBody(mediaType: MediaType? = null): RequestBody =
 //
 //}
 
-interface RetrofitRequestService {
-    @POST("{path}")
-    fun onRequest(@Path("path") requestPath: String, requestBody: RequestBody): Call<ResponseBody>
-}
-
+// 파일명: RetrofitExt.kt
 
 object RetrofitModule {
+
     interface ApiResponseCallback<T> {
         fun onSuccess(response: T)
         fun onFailure(errorMessage: String)
@@ -70,10 +73,7 @@ object RetrofitModule {
 
     fun <T> executeCall(call: Call<T>, callback: ApiResponseCallback<T>) {
         call.enqueue(object : Callback<T> {
-            override fun onResponse(
-                call: Call<T>,
-                response: Response<T>
-            ) {
+            override fun onResponse(call: Call<T>, response: Response<T>) {
                 if (response.isSuccessful) {
                     response.body()?.let {
                         callback.onSuccess(it)
@@ -88,9 +88,14 @@ object RetrofitModule {
             }
         })
     }
-
-
 }
+
+//interface RetrofitRequestService {
+//    @POST("{path}")
+//    fun onRequest(@Path("path") requestPath: String, requestBody: RequestBody): Call<ResponseBody>
+//}
+
+
 
 //inline fun <reified RequestTrainReservationResponse> Call<RequestTrainReservationResponse>.handle(
 //    context: Context,
