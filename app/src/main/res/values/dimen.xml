@@ -17,4 +17,7 @@
     <dimen name="shadow_radius_2">2dp</dimen>
 
     <dimen name="layout_width">105dp</dimen>
+
+    <dimen name="reservation_detail_text_view_margin_top">8dp</dimen>
+    <dimen name="reservation_detail_text_view_text_size">14sp</dimen>
 </resources>

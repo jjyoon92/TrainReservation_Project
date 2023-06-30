@@ -28,10 +28,13 @@ interface TrainApiService {
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
     @POST("/train/time")
-    fun requestTrainTimes(@Body requestData: RequestBody): Call<RequestTrainTimeResponse>
+    fun requestTrainTimeTable(@Body requestData: RequestBody): Call<RequestTrainTimeTableResponse>
 
     @POST("/train/reservation")
     fun requestTrainReservation(@Body requestData: RequestBody): Call<RequestTrainReservationResponse>
+
+    @POST("/train/reservation/detail")
+    fun requestTrainReservationDetail(@Body requestData: RequestBody): Call<RequestTrainReservationDetailResponse>
 
 //    @POST("{path}")
 //    override fun onRequest(
@@ -104,6 +107,7 @@ data class RequestTrainTime(
     val departAt: String
 )
 
+// 열차 시간표 조회 Response
 data class RequestTrainScheduleResponse(
     // 응답 데이터 필드 정의
     @SerializedName("result")
@@ -112,13 +116,15 @@ data class RequestTrainScheduleResponse(
     val data: List<RequestTrainScheduleItem>
 )
 
-data class RequestTrainTimeResponse(
+// 열차 운행시간 표 Response
+data class RequestTrainTimeTableResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
     val data: List<RequestTrainTime>
 )
 
+// 열차 좌석 정보 Response
 data class RequestTrainSeatsResponse(
     @SerializedName("result")
     val result: String,
@@ -126,6 +132,7 @@ data class RequestTrainSeatsResponse(
     val data: List<RequestTrainSeatsItem>
 )
 
+// 열차 예약하기 Response
 data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
@@ -135,21 +142,65 @@ data class RequestTrainReservationResponse(
     val message: String
 )
 
+// 열차 예약하기 Response Data Item
 data class RequestTrainReservationItem(
     @SerializedName("reservationId")
     val reservationId: String,
 )
 
+// 열차 호차별 좌석 정보 Response
 data class RequestTrainSeatListResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: RequestTrainSeatListItem
+    val data: RequestTrainSeatListItem,
+    @SerializedName("message")
+    val message: String
 )
 
+// 열차 호차별 좌석 정부 Response Data Item
 data class RequestTrainSeatListItem(
     @SerializedName("standard")
     val standard: List<String>,
     @SerializedName("premium")
     val premium: List<String>
+)
+
+// 열차 예약 정보 Response
+data class RequestTrainReservationDetailResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainReservationDetailItem>,
+    @SerializedName("message")
+    val message: String
+)
+
+// 열차 예약 정보 Response Data Item
+data class RequestTrainReservationDetailItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+    @SerializedName("seat")
+    val seat: String,
+    @SerializedName("date")
+    val date: String,
+    @SerializedName("arriveTime")
+    val arriveTime: String,
+    @SerializedName("arriveStation")
+    val arriveStation: String,
+    @SerializedName("departTime")
+    val departTime: String,
+    @SerializedName("departStation")
+    val departStation: String,
+    @SerializedName("carriage")
+    val carriage: String,
+    @SerializedName("price")
+    val price: Int,
+    @SerializedName("discountedPrice")
+    val discountedPrice: Int,
+    @SerializedName("trainNo")
+    val trainNo: String,
+    @SerializedName("age")
+    val age: String
+
 )
