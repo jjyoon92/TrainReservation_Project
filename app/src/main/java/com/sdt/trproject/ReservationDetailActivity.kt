@@ -1,18 +1,24 @@
 package com.sdt.trproject
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.TypedValue
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.sdt.trproject.services.RequestTrainReservationCancelResponse
 import com.sdt.trproject.services.RequestTrainReservationDetailItem
 import com.sdt.trproject.services.TrainApiService
+import com.sdt.trproject.utils.RetrofitModule
+import com.sdt.trproject.utils.requestBody
+import org.json.JSONObject
 import org.w3c.dom.Text
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -50,6 +56,9 @@ class ReservationDetailActivity : AppCompatActivity() {
     private var finalCharge: Int = 0
     private var totalDiscountedCharge: Int = 0
 
+    private lateinit var btnReservationCancel: Button
+    private lateinit var btnReservationPay: Button
+
     @Inject
     lateinit var trainApiService: TrainApiService
     @SuppressLint("SetTextI18n")
@@ -65,6 +74,8 @@ class ReservationDetailActivity : AppCompatActivity() {
         tvTotalCharge = findViewById(R.id.tvTotalChargeNumericText)
         tvTotalDiscountCharge = findViewById(R.id.tvTotalDiscountChargeNumericText)
         tvFinalCharge = findViewById(R.id.tvFinalChargeNumericText)
+        btnReservationCancel = findViewById(R.id.btnReservationDetailCancel)
+
 
         val linearLayout: LinearLayout = findViewById(R.id.ticketListLl)
 
@@ -78,6 +89,7 @@ class ReservationDetailActivity : AppCompatActivity() {
         departTime = dataArray[0].departTime
         departStation = dataArray[0].departStation
         trainNo = dataArray[0].trainNo
+        reservationId = dataArray[0].reservationId
 
         println("date:::: $date")
         println("arriveTime::: $arriveTime")
@@ -175,8 +187,45 @@ class ReservationDetailActivity : AppCompatActivity() {
 
         // 총 결제 금액 (finalCharge)
         tvFinalCharge.text = "${formattedFinalCharge}원"
+
+
+        /* 취소 이벤트 */
+        btnReservationCancel.setOnClickListener {
+            sendRequestReservationCancel(reservationId)
+        }
+
     }
 
+    /* 취소요청 시작 */
+
+    private fun sendRequestReservationCancel(id: String) {
+        val reservationId: String = id
+
+        val jsonObject = JSONObject()
+        jsonObject.put("reservationId", reservationId)
+
+        val requestBody = jsonObject.requestBody()
+        val call = trainApiService.requestTrainReservationCancel(requestBody)
+
+        RetrofitModule.executeCall(
+            call,
+            onFailure = { message, httpCode ->
+                println("reservationCancel 요청 실패 : Message = $message, HttpCode = $httpCode")
+            },
+            onSuccess = { response ->
+                println("reservationCancel 요청 성공 : Response = $response")
+                handleRequestTrainReservationCancelResponse(response)
+            }
+        )
+    }
+
+    // 취소 성공 처리
+    private fun handleRequestTrainReservationCancelResponse(response: RequestTrainReservationCancelResponse) {
+        val intent = Intent(this, MainActivity::class.java)
+    }
+
+
+    /* 취소요청 끝 */
 
 
 
