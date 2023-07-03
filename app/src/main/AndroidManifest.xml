@@ -60,9 +60,11 @@
         <activity android:name=".ArrivalCalendarActivity" />
         <activity android:name=".TrainScheduleActivity" />
         <activity android:name=".ReservationDetailActivity" />
+        <activity android:name=".ReservationCancelActivity" />
         <activity android:name="com.sdt.trproject.MyProfileActivity" />
-        <activity android:name=".ksh.HelloworldActivity"/>
+        <activity android:name=".ksh.HelloworldActivity" />
         <activity android:name=".ksh.BoardActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.sdt.trproject.pictures"

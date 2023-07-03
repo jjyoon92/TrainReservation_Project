@@ -22,17 +22,16 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.sdt.trproject.di.SampleModule
 import com.sdt.trproject.ksh.HelloworldActivity
-import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
-import com.sdt.trproject.services.SearchTrainScheduleResponse
+import com.sdt.trproject.services.RequestTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
+import com.sdt.trproject.utils.RetrofitModule
+import com.sdt.trproject.utils.requestBody
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -41,10 +40,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -645,57 +641,75 @@ class MainActivity : BaseActivity(), OnClickListener {
         jsonObject.put("child", childCount)
         jsonObject.put("old", oldCount)
 
-        val requestBody = jsonObject.toString()
-            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val requestBody = jsonObject.requestBody()
+        val call = trainApiService.requestTrainSchedule(requestBody)
 
-        val call = trainApiService.searchTrainSchedule(requestBody)
-        call.enqueue(object : Callback<SearchTrainScheduleResponse> {
-            override fun onResponse(
-                call: Call<SearchTrainScheduleResponse>,
-                response: Response<SearchTrainScheduleResponse>
-            ) {
-                if (response.isSuccessful) {
-                    // 서버 응답 처리
-                    val headers = response.headers()
-                    val cookies = headers.values("Set-Cookie")
-                    println("cookies 확인 : $cookies")
-                    for (cookie in cookies) {
-                        println("받은 쿠키 : $cookie")
-                    }
-                    val apiResponse = response.body()
-//                    println("response.message() : " + response.message())
-                    // TODO: 서버 응답에 대한 로직 추가
-                    println("요청 성공")
-
-                    val cookieHeaderValue =
-                        response.headers()["Set-Cookie"]?: ""
-                    if ( cookieHeaderValue.isNotEmpty()) {
-                        val editor = sharedPreferences.edit()
-                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
-                        editor.apply()
-                    }
-
-
-                    handleOnewayTrainResponse(apiResponse)
-                } else {
-                    // 서버 응답 실패
-                    // TODO: 실패에 대한 처리 로직 추가
-                    println("요청 실패")
-                    handleOnewayTrainError()
-                }
+        RetrofitModule.executeCall(
+            call,
+            onFailure = { message, httpCode ->
+                println("TrainSchedule 요청 실패 : Message = $message, HttpCode = $httpCode")
+            },
+            onSuccess = { response ->
+                println("TrainSchedule 요청 성공 : Response = $response")
+                handleOnewayTrainResponse(response)
             }
+        )
 
-            override fun onFailure(call: Call<SearchTrainScheduleResponse>, t: Throwable) {
-                // 요청 실패
-                // TODO: 실패에 대한 처리 로직을 추가하세요.
-                handleOnewayTrainError()
-            }
-        })
+
+//        val requestBody = jsonObject.toString()
+//            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+//        val call = trainApiService.requestTrainSchedule(requestBody)
+//        RetrofitExt.executeCall(call, object : Retrofit)
+
+
+//        call.enqueue(object : Callback<SearchTrainScheduleResponse> {
+//            override fun onResponse(
+//                call: Call<SearchTrainScheduleResponse>,
+//                response: Response<SearchTrainScheduleResponse>
+//            ) {
+//                if (response.isSuccessful) {
+//                    // 서버 응답 처리
+//                    val headers = response.headers()
+//                    val cookies = headers.values("Set-Cookie")
+//                    println("cookies 확인 : $cookies")
+//                    for (cookie in cookies) {
+//                        println("받은 쿠키 : $cookie")
+//                    }
+//                    val apiResponse = response.body()
+////                    println("response.message() : " + response.message())
+//                    // TODO: 서버 응답에 대한 로직 추가
+//                    println("요청 성공")
+//
+//                    val cookieHeaderValue =
+//                        response.headers()["Set-Cookie"]?: ""
+//                    if ( cookieHeaderValue.isNotEmpty()) {
+//                        val editor = sharedPreferences.edit()
+//                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
+//                        editor.apply()
+//                    }
+//
+//                    println("apiResponse**: $apiResponse")
+//                    handleOnewayTrainResponse(apiResponse)
+//                } else {
+//                    // 서버 응답 실패
+//                    // TODO: 실패에 대한 처리 로직 추가
+//                    println("요청 실패")
+//                    handleOnewayTrainError()
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<SearchTrainScheduleResponse>, t: Throwable) {
+//                // 요청 실패
+//                // TODO: 실패에 대한 처리 로직을 추가하세요.
+//                handleOnewayTrainError()
+//            }
+//        })
     }
 
-    fun handleOnewayTrainResponse(searchTrainScheduleResponse: SearchTrainScheduleResponse?) {
+    fun handleOnewayTrainResponse(requestTrainScheduleResponse: RequestTrainScheduleResponse?) {
         // TODO : 서버 응답에 대한 로직 구현
-        searchTrainScheduleResponse?.let {
+        requestTrainScheduleResponse?.let {
             val gson = Gson()
             val dataString = gson.toJson(it.data)
             val result = it.result
@@ -759,11 +773,11 @@ class MainActivity : BaseActivity(), OnClickListener {
         val requestBody = jsonObject.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-        val call = trainApiService.searchTrainSchedule(requestBody)
-        call.enqueue(object : Callback<SearchTrainScheduleResponse> {
+        val call = trainApiService.requestTrainSchedule(requestBody)
+        call.enqueue(object : Callback<RequestTrainScheduleResponse> {
             override fun onResponse(
-                call: Call<SearchTrainScheduleResponse>,
-                response: Response<SearchTrainScheduleResponse>
+                call: Call<RequestTrainScheduleResponse>,
+                response: Response<RequestTrainScheduleResponse>
             ) {
                 if (!response.isSuccessful) {
                     // 서버 응답 실패
@@ -780,7 +794,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                 handleRoundTrainResponse(apiResponse)
             }
 
-            override fun onFailure(call: Call<SearchTrainScheduleResponse>, t: Throwable) {
+            override fun onFailure(call: Call<RequestTrainScheduleResponse>, t: Throwable) {
                 // 요청 실패
                 // TODO: 실패에 대한 처리 로직을 추가하세요.
                 handleRoundTrainError()
@@ -789,9 +803,9 @@ class MainActivity : BaseActivity(), OnClickListener {
     }
 
 
-    fun handleRoundTrainResponse(searchTrainScheduleResponse: SearchTrainScheduleResponse?) {
+    fun handleRoundTrainResponse(requestTrainScheduleResponse: RequestTrainScheduleResponse?) {
         // TODO : 서버 응답에 대한 로직 구현
-        searchTrainScheduleResponse?.let {
+        requestTrainScheduleResponse?.let {
             val gson = Gson()
             val dataString = gson.toJson(it.data)
             val result = it.result

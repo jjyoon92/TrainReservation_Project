@@ -1,55 +1,71 @@
 package com.sdt.trproject.services
 
 import com.google.gson.annotations.SerializedName
-import com.sdt.trproject.SharedPrefKeys
-import com.sdt.trproject.utils.RetrofitRequestService
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-interface TrainApiService : RetrofitRequestService {
-    companion object {
-        const val TRAIN_RESERVATION = "/train/reservation"
-    }
+interface TrainApiService {
 
     @Headers(
         "accept: application/json",
         "content-type: application/json",
     )
+
     @POST("/train/inquiry")
-    fun searchTrainSchedule(@Body requestData: RequestBody): Call<SearchTrainScheduleResponse>
+    fun requestTrainSchedule(@Body requestData: RequestBody): Call<RequestTrainScheduleResponse>
+
+    @POST("/train/seat/list")
+    fun requestTrainSeatList(): Call<RequestTrainSeatListResponse>
 
     @POST("/train/seat")
     fun requestTrainSeats(@Body requestData: RequestBody): Call<RequestTrainSeatsResponse>
 
-//    @POST("/train/reservation")
-    fun requestTrainReservation(@Body requestData: RequestBody): Call<ResponseBody>
+    @POST("/train/time")
+    fun requestTrainTimeTable(@Body requestData: RequestBody): Call<RequestTrainTimeTableResponse>
 
-    @POST("{path}")
-    override fun onRequest(
-        @Path("path") requestPath: String,
-        @Body requestBody: RequestBody
-    ): Call<ResponseBody> {
-        println("requestPath : $requestPath")
-        println("requestBody : $requestBody")
-        return when (requestPath) {
-            TRAIN_RESERVATION -> {
-                println("TRAIN_RESERVATION")
-                requestTrainReservation(requestBody) as Call<ResponseBody>
-            }
-            else -> {
-                println("TRAIN_RESERVATION???")
-                requestTrainReservation(requestBody) as Call<ResponseBody>
-            }
-        }
-    }
+    @POST("/train/reservation")
+    fun requestTrainReservation(@Body requestData: RequestBody): Call<RequestTrainReservationResponse>
+
+    @POST("/train/reservation/detail")
+    fun requestTrainReservationDetail(@Body requestData: RequestBody): Call<RequestTrainReservationDetailResponse>
+
+    @POST("/train/reservation/payment")
+    fun requestTrainReservationPayment(@Body requestData: RequestBody): Call<RequestTrainReservationPaymentResponse>
+
+    @POST("/train/reservation/cancel")
+    fun requestTrainReservationCancel(@Body requestData: RequestBody): Call<RequestTrainReservationCancelResponse>
+
+    @POST("/train/reservation/list")
+    fun requestTrainReservationList(): Call<RequestTrainReservationListResponse>
+
+//    @POST("{path}")
+//    override fun onRequest(
+//        @Path("path") requestPath: String,
+//        @Body requestBody: RequestBody
+//    ): Call<ResponseBody> {
+//        println("requestPath : $requestPath")
+//        println("requestBody : $requestBody")
+//        return when (requestPath) {
+//            TRAIN_RESERVATION -> {
+//                println("TRAIN_RESERVATION")
+//                requestTrainReservation(requestBody) as Call<ResponseBody>
+//            }
+//            else -> {
+//                println("TRAIN_RESERVATION???")
+//                requestTrainReservation(requestBody) as Call<ResponseBody>
+//            }
+//        }
+//    }
 }
 
-data class SearchTrainScheduleItem(
+data class RequestTrainScheduleItem(
     @SerializedName("adultcharge")
     val adultCharge: String,
     @SerializedName("arrplacename")
@@ -91,15 +107,33 @@ data class RequestTrainSeatsItem(
     val trainNo: String
 )
 
+data class RequestTrainTime(
+    @SerializedName("stationName")
+    val stationName: String,
+    @SerializedName("trainNo")
+    val trainNo: Int,
+    @SerializedName("departAt")
+    val departAt: String
+)
 
-data class SearchTrainScheduleResponse(
+// 열차 시간표 조회 Response
+data class RequestTrainScheduleResponse(
     // 응답 데이터 필드 정의
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: List<SearchTrainScheduleItem>
+    val data: List<RequestTrainScheduleItem>
 )
 
+// 열차 운행시간 표 Response
+data class RequestTrainTimeTableResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainTime>
+)
+
+// 열차 좌석 정보 Response
 data class RequestTrainSeatsResponse(
     @SerializedName("result")
     val result: String,
@@ -107,9 +141,129 @@ data class RequestTrainSeatsResponse(
     val data: List<RequestTrainSeatsItem>
 )
 
+// 열차 예약하기 Response
 data class RequestTrainReservationResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: String
+    val data: RequestTrainReservationItem,
+    @SerializedName("message")
+    val message: String
+)
+
+// 열차 예약하기 Response Data Item
+data class RequestTrainReservationItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+)
+
+// 열차 호차별 좌석 정보 Response
+data class RequestTrainSeatListResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: RequestTrainSeatListItem,
+    @SerializedName("message")
+    val message: String
+)
+
+// 열차 호차별 좌석 정부 Response Data Item
+data class RequestTrainSeatListItem(
+    @SerializedName("standard")
+    val standard: List<String>,
+    @SerializedName("premium")
+    val premium: List<String>
+)
+
+// 열차 예약 정보 Response
+data class RequestTrainReservationDetailResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainReservationDetailItem>,
+    @SerializedName("message")
+    val message: String
+)
+
+// 열차 예약 정보 Response Data Item
+data class RequestTrainReservationDetailItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+    @SerializedName("seat")
+    val seat: String,
+    @SerializedName("date")
+    val date: String,
+    @SerializedName("arriveTime")
+    val arriveTime: String,
+    @SerializedName("arriveStation")
+    val arriveStation: String,
+    @SerializedName("departTime")
+    val departTime: String,
+    @SerializedName("departStation")
+    val departStation: String,
+    @SerializedName("carriage")
+    val carriage: String,
+    @SerializedName("price")
+    val price: Int,
+    @SerializedName("discountedPrice")
+    val discountedPrice: Int,
+    @SerializedName("trainNo")
+    val trainNo: String,
+    @SerializedName("age")
+    val age: String
+)
+
+// 열차 결제 Response
+data class RequestTrainReservationPaymentResponse (
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: String,
+    @SerializedName("message")
+    val message: String
+)
+
+
+// 열차 예약 취소 Response
+data class RequestTrainReservationCancelResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: String,
+    @SerializedName("message")
+    val message: String
+)
+
+// 승차권 확인 Response
+data class RequestTrainReservationListResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainReservationListItem>,
+    @SerializedName("message")
+    val message: String
+)
+
+// 승차권 확인 Response Data Item
+data class RequestTrainReservationListItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+    @SerializedName("date")
+    val date: String,
+    @SerializedName("arriveTime")
+    val arriveTime: String,
+    @SerializedName("arriveStation")
+    val arriveStation: String,
+    @SerializedName("departTime")
+    val departTime: String,
+    @SerializedName("departStation")
+    val departStation: String,
+    @SerializedName("trainNo")
+    val trainNo: String,
+    @SerializedName("ticketCnt")
+    val ticketCnt: Int,
+    @SerializedName("createdDate")
+    val createdDate: String,
+    @SerializedName("expiredDate")
+    val expiredDate: String
 )

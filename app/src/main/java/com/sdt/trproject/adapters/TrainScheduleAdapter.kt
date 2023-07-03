@@ -1,5 +1,6 @@
 package com.sdt.trproject.adapters
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -7,42 +8,22 @@ import android.text.SpannableString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.sdt.trproject.BuildConfig
 import com.sdt.trproject.R
 import com.sdt.trproject.ReservationDetailActivity
-import com.sdt.trproject.network.AppCookieJar
-import com.sdt.trproject.services.RequestTrainReservationResponse
-import com.sdt.trproject.services.RequestTrainSeatsItem
-import com.sdt.trproject.services.RequestTrainSeatsResponse
-import com.sdt.trproject.services.TrainApiService
-import com.sdt.trproject.services.SearchTrainScheduleItem
-import com.sdt.trproject.utils.request
+import com.sdt.trproject.services.*
+import com.sdt.trproject.utils.RetrofitModule
+//import com.sdt.trproject.utils.handle
+import com.sdt.trproject.utils.requestBody
 import com.sdt.trproject.utils.showToast
 import dagger.hilt.android.qualifiers.ActivityContext
-import okhttp3.JavaNetCookieJar
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.net.CookieManager
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 
 class TrainScheduleAdapter @Inject constructor(
@@ -50,7 +31,7 @@ class TrainScheduleAdapter @Inject constructor(
     private var trainApiService: TrainApiService,
 
     ) : RecyclerView.Adapter<TrainScheduleAdapter.ViewHolder>() {
-    private val scheduleItems: MutableList<SearchTrainScheduleItem> = mutableListOf()
+    private val scheduleItems: MutableList<RequestTrainScheduleItem> = mutableListOf()
     private val seatItems: MutableList<RequestTrainSeatsItem> = mutableListOf()
     private var lastCheckedPosition = -1
     private var selectedRadio = -1;
@@ -67,6 +48,7 @@ class TrainScheduleAdapter @Inject constructor(
     private var adultCount: Int = 0
     private var childCount: Int = 0
     private var oldCount: Int = 0
+    private var personCount: Int = 0
 
 
     fun initData(
@@ -79,10 +61,12 @@ class TrainScheduleAdapter @Inject constructor(
         returnTime: Int,
         adultCount: Int,
         childCount: Int,
-        oldCount: Int
+        oldCount: Int,
+        personCount: Int,
     ) {
         this.recyclerView = recyclerView
         this.departureStation = departureStation
+        this.personCount = personCount
     }
 
 
@@ -102,7 +86,7 @@ class TrainScheduleAdapter @Inject constructor(
 //    }
 
 
-    fun setData(data: List<SearchTrainScheduleItem>) {
+    fun setData(data: List<RequestTrainScheduleItem>) {
         scheduleItems.clear()
         scheduleItems.addAll(data)
         notifyDataSetChanged() // 리스트의 크기와 아이템이 둘 다 변경되는 경우 ( 대체 가능? )
@@ -185,123 +169,128 @@ class TrainScheduleAdapter @Inject constructor(
 
 
         init {
-
-
 //            btnTrainScheduleReservation.setOnClickListener {
 //                sendRequestReservationTrain(items[adapterPosition])
 //            }
-
         }
 
-        fun sendRequestReservationTrain(
-            item: SearchTrainScheduleItem,
+        private fun sendRequestReservationTrain(
+            item: RequestTrainScheduleItem,
             carriage: Int,
-            seat: String
+            reservedSeatList: List<String>
         ) {
             val trainNo = item.trainNo
             val carriage = carriage
-            val seat = seat
+            val reservedSeatList = reservedSeatList
             val departureStation = item.depPlaceName
             val departureTime = item.depPlandTime
             val arrivalStation = item.arrPlaceName
             val arrivalTime = item.arrPlandTime
             val date = item.date
 
-            val jsonObject = JSONObject()
-            jsonObject.put("trainNo", trainNo)
-            jsonObject.put("carriage", carriage)
-            jsonObject.put("seat", seat)
-            jsonObject.put("departStation", departureStation)
-            jsonObject.put("departTime", departureTime)
-            jsonObject.put("arriveStation", arrivalStation)
-            jsonObject.put("arriveTime", arrivalTime)
-            jsonObject.put("date", date)
-
             val jsonArray = JSONArray()
-            jsonArray.put(jsonObject)
 
-            println("trainNo : $trainNo, carriage : $carriage, seat : $seat, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
+            reservedSeatList.forEach {
+                val jsonObject = JSONObject()
+                jsonObject.put("trainNo", trainNo)
+                jsonObject.put("carriage", carriage)
+                jsonObject.put("departStation", departureStation)
+                jsonObject.put("seat", it)
+                jsonObject.put("departTime", departureTime)
+                jsonObject.put("arriveStation", arrivalStation)
+                jsonObject.put("arriveTime", arrivalTime)
+                jsonObject.put("date", date)
+
+                jsonArray.put(jsonObject)
+            }
+
+
+            println("trainNo : $trainNo, carriage : $carriage, remainSeatList : $reservedSeatList, departStation : $departureStation, departTime : $departureTime, arriveStation : $arrivalStation, arriveTime : $arrivalTime, date : $date  ")
             println("jsonArray : $jsonArray")
-            trainApiService.request<RequestTrainReservationResponse>(
-                context = context,
-                requestPath = TrainApiService.TRAIN_RESERVATION,
-                data = jsonArray,
-                failListener = { message: String, httpCode: Int ->
-                    println("message : $message, httpCode : $httpCode")
+
+            val requestBody = jsonArray.requestBody()
+            val call = trainApiService.requestTrainReservation(requestBody)
+
+            RetrofitModule.executeCall(
+                call,
+                onFailure = { message, httpCode ->
+                    println("TrainReservation 요청 실패 : Message = $message, HttpCode = $httpCode")
+                },
+                onSuccess = { response ->
+                    println("TrainReservation 요청 성공 : Response = $response")
+                    handleRequestTrainReservationResponse(response, scheduleItems[adapterPosition])
                 }
-            ) {
-                handleRequestTrainReservationResponse(it, scheduleItems[adapterPosition])
-            }
-//            val requestBody = jsonArray.toString()
-//                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-//
-//            val call = trainApiService.requestTrainReservation(requestBody)
-//            call.enqueue(object : Callback<RequestTrainReservationResponse> {
-//                override fun onResponse(
-//                    call: Call<RequestTrainReservationResponse>,
-//                    response: Response<RequestTrainReservationResponse>
-//                ) {
-//                    if (!response.isSuccessful) {
-//                        onFailure(call, t = HttpException(
-//                            Response.error<RequestTrainReservationResponse>(response.code(), "예약 실패".toResponseBody(null))
-//                        ))
-//                        return
-//                    }
-//
-//                    val apiResponse = response.body()
-//                    if (apiResponse == null ) {
-//                        onFailure(call, t = HttpException(
-//                            Response.error<RequestTrainReservationResponse>(500, "응답 없음".toResponseBody(null))
-//                        ))
-//                        return
-//                    }
-//                    println("apiResponse : $apiResponse.toString()")
-//                    handleRequestTrainReservationResponse(apiResponse, scheduleItems[adapterPosition])
-//                }
-//
-//                override fun onFailure(call: Call<RequestTrainReservationResponse>, t: Throwable) {
-//                    TODO("Not yet implemented")
-//                }
-//            })
+            )
         }
 
-        fun handleRequestTrainReservationResponse(
-            response: RequestTrainReservationResponse,
-            item: SearchTrainScheduleItem,
+        private fun handleRequestTrainReservationResponse(
+            response: RequestTrainReservationResponse?,
+            item: RequestTrainScheduleItem,
         ) {
+            println("response!!! : $response")
+            if (response != null) {
+                if (response.result == "failure") {
+                    context.showToast("예약 실패")
+                    return
+                }
 
-            if (response.result == "failure") {
-                context.showToast("예약 실패")
-                return
+                println("예약 성공!")
+                requestReservationDetail(response)
+
+            } else {
+                println("response가 null")
             }
-
-            println("예약 성공!")
-
-            val intent = Intent(context, ReservationDetailActivity::class.java).apply {
-                putExtra("TRAIN_NO", item.trainNo)
-                putExtra("CARRIAGE", if (radioBtnPremiumSeatSelect.isChecked) 1 else 2)
-//                    putExtra("SEAT", selected)
-                putExtra("DATE", item.date)
-                putExtra("DEPARTSTATION", item.depPlaceName)
-                putExtra("DEPARTTIME", item.depPlandTime)
-                putExtra("ARRIVESTATION", item.arrPlaceName)
-                putExtra("ARRIVETIME", item.arrPlandTime)
-                putExtra("ADULTCOUNT", adultCount)
-                putExtra("CHILDCOUNT", childCount)
-                putExtra("OLDCOUNT", oldCount)
-            }
-
-            context.startActivity(intent)
         }
 
+        // 예약 정보 가져오기
+        private fun requestReservationDetail(response: RequestTrainReservationResponse) {
+            println("예약 정보 요청 보내기")
+            val reservationId = response.data.reservationId
+            val jsonObject = JSONObject()
+            jsonObject.put("reservationId", reservationId)
+
+            val requestBody = jsonObject.requestBody()
+            val call = trainApiService.requestTrainReservationDetail(requestBody)
+
+            RetrofitModule.executeCall(
+                call,
+                onFailure = { message, httpCode ->
+                    println("reservationDetail 요청 실패 : Message = $message, HttpCode = $httpCode")
+                },
+                onSuccess = { response ->
+                    println("reservationDetail 요청 성공 : Response = $response")
+                    handleRequestTrainReservationDetailResponse(response)
+                }
+            )
+        }
+
+
+        // 예약정보 요청 성공 응답 처리
+        private fun handleRequestTrainReservationDetailResponse(response: RequestTrainReservationDetailResponse) {
+            response.let {
+
+                val gson = Gson()
+                val dataString = gson.toJson(it.data)
+                val intent = Intent(context, ReservationDetailActivity::class.java).apply {
+                    putExtra("DATA", dataString)
+                }
+
+                context.startActivity(intent)
+                if (context is Activity) {
+                    (context as Activity).finish()
+                }
+            }
+
+        }
 
         // 좌석 예약하기
-        fun sendRequestSeatsTrain(item: SearchTrainScheduleItem, carriage: Int) {
+        private fun sendRequestSeatsTrain(item: RequestTrainScheduleItem, carriage: Int) {
             // 우선 해당 열차 및 호차에 좌석이 있는지 확인 위해 예약된 좌석 요청
             val trainNo = item.trainNo
             val date = item.date
             val departureTime = item.depPlandTime
             val arrivalTime = item.arrPlandTime
+            val personCount = personCount
 
             val jsonObject = JSONObject()
             jsonObject.put("trainNo", trainNo)
@@ -309,41 +298,33 @@ class TrainScheduleAdapter @Inject constructor(
             jsonObject.put("departTime", departureTime)
             jsonObject.put("arriveTime", arrivalTime)
 
-            val requestBody = jsonObject.toString()
-                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
+            val requestBody = jsonObject.requestBody()
             val call = trainApiService.requestTrainSeats(requestBody)
-            call.enqueue(object : Callback<RequestTrainSeatsResponse> {
-                override fun onResponse(
-                    call: Call<RequestTrainSeatsResponse>,
-                    response: Response<RequestTrainSeatsResponse>
-                ) {
-                    if (!response.isSuccessful) {
-                        println("좌석 요청 실패")
 
-                        return
-                    }
-
-                    val apiResponse = response.body()
-
-
-                    handleRequestTrainSeatsResponse(apiResponse, item, carriage)
+            RetrofitModule.executeCall(
+                call,
+                onFailure = { message, httpCode ->
+                    println("TrainSeats 요청 실패 : Message = $message, HttpCode = $httpCode")
+                },
+                onSuccess = { response ->
+                    println("TrainSeats 요청 성공 : Response = $response")
+                    handleRequestTrainSeatsResponse(response, item, carriage, personCount)
                 }
-
-                override fun onFailure(call: Call<RequestTrainSeatsResponse>, t: Throwable) {
-                    handleRequestTrainSeatsError()
-                }
-            })
+            )
         }
 
-        fun handleRequestTrainSeatsResponse(
-            requestTrainSeatsResponse: RequestTrainSeatsResponse?,
-            item: SearchTrainScheduleItem,
-            carriage: Int
+        // 좌석 요청 성공
+        private fun handleRequestTrainSeatsResponse(
+            response: RequestTrainSeatsResponse,
+            item: RequestTrainScheduleItem,
+            carriage: Int,
+            personCount: Int
         ) {
+            println("TrainSeats 요청 성공 : Item = $item, Carriage = $carriage, PersonCount = $personCount, Response = $response")
+
             // TODO: 좌석 요청에 대한 서버 응답 처리 로직
             println("좌석 요청 성공!")
-            requestTrainSeatsResponse?.let {
+            response?.let {
                 val gson = Gson()
                 val dataString = gson.toJson(it.data)
                 val result = it.result
@@ -365,55 +346,73 @@ class TrainScheduleAdapter @Inject constructor(
                     seatList.add(seat)
                 }
 
-                // 나머지 좌석 구하기
-                val allPremiumSeats = listOf("1A", "2A", "3A", "1B", "2B", "3B", "1C", "2C", "3C")
-                val allStandardSeats =
-                    listOf("1A", "2A", "3A", "4A", "1B", "2B", "3B", "4B", "1C", "2C", "3C", "4C")
-                val remainingSeats =
-                    if (carriage == 2) {
-                        allPremiumSeats.filter { !seatList.contains(it) }
-                    } else {
-                        allStandardSeats.filter { !seatList.contains(it) }
+                // 좌석 정보 요청
+                val call = trainApiService.requestTrainSeatList()
+                RetrofitModule.executeCall(
+                    call,
+                    onFailure = { message, httpCode ->
+                        println("TrainSeatsList 요청 실패 : Message = $message, HttpCode = $httpCode")
+                    },
+                    onSuccess = { response ->
+                        handleRequestTrainSeatListResponse(
+                            response,
+                            carriage,
+                            seatList,
+                            personCount
+                        )
                     }
-
-                println("result : $result")
-                println("data : $data")
-                println("예약 가능한 좌석: $remainingSeats")
-
-                // seatItems 리스트에 데이터 추가
-//                seatItems.clear()
-//                seatItems.addAll(data)
-
-                // 예약을 위한 정보 전달
-//                val selectedSeatItem = seatItems.find { it.trainNo == item.trainNo.toString() }
-//                selectedSeatItem?.let {
-                sendRequestReservationTrain(
-                    scheduleItems[adapterPosition],
-                    carriage,
-                    seat = remainingSeats[0]
                 )
-//                }
-
-//                seatSelectionListener.onSeatAndPersonSelected(selectedSeat, )
             }
         }
 
-        fun handleRequestTrainSeatsError() {
-            //TODO: 좌석 요청 실패 시 로직 처리
+        private fun handleRequestTrainSeatsError() {
+            println("TODO: 좌석 요청 실패 처리 부분 --")
         }
 
+        private fun handleRequestTrainSeatListResponse(
+            response: RequestTrainSeatListResponse,
+            carriage: Int,
+            seatList: List<String>,
+            personCount: Int
+        ) {
+            println("TrainSeatsList 요청 성공 : Response = $response")
 
-        fun bind(searchTrainScheduleItem: SearchTrainScheduleItem, position: Int) {
+            val premiumSeatList = response.data.premium
+            val standardSeatList = response.data.standard
+
+            // 나머지 좌석 구하기
+//            val allPremiumSeats = listOf("1A", "2A", "3A", "1B", "2B", "3B", "1C", "2C", "3C")
+//            val allStandardSeats =
+//                listOf("1A", "2A", "3A", "4A", "1B", "2B", "3B", "4B", "1C", "2C", "3C", "4C")
+            val remainSeatList =
+                if (carriage == 2) {
+                    premiumSeatList.filter { !seatList.contains(it) }
+                } else {
+                    standardSeatList.filter { !seatList.contains(it) }
+                }
+
+            println("예약 가능한 좌석: $remainSeatList")
+
+            val reservedSeatList = remainSeatList.slice(0 until personCount)
+            println("예약 예정인 좌석 : $reservedSeatList")
+            sendRequestReservationTrain(
+                scheduleItems[adapterPosition],
+                carriage,
+                reservedSeatList = reservedSeatList
+            )
+        }
+
+        fun bind(requestTrainScheduleItem: RequestTrainScheduleItem, position: Int) {
 
             // 텍스트 적용
             radioBtnPremiumSeatSelect.text = premiumSeatText
             radioBtnStandardSeatSelect.text = standardSeatText
 
             // 매진 텍스트 적용
-            if (searchTrainScheduleItem.vip) {
+            if (requestTrainScheduleItem.vip) {
                 radioBtnPremiumSeatSelect.text = "매진"
             }
-            if (searchTrainScheduleItem.common) {
+            if (requestTrainScheduleItem.common) {
                 radioBtnStandardSeatSelect.text = "매진"
             }
 
@@ -455,7 +454,7 @@ class TrainScheduleAdapter @Inject constructor(
                             Color.WHITE
                         }
                     )
-                }//.isChecked = !isPremium
+                }//.isChecked = !isStandard
                 trainScheduleDropdownMenu.visibility = View.VISIBLE
             }
 
@@ -486,8 +485,8 @@ class TrainScheduleAdapter @Inject constructor(
             val hourMinFormat = SimpleDateFormat("HHmm", Locale.getDefault())
             val hourFormat = SimpleDateFormat("HH", Locale.getDefault())
             val minFormat = SimpleDateFormat("mm", Locale.getDefault())
-            val departureTime = originalFormat.parse(searchTrainScheduleItem.depPlandTime)
-            val arrivalTime = originalFormat.parse(searchTrainScheduleItem.arrPlandTime)
+            val departureTime = originalFormat.parse(requestTrainScheduleItem.depPlandTime)
+            val arrivalTime = originalFormat.parse(requestTrainScheduleItem.arrPlandTime)
             val formattedDepartureTime = targetFormat.format(departureTime)
             val formattedArrivalTime = targetFormat.format(arrivalTime)
 
@@ -521,10 +520,10 @@ class TrainScheduleAdapter @Inject constructor(
 
             tvEstimatedTime.text = timeDifference
 
-            tvTrainNo.text = searchTrainScheduleItem.trainNo.toString()
-            tvDepartureStation.text = searchTrainScheduleItem.depPlaceName
+            tvTrainNo.text = requestTrainScheduleItem.trainNo.toString()
+            tvDepartureStation.text = requestTrainScheduleItem.depPlaceName
             tvDepartureTime.text = formattedDepartureTime
-            tvArrivalStation.text = searchTrainScheduleItem.arrPlaceName
+            tvArrivalStation.text = requestTrainScheduleItem.arrPlaceName
             tvArrivalTime.text = formattedArrivalTime
 
 
@@ -541,7 +540,7 @@ class TrainScheduleAdapter @Inject constructor(
                 when (checkedId) {
                     R.id.radioBtnPremiumSeatSelect -> {
                         btnTrainScheduleReservation.text = "특실 예약하기"
-                        if (searchTrainScheduleItem.vip == true) {
+                        if (requestTrainScheduleItem.vip == true) {
                             radioBtnPremiumSeatSelect.text = "매진"
                             btnTrainScheduleReservation.isEnabled = false
                             btnTrainScheduleReservation.setBackgroundColor(Color.GRAY)
@@ -562,7 +561,7 @@ class TrainScheduleAdapter @Inject constructor(
 
                     R.id.radioBtnStandardSeatSelect -> {
                         btnTrainScheduleReservation.text = "일반실 예약하기"
-                        if (searchTrainScheduleItem.common == true) {
+                        if (requestTrainScheduleItem.common == true) {
                             radioBtnStandardSeatSelect.text = "매진"
                             btnTrainScheduleReservation.isEnabled = false
                             btnTrainScheduleReservation.setBackgroundColor(Color.GRAY)
