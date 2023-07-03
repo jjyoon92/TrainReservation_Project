@@ -32,7 +32,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -62,7 +61,8 @@
         <activity android:name=".ArrivalCalendarActivity" />
         <activity android:name=".TrainScheduleActivity" />
         <activity android:name=".ReservationDetailActivity" />
-        <activity android:name=".SplashLoadingActivity"/>
+        <activity android:name=".ReservationTicketListActivity" />
+        <activity android:name=".SplashLoadingActivity" />
         <activity android:name=".ReservationCancelActivity" />
         <activity android:name="com.sdt.trproject.MyProfileActivity" />
         <activity android:name=".ksh.HelloworldActivity" />
