@@ -34,7 +34,7 @@ import java.io.IOException
 import java.net.CookieManager
 import java.net.CookieStore
 
-class LoginUserNumFragment : Fragment() {
+class LoginEmailFragment : Fragment() {
 
     lateinit var loginUserNumBinding: FragmentLoginUserNumBinding
 

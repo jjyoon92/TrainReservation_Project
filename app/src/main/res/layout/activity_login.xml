@@ -1,4 +1,5 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_login"
@@ -11,10 +12,32 @@
     <include layout="@layout/include_guideline_top" />
     <include layout="@layout/include_guideline_bottom" />
 
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/Theme.AppCompat.Light"
+            tools:ignore="MissingConstraints">
+            <!-- 메뉴 설정하는 방법 : https://stackoverflow.com/questions/35648913/how-to-set-menu-to-toolbar-in-android -->
+            <include layout="@layout/appbar_main"/>
+        </androidx.appcompat.widget.Toolbar>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
+        android:layout_marginTop="50dp"
         app:layout_constraintBottom_toTopOf="@+id/mainGuidelineHorizontalBottom"
         app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
         app:layout_constraintRight_toLeftOf="@+id/mainGuidelineVerticalRight"
@@ -23,7 +46,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-           >
+            android:layout_marginTop="55dp">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/member_btn"
@@ -59,15 +82,14 @@
         <FrameLayout
             android:id="@+id/activity_login_view"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="250dp"
 
             />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-     >
+            android:layout_gravity="center">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/member_find_btn"
@@ -76,7 +98,6 @@
                 android:layout_weight="1"
                 android:background="@color/white"
                 android:text="@string/member_number_search"
-                android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_size_small" />
 
@@ -89,7 +110,6 @@
                 android:maxLines="1"
                 android:text="@string/pw_search"
                 android:textColor="@color/black"
-                android:textStyle="bold"
                 android:textSize="@dimen/text_size_small" />
 
             <androidx.appcompat.widget.AppCompatButton
@@ -100,10 +120,73 @@
                 android:background="@color/white"
                 android:text="@string/join_membership"
                 android:textColor="@color/black"
-                android:textStyle="bold"
                 android:textSize="@dimen/text_size_small" />
 
 
         </LinearLayout>
+
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="left|start"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/nav_view_non_member"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:visibility="visible"
+                app:elevation="0dp"
+                app:headerLayout="@layout/appbar_header"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:menu="@menu/activity_menu_drawer" />
+
+            <LinearLayout
+                android:id="@+id/spacer_non_member"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@id/divider_non_member"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nav_view_non_member" />
+
+
+            <RelativeLayout
+                android:id="@+id/divider_non_member"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/dark_gray"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@id/footer_non_member"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spacer_non_member" />
+
+            <include
+                android:id="@+id/footer_non_member"
+                layout="@layout/appbaer_footer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/divider_non_member" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.drawerlayout.widget.DrawerLayout>

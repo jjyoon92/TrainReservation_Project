@@ -14,7 +14,6 @@
 
 
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -41,7 +40,7 @@
             android:name=".SignUpVerificationActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumPage"
+            android:name=".FindUserIdResultPage"
             android:exported="false" />
         <activity
             android:name=".ChangePasswordActivity"
@@ -50,10 +49,10 @@
             android:name=".FindPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumFindSendMailActivity"
+            android:name=".FindUserIdSendMailActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumFindMainActivity"
+            android:name=".FindUserIdMainActivity"
             android:exported="false" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />

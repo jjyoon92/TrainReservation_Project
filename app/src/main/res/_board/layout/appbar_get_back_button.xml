@@ -12,11 +12,11 @@
         android:background="@color/primary"
         android:orientation="horizontal">
 
-        <ImageView android:id="@+id/nav_btn"
+        <ImageView android:id="@+id/back_btn"
             android:layout_width="24dp"
             android:layout_height="?attr/actionBarSize"
             android:layout_marginLeft="20dp"
-            android:src="@drawable/ic_menu"
+            android:src="@drawable/ic_back_button"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -29,7 +29,7 @@
             android:textColor="@color/white"
             android:textSize="30dp"
             android:textStyle="bold"
-            app:layout_constraintLeft_toRightOf="@+id/nav_btn"
+            app:layout_constraintLeft_toRightOf="@+id/back_btn"
             app:layout_constraintRight_toLeftOf="@+id/trailing_ll"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
