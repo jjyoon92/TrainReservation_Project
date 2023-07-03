@@ -39,6 +39,9 @@ interface TrainApiService {
     @POST("/train/reservation/cancel")
     fun requestTrainReservationCancel(@Body requestData: RequestBody): Call<RequestTrainReservationCancelResponse>
 
+    @POST("/train/reservation/list")
+    fun requestTrainReservationList(): Call<RequestTrainReservationListResponse>
+
 //    @POST("{path}")
 //    override fun onRequest(
 //        @Path("path") requestPath: String,
@@ -214,4 +217,36 @@ data class RequestTrainReservationCancelResponse(
     val result: String,
     @SerializedName("data")
     val data: String
+)
+
+// 승차권 확인 Response
+data class RequestTrainReservationListResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainReservationListItem>
+)
+
+// 승차권 확인 Response Data Item
+data class RequestTrainReservationListItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+    @SerializedName("date")
+    val date: String,
+    @SerializedName("arriveTime")
+    val arriveTime: String,
+    @SerializedName("arriveStation")
+    val arriveStation: String,
+    @SerializedName("departTime")
+    val departTime: String,
+    @SerializedName("departStation")
+    val departStation: String,
+    @SerializedName("trainNo")
+    val trainNo: String,
+    @SerializedName("ticketCnt")
+    val ticketCnt: Int,
+    @SerializedName("createdDate")
+    val createdDate: String,
+    @SerializedName("expiredDate")
+    val expiredDate: String
 )

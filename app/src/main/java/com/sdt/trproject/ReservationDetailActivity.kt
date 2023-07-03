@@ -18,6 +18,7 @@ import com.sdt.trproject.services.RequestTrainReservationDetailItem
 import com.sdt.trproject.services.TrainApiService
 import com.sdt.trproject.utils.RetrofitModule
 import com.sdt.trproject.utils.requestBody
+import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONObject
 import org.w3c.dom.Text
 import java.text.NumberFormat
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class ReservationDetailActivity : AppCompatActivity() {
 
     private lateinit var data: String
@@ -56,7 +58,7 @@ class ReservationDetailActivity : AppCompatActivity() {
     private var finalCharge: Int = 0
     private var totalDiscountedCharge: Int = 0
 
-    private lateinit var btnReservationCancel: Button
+    private lateinit var btnGoToReservationCancellation: Button
     private lateinit var btnReservationPay: Button
 
     @Inject
@@ -74,7 +76,7 @@ class ReservationDetailActivity : AppCompatActivity() {
         tvTotalCharge = findViewById(R.id.tvTotalChargeNumericText)
         tvTotalDiscountCharge = findViewById(R.id.tvTotalDiscountChargeNumericText)
         tvFinalCharge = findViewById(R.id.tvFinalChargeNumericText)
-        btnReservationCancel = findViewById(R.id.btnReservationDetailCancel)
+        btnGoToReservationCancellation = findViewById(R.id.btnGoToReservationCancellation)
 
 
         val linearLayout: LinearLayout = findViewById(R.id.ticketListLl)
@@ -189,40 +191,49 @@ class ReservationDetailActivity : AppCompatActivity() {
         tvFinalCharge.text = "${formattedFinalCharge}원"
 
 
-        /* 취소 이벤트 */
-        btnReservationCancel.setOnClickListener {
-            sendRequestReservationCancel(reservationId)
+        /* 취소 확정 페이지로 넘어가기 */
+        btnGoToReservationCancellation.setOnClickListener {
+            val intent = Intent(this, ReservationCancelActivity::class.java).apply {
+                putExtra("RESERVATION_ID", reservationId)
+            }
+
+            startActivity(intent)
+//            sendRequestReservationCancel(reservationId)
         }
 
     }
 
-    /* 취소요청 시작 */
+    /* 취소 요청 시작 */
 
-    private fun sendRequestReservationCancel(id: String) {
-        val reservationId: String = id
-
-        val jsonObject = JSONObject()
-        jsonObject.put("reservationId", reservationId)
-
-        val requestBody = jsonObject.requestBody()
-        val call = trainApiService.requestTrainReservationCancel(requestBody)
-
-        RetrofitModule.executeCall(
-            call,
-            onFailure = { message, httpCode ->
-                println("reservationCancel 요청 실패 : Message = $message, HttpCode = $httpCode")
-            },
-            onSuccess = { response ->
-                println("reservationCancel 요청 성공 : Response = $response")
-                handleRequestTrainReservationCancelResponse(response)
-            }
-        )
-    }
-
-    // 취소 성공 처리
-    private fun handleRequestTrainReservationCancelResponse(response: RequestTrainReservationCancelResponse) {
-        val intent = Intent(this, MainActivity::class.java)
-    }
+//    private fun sendRequestReservationCancel(id: String) {
+//        val reservationId: String = id
+//
+//        val jsonObject = JSONObject()
+//        jsonObject.put("reservationId", reservationId)
+//
+//        val requestBody = jsonObject.requestBody()
+//        val call = trainApiService.requestTrainReservationCancel(requestBody)
+//
+//        RetrofitModule.executeCall(
+//            call,
+//            onFailure = { message, httpCode ->
+//                println("reservationCancel 요청 실패 : Message = $message, HttpCode = $httpCode")
+//            },
+//            onSuccess = { response ->
+//                println("reservationCancel 요청 성공 : Response = $response")
+//                handleRequestTrainReservationCancelResponse(response)
+//            }
+//        )
+//    }
+//
+//    // 취소 성공 처리
+//    private fun handleRequestTrainReservationCancelResponse(response: RequestTrainReservationCancelResponse) {
+//        val intent = Intent(this, ReservationCancelActivity::class.java).apply {
+//            putExtra("RESERVATION_ID", reservationId)
+//        }
+//
+//        startActivity(intent)
+//    }
 
 
     /* 취소요청 끝 */
