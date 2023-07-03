@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:id="@+id/tvConfirmMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="정말로 취소하시겠습니까?"
@@ -23,7 +23,7 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/confirmButton"
+            android:id="@+id/btnConfirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="확인"
@@ -32,7 +32,7 @@
             android:layout_marginEnd="8dp" />
 
         <Button
-            android:id="@+id/cancelButton"
+            android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="취소"
@@ -41,5 +41,4 @@
             android:layout_marginStart="8dp" />
 
     </LinearLayout>
-
 </LinearLayout>
