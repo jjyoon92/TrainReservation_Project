@@ -14,7 +14,6 @@
 
 
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,8 +25,9 @@
         android:theme="@style/Theme.TRProject"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,11 +35,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" />
         <activity
             android:name=".SignUpVerificationActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumPage"
+            android:name=".FindUserIdResultPage"
             android:exported="false" />
         <activity
             android:name=".ChangePasswordActivity"
@@ -48,10 +49,10 @@
             android:name=".FindPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumFindSendMailActivity"
+            android:name=".FindUserIdSendMailActivity"
             android:exported="false" />
         <activity
-            android:name=".UserNumFindMainActivity"
+            android:name=".FindUserIdMainActivity"
             android:exported="false" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
@@ -60,9 +61,12 @@
         <activity android:name=".ArrivalCalendarActivity" />
         <activity android:name=".TrainScheduleActivity" />
         <activity android:name=".ReservationDetailActivity" />
+        <activity android:name=".SplashLoadingActivity"/>
+        <activity android:name=".ReservationCancelActivity" />
         <activity android:name="com.sdt.trproject.MyProfileActivity" />
-        <activity android:name=".ksh.HelloworldActivity"/>
+        <activity android:name=".ksh.HelloworldActivity" />
         <activity android:name=".ksh.BoardActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.sdt.trproject.pictures"
@@ -73,5 +77,4 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-
 </manifest>

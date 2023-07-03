@@ -7,6 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
     <include layout="@layout/include_guideline_left" />
 
     <include layout="@layout/include_guideline_right" />
@@ -15,9 +17,23 @@
 
     <include layout="@layout/include_guideline_bottom" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/Theme.AppCompat.Light"
+        tools:ignore="MissingConstraints">
+        <!-- 메뉴 설정하는 방법 : https://stackoverflow.com/questions/35648913/how-to-set-menu-to-toolbar-in-android -->
+        <include layout="@layout/appbar_get_clear_button"/>
+    </androidx.appcompat.widget.Toolbar>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/margin_nav"
         app:layout_constraintBottom_toTopOf="@+id/mainGuidelineHorizontalBottom"
         app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
         app:layout_constraintRight_toLeftOf="@+id/mainGuidelineVerticalRight"
@@ -34,10 +50,10 @@
             android:gravity="center"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/divider"/>
+            app:layout_constraintBottom_toTopOf="@+id/divider_non_member"/>
 
         <RelativeLayout
-            android:id="@+id/divider"
+            android:id="@+id/divider_non_member"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginStart="@dimen/margin_left"
@@ -60,7 +76,7 @@
             android:gravity="center"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider"
+            app:layout_constraintTop_toBottomOf="@+id/divider_non_member"
             />
 
 

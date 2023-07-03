@@ -6,6 +6,7 @@
     android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/appbarMainContainer"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
@@ -20,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <TextView
+        <TextView android:id="@+id/appbarTitle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -37,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
             android:orientation="horizontal"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="40dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

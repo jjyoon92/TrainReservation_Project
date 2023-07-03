@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +30,9 @@ class SignUpActivity : AppCompatActivity() {
     companion object {
         const val INPUT_EMAIL = "EMAIL"
     }
+
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
 
     // TextView
     private lateinit var input_name: TextView
@@ -73,6 +77,15 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
+
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("회원가입")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
 
         input_name = findViewById(R.id.input_name)
@@ -209,8 +222,7 @@ class SignUpActivity : AppCompatActivity() {
     // 휴대폰 번호 중복조회
     private fun isDuplicationPhone(phone: String) {
 
-        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplication/phone"
-
+        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplicated/phone"
         val gson = Gson()
         val data = MyPhoneData(phone)
 //        val json2 = gson.toJson("{\"id\":\"${ data.toString() }\"}")
@@ -255,8 +267,7 @@ class SignUpActivity : AppCompatActivity() {
 
                 lifecycleScope.launch(Dispatchers.Main) {
 
-                    showToast("전화번호를 성공적으로 전송 했습니다.")
-                    println(request.toString())
+                    showToast("isDuplicationPhone 통신 성공.")
 
                     val jsonString = JSONObject(responseData)
                     val responseResult = jsonString.getString("result")
@@ -266,22 +277,30 @@ class SignUpActivity : AppCompatActivity() {
 
                         "failure" -> {
                             val responseMessage = jsonString.getString("message")
-                            showToast("사용 불가능한 전화번호 입니다.")
-                            Log.d("responseMessage", "responseMessage : ${responseMessage}")
-                            Log.d("/isDuplication/phone", "responseResult : ${responseResult}")
+
+
+                            when (responseMessage) {
+
+                                "input_error" -> { Log.d("isDuplicationPhone", " responseMessage : ${responseMessage} ")
+                                    showToast("전화 번호를 확인해 주세요.")}
+
+                                "phone_duplicated" -> { Log.d("isDuplicationPhone", " responseMessage : ${responseMessage} ")
+                                    showToast("동일한 사용자 가 존재합니다.")}
+
+                                else -> { Log.d("isDuplicationPhone", " responseMessage : ${responseMessage} ")
+                                    showToast("사용 불가능한 전화번호입니다.")}
+                            }
                         }
-
                         "success" -> {
-
                             showToast("사용 가능한 전화번호 입니다.")
                             Log.d("/isDuplication/phone", "responseResult : ${responseResult}")
                             register_btn.isEnabled = true
                         }
 
                         else -> {
-                            showToast("코드오류")
-                            Log.d("/isDuplication/phone", "알 수 없는 오류")
-                            Log.d("이거확인 ", responseResult)
+                            showToast("알 수 없는 오류")
+                            Log.d("/isDuplication/phone", "${responseResult}")
+
                         }
                     }
                 }
@@ -354,6 +373,7 @@ class SignUpActivity : AppCompatActivity() {
                             startActivity(intent)
 
                             println(request.toString())
+                            finish()
                         }
                         else -> showToast("코드오류")
 
@@ -364,7 +384,7 @@ class SignUpActivity : AppCompatActivity() {
         })
     }
 
-    // 토스트 메시지 출력 함수
+    // 토스트 메시지 출력 함수수
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

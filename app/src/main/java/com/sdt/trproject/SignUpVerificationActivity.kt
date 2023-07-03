@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -32,6 +33,9 @@ import java.util.Timer
 class SignUpVerificationActivity : AppCompatActivity() {
 
 
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
+
     // 비밀번호 변수
     var token: String? = null
 
@@ -56,6 +60,15 @@ class SignUpVerificationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up_verification)
+
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("회원가입")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
         // View 요소 초기화
         sendInputEmailName = findViewById(R.id.sendInputEmailName)
@@ -216,7 +229,7 @@ class SignUpVerificationActivity : AppCompatActivity() {
 
     private fun matchEmailCode(email: String, authCode: String) {
         // 요청을 보낼 URL 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/register/matchEmailCode"
+        val url = "${BuildConfig.SERVER_ADDR}/member/matchEmailCode"
 
 //        val requestEmail = requestBody(email, token)
 //        val json = Json.encodeToString(loginInfo)
@@ -278,12 +291,19 @@ class SignUpVerificationActivity : AppCompatActivity() {
 
                             when (responseResult) {
 
-                                "EmailFail" -> {
-                                    showToast("인증번호를 확인해주세요")
-                                }
+                                "failure" -> {
+                                    val responseMessage = jsonString.getString("message")
 
-                                "expired" -> {
-                                    showToast("인증번호 기한이 만료되었습니다.")
+                                    when (responseMessage) {
+
+                                        "auth_code_expired" -> { showToast(" 인증번호가 만료되었습니다. ") }
+
+                                        "input_error" -> { showToast(" 이메일 및 인증번호를 확인해주세요 ") }
+
+                                        else -> {showToast(" 알 수 없는 코드 오류 ")
+                                            Log.d("matchEmailCode / Message Error" , " message : ${responseMessage} ")}
+
+                                    }
                                 }
 
                                 "success" -> {
@@ -295,11 +315,13 @@ class SignUpVerificationActivity : AppCompatActivity() {
                                     this@SignUpVerificationActivity.startActivity(intent)
                                     stopTimer()
                                     timerTextView.text = ""
+                                    finish()
                                 }
 
                                 else -> {
-                                    showToast("코드오류")
+                                    showToast(" 알 수 없는 코드 오류")
                                     println(responseData)
+                                    Log.d("matchEmailCode / ResponseData Error"," message : ${responseData} ")
 
                                 }
                             }
@@ -312,7 +334,7 @@ class SignUpVerificationActivity : AppCompatActivity() {
     // id = email
     private fun isDuplicationEmail(email: String) {
         // 주소 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplication/email"
+        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplicated/email"
         // json 타입 변환
         val gson = Gson()
         val data = MyData(email)
@@ -330,7 +352,7 @@ class SignUpVerificationActivity : AppCompatActivity() {
                 // 요청 실패 시 처리
                 e.printStackTrace()
                 lifecycleScope.launch(Dispatchers.Main) {
-                    showToast("이메일 값 전송에 실패하였습니다,io엑셉션 ")
+                    showToast("이메일 값 전송에 실패하였습니다 , IOException")
                     sendButton.isEnabled = true
                 }
             }
@@ -340,7 +362,7 @@ class SignUpVerificationActivity : AppCompatActivity() {
                     // 요청 실패 처리
                     println("Request failed")
                     lifecycleScope.launch(Dispatchers.Main) {
-                        showToast("이메일 값 전송에 실패하였습니다, 리퀘스트 요청 실패")
+                        showToast("이메일 값 전송에 실패하였습니다, Response Error ")
                         println(email)
                         sendButton.isEnabled = true
                     }
@@ -357,28 +379,27 @@ class SignUpVerificationActivity : AppCompatActivity() {
 
                     val responseResult = jsonString.getString("result")
 
-                    //SingUpActivity 로 넘기기
-                    if (responseResult == "success") {
-                        Log.d("TAG", "동일한 이메일이 존재하지 않습니다.")
-                        sendEmail(email)
+                    when (responseResult) {
+                        "failure" -> {
+                            val responseMessage = jsonString.getString("message")
 
-                    } else if (responseResult == "EMAIL_DUPLICATED") {
-
-                        showToast("중복된 이메일이 있습니다.")
-                        Log.d("TAG", "동일한 이메일이 존재합니다.")
-                        sendButton.isEnabled = true
-
-                    } else {
-
-                        showToast("isDuplicationEmail 함수 알수 없는 오류 확인 바람!!")
-
-                        sendButton.isEnabled = true
-
+                            when (responseMessage) {
+                                "email_duplicated" -> {showToast( "동일한 이메일을 가진 사용자가 있습니다." )}
+                                else -> {showToast( "알 수 없는 코드에러 " )}
+                            }
+                            sendButton.isEnabled = true
+                        }
+                        "success" -> {
+                            Log.d("isDuplicationEmail" , " 이메일 인증 발송 ")
+                            sendEmail(email)
+                        }
+                        else -> { showToast("알 수 없는 코드 오류")
+                            sendButton.isEnabled = true
+                        }
                     }
                 }
             }
         })
-
     }
 
 

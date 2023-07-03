@@ -11,9 +11,23 @@
     <include layout="@layout/include_guideline_top" />
     <include layout="@layout/include_guideline_bottom" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/Theme.AppCompat.Light"
+        tools:ignore="MissingConstraints">
+        <!-- 메뉴 설정하는 방법 : https://stackoverflow.com/questions/35648913/how-to-set-menu-to-toolbar-in-android -->
+        <include layout="@layout/appbar_get_clear_button"/>
+    </androidx.appcompat.widget.Toolbar>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="55dp"
         app:layout_constraintBottom_toTopOf="@+id/mainGuidelineHorizontalBottom"
         app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
         app:layout_constraintRight_toLeftOf="@+id/mainGuidelineVerticalRight"
@@ -47,6 +61,7 @@
             android:id="@+id/notice1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="30dp"
             android:background="@drawable/inputbox_background"
             android:text="@string/membernum_notice"
             android:textColor="@color/dark_gray"

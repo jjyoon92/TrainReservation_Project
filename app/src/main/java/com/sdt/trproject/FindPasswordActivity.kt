@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -56,9 +57,21 @@ class FindPasswordActivity : AppCompatActivity() {
     private lateinit var userNum: String
     private var userEmailSave: String = ""
 
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_password)
+
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("비밀번호 찾기")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
         userNumText = findViewById(R.id.userNumText)
         inputEmail4Text = findViewById(R.id.inputEmail4)
@@ -107,6 +120,7 @@ class FindPasswordActivity : AppCompatActivity() {
                 )
                 intent.putExtra(ChangePasswordActivity.INPUT_USER_NUM, userNumText.text.toString())
                 this@FindPasswordActivity.startActivity(intent)
+                finish()
             }
             isEnabled = false
         }
@@ -154,6 +168,7 @@ class FindPasswordActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 // 요청 실패 시 처리
                 e.printStackTrace()
+                Log.d("changedSendEmail" , "IOException")
                 lifecycleScope.launch(Dispatchers.Main) {
                     // 화면에 표시할 게 없으면 IO
                     // 화면에 표시할게 있으면 Main
@@ -167,7 +182,7 @@ class FindPasswordActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     //요청 실패 처리
-                    println("Request failed")
+                    Log.d("changedSendEmail" , "ResponseError")
                     lifecycleScope.launch(Dispatchers.Main) {
                         showToast("이메일 전송에 실패하였습니다.")
                     }
@@ -194,7 +209,10 @@ class FindPasswordActivity : AppCompatActivity() {
                         }
                         startTimer()
                     } else {
-                        showToast("코드오류")
+
+                        showToast("changedSendEmail, 코드오류")
+
+                        Log.d("changedSendEmail" , "CodeError")
                     }
 
                     sendEmailBtn.isEnabled = true
@@ -207,7 +225,7 @@ class FindPasswordActivity : AppCompatActivity() {
 
     private fun sendEmailToken(email: String, authCode: String) {
         // 요청을 보낼 URL 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/updatePw/matchEmailCode"
+        val url = "${BuildConfig.SERVER_ADDR}/member/matchEmailCode"
 
         val gson = Gson()
         val data = AuthCode(email, authCode)
@@ -256,14 +274,17 @@ class FindPasswordActivity : AppCompatActivity() {
 
 
                             when (responseResult) {
-                                "EmailFail" -> {
+                                "failure" -> {
+                                    val responseMessage = jsonString.getString("message")
 
-                                    showToast("인증번호를 확인해주세요")
-
-                                }
-
-                                "expired" -> {
-                                    showToast("인증번호 기한이 만료되었습니다.")
+                                    when (responseMessage) {
+                                        "auth_code_expired" -> {
+                                            showToast("인증코드가 만료돠었습니다.")
+                                        }
+                                        else -> {
+                                            showToast("아이디, 인증번호를 확인해주세요.")
+                                        }
+                                    }
                                 }
 
                                 "success" -> {
@@ -289,7 +310,7 @@ class FindPasswordActivity : AppCompatActivity() {
     // id = email
     private fun existEmailAndId(id: String, email: String) {
         //학원용
-        val url = "${BuildConfig.SERVER_ADDR}/member/updatePw/exist"
+        val url = "${BuildConfig.SERVER_ADDR}/member/findEmailAndMemberId"
 
 
         val gson = Gson()
@@ -311,7 +332,7 @@ class FindPasswordActivity : AppCompatActivity() {
                 lifecycleScope.launch(Dispatchers.Main) {
 
                     showToast("회원번호 및 이메일 전송에 실패하였습니다.")
-                    println("io익셉션~")
+                    Log.d("sxistEmailAndId" , "IOException")
 
                 }
 
@@ -323,7 +344,7 @@ class FindPasswordActivity : AppCompatActivity() {
                     println("Request failed")
                     lifecycleScope.launch(Dispatchers.Main) {
                         showToast("회원번호 및 이메일 전송에 실패하였습니다.")
-                        println("리스폰스 요청실패")
+                        Log.d("sxistEmailAndId" , "ResponseError")
                     }
                     return
                 }
@@ -332,7 +353,9 @@ class FindPasswordActivity : AppCompatActivity() {
                 // 응답 데이터 처리
                 println(responseData)
                 lifecycleScope.launch(Dispatchers.Main) {
+
                     showToast("회원번호 및 이메일 성공적으로 전송 했습니다.")
+
                     println(request.toString())
 
                     val jsonString = JSONObject(responseData)
@@ -348,14 +371,15 @@ class FindPasswordActivity : AppCompatActivity() {
                         }
 
                         "failure" -> {
+
                             showToast("회원번호 및 이메일을 확인해주세요.")
+
                         }
 
                         else -> {
                             showToast("코드 오류")
                         }
                     }
-
 
                 }
             }
