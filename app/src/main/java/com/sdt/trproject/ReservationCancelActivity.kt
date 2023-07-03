@@ -57,14 +57,14 @@ class ReservationCancelActivity : AppCompatActivity() {
 
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = layoutInflater
-        val dialogView = inflater.inflate(R.layout.cancel_confirm_dialog, null)
+        val dialogView = inflater.inflate(R.layout.confirm_dialog, null)
 
         dialogBuilder.setView(dialogView)
 
         val alertDialog = dialogBuilder.create()
 
-        val confirmButton = dialogView.findViewById<Button>(R.id.confirmButton)
-        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
+        val confirmButton = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val cancelButton = dialogView.findViewById<Button>(R.id.btnCancel)
 
 
         // 현재 로그인된 유저의 예약 목록 불러오기
@@ -72,7 +72,6 @@ class ReservationCancelActivity : AppCompatActivity() {
 
         if (targetReservationId != null) {
             sendRequestReservationList(targetReservationId)
-
             btnReservationCancelConfirm.setOnClickListener {
                 alertDialog.show()
 

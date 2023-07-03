@@ -1,6 +1,8 @@
 package com.sdt.trproject
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -15,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.sdt.trproject.services.RequestTrainReservationCancelResponse
 import com.sdt.trproject.services.RequestTrainReservationDetailItem
+import com.sdt.trproject.services.RequestTrainReservationPaymentResponse
 import com.sdt.trproject.services.TrainApiService
 import com.sdt.trproject.utils.RetrofitModule
 import com.sdt.trproject.utils.requestBody
@@ -59,7 +62,7 @@ class ReservationDetailActivity : AppCompatActivity() {
     private var totalDiscountedCharge: Int = 0
 
     private lateinit var btnGoToReservationCancellation: Button
-    private lateinit var btnReservationPay: Button
+    private lateinit var btnReservationPaymentConfirm: Button
 
     @Inject
     lateinit var trainApiService: TrainApiService
@@ -77,9 +80,20 @@ class ReservationDetailActivity : AppCompatActivity() {
         tvTotalDiscountCharge = findViewById(R.id.tvTotalDiscountChargeNumericText)
         tvFinalCharge = findViewById(R.id.tvFinalChargeNumericText)
         btnGoToReservationCancellation = findViewById(R.id.btnGoToReservationCancellation)
-
+        btnReservationPaymentConfirm = findViewById(R.id.btnReservationPaymentConfirm)
 
         val linearLayout: LinearLayout = findViewById(R.id.ticketListLl)
+
+        // dialog
+        val dialogBuilder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.confirm_dialog, null)
+
+        dialogBuilder.setView(dialogView)
+
+        val alertDialog = dialogBuilder.create()
+        val confirmButton = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val cancelButton = dialogView.findViewById<Button>(R.id.btnCancel)
 
         data = intent.getStringExtra("DATA") ?: ""
         val gson = Gson()
@@ -201,8 +215,50 @@ class ReservationDetailActivity : AppCompatActivity() {
 //            sendRequestReservationCancel(reservationId)
         }
 
+
+
+        // 결제 확정 하기
+        btnReservationPaymentConfirm.setOnClickListener {
+            alertDialog.show()
+
+            confirmButton.setOnClickListener {
+                // 확인 버튼 동작 처리
+                sendRequestReservationPayment(reservationId)
+                alertDialog.dismiss()
+            }
+
+            cancelButton.setOnClickListener {
+                // 취소 버튼 동작 처리
+                alertDialog.dismiss()
+            }
+        }
     }
 
+    /* 결제 진행 */
+    private fun sendRequestReservationPayment(id: String) {
+        val jsonObject = JSONObject()
+        jsonObject.put("reservationId", reservationId)
+
+        val requestBody = jsonObject.requestBody()
+        val call = trainApiService.requestTrainReservationPayment(requestBody)
+
+        RetrofitModule.executeCall(
+            call,
+            onFailure = { message, httpCode ->
+                println("reservationPayment 요청 실패 : Message = $message, HttpCode = $httpCode")
+            },
+            onSuccess = { response ->
+                println("reservationPayment 요청 성공 : Response = $response")
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        )
+    }
+
+//    private fun handleRequestTrainReservationPaymentResponse(response: RequestTrainReservationPaymentResponse) {
+//
+//    }
     /* 취소 요청 시작 */
 
 //    private fun sendRequestReservationCancel(id: String) {

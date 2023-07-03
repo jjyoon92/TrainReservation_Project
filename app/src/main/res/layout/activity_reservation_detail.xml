@@ -324,11 +324,11 @@
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnReservationDetailPay"
+            app:layout_constraintEnd_toStartOf="@id/btnReservationPaymentConfirm"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnReservationDetailPay"
+            android:id="@+id/btnReservationPaymentConfirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_button_background"

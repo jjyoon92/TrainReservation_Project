@@ -36,6 +36,9 @@ interface TrainApiService {
     @POST("/train/reservation/detail")
     fun requestTrainReservationDetail(@Body requestData: RequestBody): Call<RequestTrainReservationDetailResponse>
 
+    @POST("/train/reservation/payment")
+    fun requestTrainReservationPayment(@Body requestData: RequestBody): Call<RequestTrainReservationPaymentResponse>
+
     @POST("/train/reservation/cancel")
     fun requestTrainReservationCancel(@Body requestData: RequestBody): Call<RequestTrainReservationCancelResponse>
 
@@ -210,13 +213,25 @@ data class RequestTrainReservationDetailItem(
     val age: String
 )
 
+// 열차 결제 Response
+data class RequestTrainReservationPaymentResponse (
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: String,
+    @SerializedName("message")
+    val message: String
+)
+
 
 // 열차 예약 취소 Response
 data class RequestTrainReservationCancelResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: String
+    val data: String,
+    @SerializedName("message")
+    val message: String
 )
 
 // 승차권 확인 Response
@@ -224,7 +239,9 @@ data class RequestTrainReservationListResponse(
     @SerializedName("result")
     val result: String,
     @SerializedName("data")
-    val data: List<RequestTrainReservationListItem>
+    val data: List<RequestTrainReservationListItem>,
+    @SerializedName("message")
+    val message: String
 )
 
 // 승차권 확인 Response Data Item
