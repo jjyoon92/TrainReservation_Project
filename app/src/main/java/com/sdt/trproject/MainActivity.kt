@@ -47,7 +47,7 @@ import kotlin.properties.Delegates
 
 
 @AndroidEntryPoint
-class MainActivity(enabled: Boolean) : BaseActivity(), OnClickListener {
+class MainActivity() : BaseActivity(), OnClickListener {
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
     private lateinit var radioButtonRoundTrip: RadioButton

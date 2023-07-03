@@ -13,13 +13,13 @@ buildscript {
                 //SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
 //                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
 //                SERVER_ADDR : 'http://172.30.106.229:4001', // 공유 오피스
-                SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
+//                SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
                 //SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
 //                SERVER_ADDR : 'http://192.168.0.137:4001', // 학원(경열)
+                SERVER_ADDR: 'http://172.30.1.62:4001', // 드롭탑
 
 
-
-                BOOL_VALUE: true //com.halowin.android.BuildConfig.BOOL_VALUE
+                BOOL_VALUE : true //com.halowin.android.BuildConfig.BOOL_VALUE
         ]
         agp_version = '7.4.2'
     }
