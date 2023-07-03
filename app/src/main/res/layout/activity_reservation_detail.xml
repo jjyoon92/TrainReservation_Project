@@ -14,22 +14,18 @@
 
     <include layout="@layout/include_guideline_bottom" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/custom_payment_background"
-        app:layout_constraintBottom_toTopOf="@+id/mainGuidelineHorizontalBottom"
+        app:layout_constraintBottom_toTopOf="@+id/btnWrapReservationDetail"
         app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
         app:layout_constraintRight_toLeftOf="@+id/mainGuidelineVerticalRight"
         app:layout_constraintTop_toBottomOf="@+id/mainGuidelineHorizontalTop">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/btnReservationDetailCancel"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/reservationDetailStationTimeCl"
@@ -39,14 +35,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+
                 <RelativeLayout
                     android:id="@+id/divider1"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/dark_gray"
                     android:layout_marginStart="@dimen/margin_left"
                     android:layout_marginEnd="@dimen/margin_right"
+                    android:background="@color/dark_gray"
                     app:layout_constraintBottom_toBottomOf="@+id/reservationDetailStationTimeCl" />
+
                 <LinearLayout
                     android:id="@+id/reservationDetailDepartureLl"
                     android:layout_width="0dp"
@@ -61,6 +59,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
+                        android:id="@+id/tvReservationDetailDepartStation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/departure_station"
@@ -68,9 +67,11 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvReservationDetailDepartTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(시간)" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -80,7 +81,6 @@
                     android:layout_marginStart="@dimen/margin_left"
                     android:layout_marginEnd="@dimen/margin_right"
                     android:layout_marginBottom="20dp"
-
                     android:gravity="center"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -88,6 +88,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
+                        android:id="@+id/tvReservationDetailArriveStation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/arrival_station"
@@ -95,14 +96,11 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvReservationDetailArriveTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="(시간)"
-
-                        />
+                        android:text="(시간)" />
                 </LinearLayout>
-
-
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -111,7 +109,7 @@
             <LinearLayout
                 android:id="@+id/reservationDetailTicketLl"
                 android:layout_width="0dp"
-                android:layout_height="280dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_left"
                 android:layout_marginEnd="@dimen/margin_right"
                 android:orientation="vertical"
@@ -132,36 +130,38 @@
                     android:textSize="@dimen/text_size_small"
                     android:textStyle="bold" />
 
-                <TextView
+                <LinearLayout
+                    android:id="@+id/ticketListLl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="1호차(특실)(1C) 어른"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="14dp"
-                    android:textStyle="normal" />
+                    android:orientation="vertical"
+                    >
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_weight="1"
-                    android:text="1호차(특실)(2B) 어른"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="14dp"
-                    android:textStyle="normal" />
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="5dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:text="1호차(특실)(2B) 어른"-->
+<!--                        android:textColor="@color/dark_gray"-->
+<!--                        android:textSize="14dp"-->
+<!--                        android:textStyle="normal" />-->
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginBottom="@dimen/margin_bottom"
-                    android:layout_weight="0.3"
-                    android:background="@drawable/discount_select_box_background"
-                    android:text="할인선택"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="@dimen/text_size_medium"
-                    android:textStyle="bold" />
+                </LinearLayout>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp"
+                        android:layout_marginBottom="@dimen/margin_bottom"
+                        android:layout_weight="0.3"
+                        android:background="@drawable/discount_select_box_background"
+                        android:text="할인선택"
+                        android:textColor="@color/dark_gray"
+                        android:textSize="@dimen/text_size_medium"
+                        android:textStyle="bold" />
+
+
 
 
             </LinearLayout>
@@ -193,9 +193,10 @@
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"
                         android:background="@color/dark_gray"
-                        app:layout_constraintBottom_toTopOf="@+id/tvChargeLiteralText"/>
+                        app:layout_constraintBottom_toTopOf="@+id/tvTotalChargeLiteralText" />
+
                     <TextView
-                        android:id="@+id/tvChargeLiteralText"
+                        android:id="@+id/tvTotalChargeLiteralText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="40dp"
@@ -203,12 +204,12 @@
                         android:textColor="@color/dark_gray"
                         android:textSize="@dimen/text_size_small"
                         android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@id/tvChargeNumericText"
+                        app:layout_constraintEnd_toStartOf="@id/tvTotalChargeNumericText"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/tvChargeNumericText"
+                        android:id="@+id/tvTotalChargeNumericText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="40dp"
@@ -218,7 +219,7 @@
                         android:textSize="@dimen/text_size_small"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvChargeLiteralText"
+                        app:layout_constraintStart_toEndOf="@id/tvTotalChargeLiteralText"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -230,7 +231,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tvDiscountLiteralText"
+                        android:id="@+id/tvTotalDiscountChargeLiteralText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -242,7 +243,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/tvDiscountNumericText"
+                        android:id="@+id/tvTotalDiscountChargeNumericText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -255,7 +256,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -271,11 +271,11 @@
                         android:layout_height="1dp"
                         android:layout_marginBottom="20dp"
                         android:background="@color/dark_gray"
-                        app:layout_constraintBottom_toTopOf="@+id/tvPaymentLiteralText"/>
+                        app:layout_constraintBottom_toTopOf="@+id/tvFinalChargeLiteralText" />
 
 
                     <TextView
-                        android:id="@+id/tvPaymentLiteralText"
+                        android:id="@+id/tvFinalChargeLiteralText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="30dp"
@@ -283,12 +283,12 @@
                         android:textColor="#707070"
                         android:textSize="@dimen/text_size_small"
                         android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@id/tvPaymentNumericText"
+                        app:layout_constraintEnd_toStartOf="@id/tvFinalChargeNumericText"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/tvPaymentNumericText"
+                        android:id="@+id/tvFinalChargeNumericText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="30dp"
@@ -298,14 +298,23 @@
                         android:textSize="@dimen/text_size_small"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvPaymentLiteralText"
+                        app:layout_constraintStart_toEndOf="@id/tvFinalChargeLiteralText"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/btnWrapReservationDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/mainGuidelineHorizontalBottom"
+        app:layout_constraintEnd_toEndOf="@+id/mainGuidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@+id/mainGuidelineVerticalLeft">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnReservationDetailCancel"
+            android:id="@+id/btnGoToReservationCancellation"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_payment_background"
@@ -315,11 +324,11 @@
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnReservationDetailPay"
+            app:layout_constraintEnd_toStartOf="@id/btnReservationPaymentConfirm"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnReservationDetailPay"
+            android:id="@+id/btnReservationPaymentConfirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_button_background"
@@ -330,9 +339,7 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btnReservationDetailCancel" />
-
-
+            app:layout_constraintStart_toEndOf="@id/btnGoToReservationCancellation" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

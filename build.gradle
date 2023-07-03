@@ -10,8 +10,8 @@ buildscript {
                 //SERVER_ADDR : 'http://192.168.100.46:4001',// 학원(차후) //com.halowin.android.BuildConfig.STRING_VALUE
 
                 //SERVER_ADDR : 'http://172.30.1.95:4001', // 집(경열)
-                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
-
+//                SERVER_ADDR : 'http://192.168.100.77:4001', // 학원(경열)
+                SERVER_ADDR : 'http://172.30.106.229:4001', // 공유 오피스
 
                 BOOL_VALUE: true //com.halowin.android.BuildConfig.BOOL_VALUE
         ]

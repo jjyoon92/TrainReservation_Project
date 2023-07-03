@@ -47,6 +47,7 @@
             android:id="@+id/notice1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="30dp"
             android:background="@drawable/inputbox_background"
             android:text="@string/membernum_notice"
             android:textColor="@color/dark_gray"

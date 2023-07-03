@@ -59,7 +59,7 @@ public class DetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+        return inflater.inflate(R.layout.fragment_answer_detail, container, false);
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class DetailFragment extends Fragment {
         title= view.findViewById(R.id.title);
         content = view.findViewById(R.id.content);
 
-        backButton = view.findViewById(R.id.btnBack);
+        backButton = view.findViewById(R.id.btnList);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
