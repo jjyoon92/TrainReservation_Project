@@ -11,12 +11,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="30dp">
 
         <EditText
             android:id="@+id/userNumId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:ems="10"
             android:hint="회원번호를 입력해주세요."
             android:textColorHint="@color/gray"
@@ -48,6 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/member_number_save"
                 android:textSize="@dimen/text_size_medium"
@@ -62,6 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/auto_login"
                 android:textSize="@dimen/text_size_medium"
@@ -79,7 +83,7 @@
             android:id="@+id/loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_top"
+            android:layout_marginTop="30dp"
             android:gravity="center"
             android:background="@drawable/custom_button_background"
             android:text="@string/login"

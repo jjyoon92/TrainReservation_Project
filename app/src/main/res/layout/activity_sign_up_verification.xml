@@ -36,7 +36,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp">
 
                     <TextView
                         android:layout_width="@dimen/layout_width"
@@ -102,11 +104,8 @@
                     android:lineSpacingExtra="0dp"
                     android:lineSpacingMultiplier="1"
                     android:maxLines="1"
-                    android:paddingStart="@dimen/padding_left"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="@dimen/padding_right"
-                    android:paddingBottom="5dp"
                     android:text="@string/confirmation"
+                    android:padding="8dp"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_size_medium"
                     android:textStyle="bold"
@@ -154,10 +153,7 @@
                     android:lineSpacingExtra="0dp"
                     android:lineSpacingMultiplier="1"
                     android:maxLines="1"
-                    android:paddingStart="@dimen/padding_left"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="@dimen/padding_right"
-                    android:paddingBottom="5dp"
+                    android:padding="8dp"
                     android:text="@string/check"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_size_medium"
@@ -182,6 +178,7 @@
             android:id="@+id/notice1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="30dp"
             android:background="@drawable/inputbox_background"
             android:text="@string/membernum_notice"
             app:layout_constraintBottom_toBottomOf="parent"

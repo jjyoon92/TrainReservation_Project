@@ -85,7 +85,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/btnList"
             app:layout_constraintBottom_toBottomOf="parent"
-           />
+            />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnList"
             android:layout_width="230dp"
@@ -111,7 +111,7 @@
             app:layout_constraintLeft_toRightOf="@+id/btnList"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-           />
+            />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

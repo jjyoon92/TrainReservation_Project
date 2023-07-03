@@ -22,7 +22,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+           >
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/member_btn"
@@ -58,14 +59,15 @@
         <FrameLayout
             android:id="@+id/activity_login_view"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="350dp"
 
             />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+     >
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/member_find_btn"
@@ -74,6 +76,7 @@
                 android:layout_weight="1"
                 android:background="@color/white"
                 android:text="@string/member_number_search"
+                android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_size_small" />
 
@@ -86,6 +89,7 @@
                 android:maxLines="1"
                 android:text="@string/pw_search"
                 android:textColor="@color/black"
+                android:textStyle="bold"
                 android:textSize="@dimen/text_size_small" />
 
             <androidx.appcompat.widget.AppCompatButton
@@ -96,6 +100,7 @@
                 android:background="@color/white"
                 android:text="@string/join_membership"
                 android:textColor="@color/black"
+                android:textStyle="bold"
                 android:textSize="@dimen/text_size_small" />
 
 
