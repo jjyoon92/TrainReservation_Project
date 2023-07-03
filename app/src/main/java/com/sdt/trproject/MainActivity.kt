@@ -13,11 +13,15 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.sdt.trproject.appbar_title.AppbarTitle
@@ -48,6 +52,8 @@ import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class MainActivity() : BaseActivity(), OnClickListener {
+    private var selectedMenuItem: MenuItem? = null
+
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
     private lateinit var radioButtonRoundTrip: RadioButton
@@ -147,48 +153,41 @@ class MainActivity() : BaseActivity(), OnClickListener {
                 this?.setOnClickListener(this@MainActivity)
             }
 
+        val sidebar = findViewById<DrawerLayout>(R.id.drawer_layout, true)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar, true)
+
+        // sideBar menu 클릭 이벤트
         for (idx in 0..4) {
             val menuItem = getNavigationHeaderMenuItem(idx)  // 인덱스 0의 메뉴 아이템을 가져옵니다.
             menuItem.setOnMenuItemClickListener {
 
                 authorized(loginText, loginBtnInAppbarFooter)
 
-                val item = when (idx) {
-                    0 -> {
-                        finish()
-                        Intent(this@MainActivity, this@MainActivity::class.java)
-                    }
-                    1 -> {
+                val intent = when (it.itemId) {
+                    R.id.nav_home -> Intent(this@MainActivity, this@MainActivity::class.java)
+                    R.id.nav_reservation -> {
                         when (getCookie) {
                             true -> {
-                                val intent1 =
-                                    Intent(this@MainActivity, this@MainActivity::class.java)
-                                finish()
-                                startActivity(intent1)
-                                Intent(this@MainActivity, BoardActivity::class.java)
+                                Intent(this@MainActivity, ReservationTicketListActivity::class.java)
                             }
                             else -> {
-                                val intent1 =
-                                    Intent(this@MainActivity, this@MainActivity::class.java)
-                                finish()
-                                startActivity(intent1)
                                 Intent(this@MainActivity, LoginActivity::class.java)
                             }
                         }
                     }
-//                    }
-//                    2 -> Intent(this@MainActivity, Activity2::class.java)
-                    3 -> {
-                        val intent1 = Intent(this@MainActivity, this@MainActivity::class.java)
-                        finish()
-                        startActivity(intent1)
-                        Intent(this@MainActivity, BoardActivity::class.java)
-                    }
-//                    4 -> Intent(this@MainActivity, Activity4::class.java)
+                    R.id.nav_notice -> Intent(this@MainActivity, BoardActivity::class.java)
+                    R.id.nav_faq -> Intent(this@MainActivity, BoardActivity::class.java)
+                    R.id.nav_coupon -> Intent(this@MainActivity, this::class.java)
                     else -> null
                 }
-                item?.let {
+
+                intent?.let {
+                    @Suppress("NestedLambdaShadowedImplicitParameter")
+                    selectedMenuItem = menuItem
                     startActivity(it)
+                    sidebar.closeDrawer(GravityCompat.START)
+                    setSupportActionBar(toolbar)
+//                    finish();
                 }
                 true // 이벤트가 처리되었음을 의미합니다.
             }
@@ -414,6 +413,14 @@ class MainActivity() : BaseActivity(), OnClickListener {
                 }
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // 이전에 선택된 메뉴 아이템을 초기화하여 선택 해제
+        selectedMenuItem?.isChecked = false
+        selectedMenuItem = null
     }
 
     override fun onBackPressed() {
@@ -893,8 +900,8 @@ class MainActivity() : BaseActivity(), OnClickListener {
                             Log.d("/member/authorized5", loginBtnInAppbarFooter.text.toString())
                             profilePhotoBtn.isEnabled = true
                             getCookie = true
-                            resizeBitmap(profilePhotoBtn)
-
+                            // TODO: 이부분 수정할 것. null 처리 임시로 막아.
+//                            resizeBitmap(profilePhotoBtn)
                         }
 
                     }

@@ -11,16 +11,16 @@
             android:id="@+id/nav_home"
             android:title="@string/menu_reservation" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_reservation"
             android:title="@string/menu_check" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_notice"
             android:title="@string/menu_notice" />
         <item
-            android:id="@+id/FAQ"
+            android:id="@+id/nav_faq"
             android:title="@string/menu_FAQ" />
         <item
-            android:id="@+id/coupon"
+            android:id="@+id/nav_coupon"
             android:title="@string/menu_coupon"
             />
 
