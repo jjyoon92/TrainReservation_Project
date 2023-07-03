@@ -7,30 +7,35 @@ import android.widget.TextView
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.widget.Toast
+import android.widget.ImageView
 
 
 class FindUserIdResultPage : AppCompatActivity() {
+
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
 
     companion object {
         const val INPUT_USER_ID = "ID"
     }
 
     private lateinit var foundUserId: TextView
-    private lateinit var changeThisToMain : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setContentView(R.layout.activity_find_user_id_result_page)
 
         foundUserId = findViewById<TextView>(R.id.foundUserId)
-        foundUserId.setText("회원번호 : ${intent.getStringExtra(INPUT_USER_ID)}")
+        val userId = "회원번호 : ${intent.getStringExtra(INPUT_USER_ID)}"
+        foundUserId.setText(userId)
 
-        changeThisToMain = findViewById<TextView?>(R.id.changeThisToMainText).apply {
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("회원번호 찾기")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
             setOnClickListener(){
-                intent = Intent(this@FindUserIdResultPage,MainActivity::class.java)
-                startActivity(intent)
                 finish()
             }
         }
@@ -40,24 +45,20 @@ class FindUserIdResultPage : AppCompatActivity() {
 //
 
         foundUserId.setOnClickListener(){
-
-            val userIdStr = foundUserId.text.toString().split(" ")[2]
-            copyTextOnClick(this, userIdStr)
-            showToast("클리보드에 저장되었습니다.")
-
+            val userIdArray = userId.split(" ")[2]
+            copyTextOnClick(this, userIdArray)
+            finish()
         }
         // 버튼을 누르면 split 된 회원번호가 저장된다.
     }
 
 
-    fun copyTextOnClick(context: Context, text : String) {
+
+    private fun copyTextOnClick(context: Context, text : String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
     }
 
-    fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
 
 }

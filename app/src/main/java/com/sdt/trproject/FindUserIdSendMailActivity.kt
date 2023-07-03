@@ -7,6 +7,7 @@ import android.os.Parcelable
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +31,8 @@ import java.util.Timer
 
 class FindUserIdSendMailActivity : AppCompatActivity() {
 
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
 
     // 비밀번호 변수
     var token: String? = null
@@ -55,6 +58,16 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_user_id_send_mail)
+
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("회원번호 찾기")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
+
 
         inputEmail3 = findViewById(R.id.inputEmail3)
 
@@ -99,7 +112,7 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
 
         // 이메일 코드 매칭
         userFindTokenMatchBtn.setOnClickListener() {
-             Log.d("matchEmailCode 저장 함수" , " ${emailSave},${userFindTokenText.text.toString()}")
+            Log.d("matchEmailCode 저장 함수", " ${emailSave},${userFindTokenText.text.toString()}")
             matchEmailCode(emailSave, userFindTokenText.text.toString())
 
 
@@ -121,7 +134,7 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
 
     private fun isDuplicationEmail(email: String) {
         // 주소 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplication/email"
+        val url = "${BuildConfig.SERVER_ADDR}/member/isDuplicated/email"
         // json 타입 변환
         val gson = Gson()
         val data = MyEmail(email)
@@ -315,7 +328,7 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
 
     private fun matchEmailCode(email: String, authCode: String) {
         // 요청을 보낼 URL 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/findId/matchEmailCodeAndGiveId"
+        val url = "${BuildConfig.SERVER_ADDR}/member/matchEmailCode/showMemberId"
 
         val gson = Gson()
         val data = AuthCode(email, authCode)
@@ -374,23 +387,34 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
 
                             when (responseResult) {
 
-                                "email_no_match" -> {
 
-                                    showToast("인증번호를 확인해주세요")
+                                "failure" -> {
 
-                                }
+                                    val responseMessage = JsonString.getString("message")
 
-                                "auth_code_expired" -> {
-                                    showToast("인증번호 기한이 만료되었습니다.")
+                                    when (responseMessage) {
+
+                                        "auth_code_expired" -> { showToast("인증번호가 만료되었습니다.") }
+
+                                        else -> { showToast("이메일, 인증번호를 확인해주세요") }
+
+                                    }
                                 }
 
                                 "success" -> {
+
                                     showToast("인증에 성공했습니다.")
+
                                     val userId = JsonString.getString("data")
-                                    Log.d("UserID",userId)
+
+                                    Log.d("UserID", userId)
 //                                    matchEmailCodeAndGiveId(email, authCode)
 
-                                    val intent = Intent(this@FindUserIdSendMailActivity, FindUserIdResultPage::class.java)
+                                    val intent = Intent(
+                                        this@FindUserIdSendMailActivity,
+                                        FindUserIdResultPage::class.java
+                                    )
+
                                     intent.putExtra(FindUserIdResultPage.INPUT_USER_ID, userId)
                                     startActivity(intent)
                                     stopTimer()
@@ -456,4 +480,3 @@ class FindUserIdSendMailActivity : AppCompatActivity() {
     }
 
 }
-

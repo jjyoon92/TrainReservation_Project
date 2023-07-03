@@ -11,6 +11,7 @@
     <dimen name="text_size_small">16sp</dimen>
     <dimen name="text_size_medium">18sp</dimen>
     <dimen name="text_size_large">36sp</dimen>
+    <dimen name="margin_nav">55dp</dimen>
 
     <dimen name="shadow_size">0.5dp</dimen>
     <dimen name="shadow_radius">3dp</dimen>

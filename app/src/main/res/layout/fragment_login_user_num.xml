@@ -30,7 +30,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_top"
             android:ems="10"
-            android:text="12345r"
             android:hint="비밀번호를 입력하세요."
             android:textColorHint="@color/gray"
             android:inputType="textPassword"

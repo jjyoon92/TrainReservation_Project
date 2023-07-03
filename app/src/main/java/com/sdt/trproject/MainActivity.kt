@@ -2,12 +2,23 @@ package com.sdt.trproject
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData.Item
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.BitmapShader
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
@@ -18,21 +29,25 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import android.os.SystemClock
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
-import com.sdt.trproject.di.SampleModule
+import com.sdt.trproject.appbar_title.AppbarTitle
+import com.sdt.trproject.ksh.BoardActivity
 import com.sdt.trproject.ksh.HelloworldActivity
-import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import com.sdt.trproject.services.SearchTrainScheduleResponse
 import com.sdt.trproject.services.TrainApiService
-import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.JavaNetCookieJar
+import okhttp3.MediaType.Companion.get
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -44,14 +59,11 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 import kotlin.properties.Delegates
 
 
-@AndroidEntryPoint
 class MainActivity : BaseActivity(), OnClickListener {
     private lateinit var tripSelectRadioGroup: RadioGroup
     private lateinit var radioButtonOnewayTrip: RadioButton
@@ -94,26 +106,27 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
     // ******* 차후 작업 공간 시작 *******
-    private lateinit var signUpBtn: Button
-    private lateinit var profilePhotoBtn: Button
+    private lateinit var profilePhotoBtn: ImageView
     private lateinit var btnBoard: Button
+    var getCookie : Boolean = false
 
     // 앱 바 맴버 START
+
     private lateinit var loginText: TextView
     private lateinit var loginBtnInAppbarFooter: TextView
+
+
+
     // 앱 바 맴버 END
     // appbar 작업
 
-    // Retrofit HILT
-    @Inject
-    lateinit var trainApiService: TrainApiService
 
     // httpClient
-//    private val httpClient by lazy { OkHttpClient() }
+    private val httpClient by lazy { OkHttpClient() }
 
     // SharedPreferences 인스턴스 생성
     private val sharedPreferences by lazy {
-//        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
+        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
         getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
     }
     // ******* 차후 작업 공간 끝 *******
@@ -122,13 +135,9 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 //    private lateinit var appCookieJar: AppCookieJar
 //
-
-    @Inject
-    lateinit var httpClient: OkHttpClient
-//    private val httpClient: OkHttpClient by lazy {
+//    private val client: OkHttpClient by lazy {
 //        OkHttpClient.Builder()
-//            .cookieJar(JavaNetCookieJar(CookieManager()))
-////        .cookieJar(appCookieJar)
+//            .cookieJar(appCookieJar)
 //            .build()
 //    }
 //
@@ -142,23 +151,24 @@ class MainActivity : BaseActivity(), OnClickListener {
 //        trainApiService = retrofit.create(TrainApiService::class.java)
 //    }
 
-//    companion object RetrofitBuilder {
-//        var trainApiService: TrainApiService
-//
-//        init {
-//            val retrofit = Retrofit.Builder()
-//                .baseUrl(BuildConfig.SERVER_ADDR)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build()
-//
-//            trainApiService = retrofit.create(TrainApiService::class.java)
-//        }
-//    }
+    companion object RetrofitBuilder {
+        var trainApiService: TrainApiService
+
+        init {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BuildConfig.SERVER_ADDR)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            trainApiService = retrofit.create(TrainApiService::class.java)
+        }
+    }
 
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // appCookieJar 초기화
 //        appCookieJar = AppCookieJar(this)
@@ -166,10 +176,19 @@ class MainActivity : BaseActivity(), OnClickListener {
 //        addTrailing(R.layout.item_trailing)?.setOnClickListener {
 //            Toast.makeText(this@MainActivity, "Hello", Toast.LENGTH_SHORT).show()
 //        }
+// 여기 수정했음 ========================================
+//        val profileImg: ImageView = navigationHeader.findViewById<ImageView>(R.id.profileImg)
+//        loginText = navigationHeader.findViewById<TextView>(R.id.loginText).apply {
+//            setOnClickListener(this@MainActivity)
+//        }
 
-        val profileImg: ImageView = navigationHeader.findViewById<ImageView>(R.id.profileImg)
+
+        profilePhotoBtn = navigationHeader.findViewById<ImageView>(R.id.profileImg).apply {
+            this?.setOnClickListener(this@MainActivity)
+        }
+
         loginText = navigationHeader.findViewById<TextView>(R.id.loginText).apply {
-            setOnClickListener(this@MainActivity)
+            this?.setOnClickListener(this@MainActivity)
         }
 
         loginBtnInAppbarFooter =
@@ -177,9 +196,53 @@ class MainActivity : BaseActivity(), OnClickListener {
                 this?.setOnClickListener(this@MainActivity)
             }
 
-        // ******* 윤차후 추가 *******
+        for (idx in 0..4) {
+            val menuItem = getNavigationHeaderMenuItem(idx)  // 인덱스 0의 메뉴 아이템을 가져옵니다.
+            menuItem.setOnMenuItemClickListener {
 
-        profilePhotoBtn = findViewById(R.id.profilePhotoBtn)
+                authorized(loginText, loginBtnInAppbarFooter)
+
+                val item = when (idx) {
+                    0 -> {
+                        finish()
+                        Intent(this@MainActivity, this@MainActivity::class.java)
+                    }
+                    1 -> {
+                        when (getCookie){
+                            true -> {
+                                val intent1 = Intent(this@MainActivity, this@MainActivity::class.java)
+                                finish()
+                                startActivity(intent1)
+                                Intent(this@MainActivity, BoardActivity::class.java)
+                            }
+                            else -> {
+                                val intent1 = Intent(this@MainActivity, this@MainActivity::class.java)
+                                finish()
+                                startActivity(intent1)
+                                Intent(this@MainActivity, LoginActivity::class.java)
+                            }
+                        }
+                    }
+//                    }
+//                    2 -> Intent(this@MainActivity, Activity2::class.java)
+                    3 -> {
+                        val intent1 = Intent(this@MainActivity, this@MainActivity::class.java)
+                        finish()
+                        startActivity(intent1)
+                        Intent(this@MainActivity, BoardActivity::class.java)
+                    }
+//                    4 -> Intent(this@MainActivity, Activity4::class.java)
+                    else -> null
+                }
+                item?.let {
+                    startActivity(it)
+                }
+                true // 이벤트가 처리되었음을 의미합니다.
+            }
+        }
+
+
+        // ******* 윤차후 추가 *******
         btnBoard = findViewById(R.id.btnGoBoardPage)
 //        if (storedJSessionId != null) {
 //            goLoginButton.setText("로그아웃")
@@ -375,6 +438,9 @@ class MainActivity : BaseActivity(), OnClickListener {
 
         // 차후 작업 공간 시작
 
+
+        profilePhotoBtn = navigationHeader.findViewById(R.id.profileImg)
+
         profilePhotoBtn.setOnClickListener() {
 
             intent = Intent(this@MainActivity, MyProfileActivity::class.java)
@@ -383,30 +449,18 @@ class MainActivity : BaseActivity(), OnClickListener {
         }
 
 
-
-        btnBoard.setOnClickListener() {
-
-            intent = Intent(this@MainActivity, HelloworldActivity::class.java)
-            startActivity(intent)
-
-        }
-
         // 차후 작업 공간 끝
     }
 
     override fun onStart() {
         super.onStart()
-        
+        setTitleText("${AppbarTitle.MAIN_TITLE}")
+        loginText = navigationHeader.findViewById(R.id.loginText)
         loginBtnInAppbarFooter = navigationFooter.findViewById(R.id.loginBtnInAppbarFooter)
-        authorized(loginBtnInAppbarFooter)
+        authorized(loginText, loginBtnInAppbarFooter)
 
-        Log.d(
-            "ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ",
-            (sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: "")
-        )
+
         val s: SharedPreferences? = sharedPreferences
-        Log.d("asdasdasdsadasd", "onStart: ${s}")
-        Log.d("ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ", Headers.Companion.toString())
 
     }
 
@@ -425,7 +479,7 @@ class MainActivity : BaseActivity(), OnClickListener {
             btnArrivalStationSelect.text = btnArrivalStationSelectText
         }
 
-    // 출발 일정 선택 
+    // 출발 일정 선택
     @SuppressLint("SetTextI18n")
     private val departureCalendarActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -475,7 +529,8 @@ class MainActivity : BaseActivity(), OnClickListener {
             val selectedYear = data.getStringExtra(ArrivalCalendarActivity.SELECTED_YEAR)
             val selectedMonth = data.getStringExtra(ArrivalCalendarActivity.SELECTED_MONTH)
             val selectedDay = data.getStringExtra(ArrivalCalendarActivity.SELECTED_DAY)
-            val selectedDayOfWeek = data.getStringExtra(ArrivalCalendarActivity.SELECTED_DAYOFWEEK)
+            val selectedDayOfWeek =
+                data.getStringExtra(ArrivalCalendarActivity.SELECTED_DAYOFWEEK)
 
             returnDate = dateFormat.format(selectedReturnTimeStamp).toString()
 
@@ -547,7 +602,7 @@ class MainActivity : BaseActivity(), OnClickListener {
         }
     }
 
-    fun loginFun(loginBtnInAppbarFooter: TextView) {
+    private fun loginFun(loginBtnInAppbarFooter: TextView) {
 
         when (loginBtnInAppbarFooter.text.toString()) {
 
@@ -583,15 +638,16 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     // 출발/도착 일정
     fun goDepartureDateSelectActivity() {
-        val departureCalendarIntent = Intent(this, DepartureCalendarActivity::class.java).apply {
-            putExtra(
-                DepartureCalendarActivity.DEPARTURE_DATE,
-                selectedDepartureTimeStamp,
-            )
-            putExtra(
-                DepartureCalendarActivity.SELECTED_TIME, selectedDepartureTime
-            )
-        }
+        val departureCalendarIntent =
+            Intent(this, DepartureCalendarActivity::class.java).apply {
+                putExtra(
+                    DepartureCalendarActivity.DEPARTURE_DATE,
+                    selectedDepartureTimeStamp,
+                )
+                putExtra(
+                    DepartureCalendarActivity.SELECTED_TIME, selectedDepartureTime
+                )
+            }
         departureCalendarActivityResult.launch(departureCalendarIntent)
     }
 
@@ -658,7 +714,6 @@ class MainActivity : BaseActivity(), OnClickListener {
                     // 서버 응답 처리
                     val headers = response.headers()
                     val cookies = headers.values("Set-Cookie")
-                    println("cookies 확인 : $cookies")
                     for (cookie in cookies) {
                         println("받은 쿠키 : $cookie")
                     }
@@ -666,16 +721,6 @@ class MainActivity : BaseActivity(), OnClickListener {
 //                    println("response.message() : " + response.message())
                     // TODO: 서버 응답에 대한 로직 추가
                     println("요청 성공")
-
-                    val cookieHeaderValue =
-                        response.headers()["Set-Cookie"]?: ""
-                    if ( cookieHeaderValue.isNotEmpty()) {
-                        val editor = sharedPreferences.edit()
-                        editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
-                        editor.apply()
-                    }
-
-
                     handleOnewayTrainResponse(apiResponse)
                 } else {
                     // 서버 응답 실패
@@ -714,16 +759,12 @@ class MainActivity : BaseActivity(), OnClickListener {
                 putExtra("DATA", dataString)
                 putExtra("DEPARTURESTATION", btnDepartureStationSelectText)
                 putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
-                putExtra("ARRIVALSTATION", btnArrivalStationSelectText)
                 putExtra("DEPARTUREDATE", departureDate)
                 putExtra("DEPARTURETIME", selectedDepartureTime)
                 putExtra("ADULTCOUNT", tvAdultCount.text.toString().toInt())
                 putExtra("CHILDCOUNT", tvChildCount.text.toString().toInt())
                 putExtra("OLDCOUNT", tvOldCount.text.toString().toInt())
             }
-
-//            var cookie = SampleModule.provideSharedPref(this.applicationContext)
-            println("main cookie : ${sharedPreferences.getString(SharedPrefKeys.SET_COOKIE, "") ?: ""}")
 
             startActivity(intent)
         }
@@ -830,7 +871,7 @@ class MainActivity : BaseActivity(), OnClickListener {
     }
 
 
-    fun authorized(loginBtnInAppbarFooter: TextView) {
+    fun authorized(loginText: TextView, loginBtnInAppbarFooter: TextView) {
         val url = "${BuildConfig.SERVER_ADDR}/member/authorized/member"
         val gson = Gson()
         val data = ""
@@ -879,10 +920,9 @@ class MainActivity : BaseActivity(), OnClickListener {
                 lifecycleScope.launch(Dispatchers.Main) {
 
                     val jsonString = JSONObject(responseData)
-
                     val responseResult = jsonString.getString("result")
 
-//                    Log.d("/member/authorized3", "${responseData}")
+                    Log.d("/member/authorized3", "${responseData}")
                     Log.d("이거 확인좀", (SharedPrefKeys.SET_COOKIE))
                     Log.d(
                         "이거 확인좀",
@@ -893,13 +933,27 @@ class MainActivity : BaseActivity(), OnClickListener {
                     when (responseResult) {
 
                         "failure" -> {
+                            loginText.text = AppbarKeys.LOG_OUT_STATUS
                             loginBtnInAppbarFooter.text = AppbarKeys.LOG_IN
                             Log.d("/member/authorized4", loginBtnInAppbarFooter.text.toString())
+                            profilePhotoBtn.isEnabled = false
+                            getCookie = false
                         }
 
                         "success" -> {
+
+                            val userName =
+                                sharedPreferences.getString(SharedPrefKeys.USER_NAME, "")
+                            val reservationCnt =
+                                sharedPreferences.getString(SharedPrefKeys.RESULVATION_CNT, "")
+
+                            loginText.text = " ${userName}" + AppbarKeys.LOG_IN_STATUS + "${reservationCnt}"
                             loginBtnInAppbarFooter.text = AppbarKeys.LOG_OUT
                             Log.d("/member/authorized5", loginBtnInAppbarFooter.text.toString())
+                            profilePhotoBtn.isEnabled = true
+                            getCookie = true
+                            resizeBitmap(profilePhotoBtn)
+
                         }
 
                     }
@@ -909,12 +963,16 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     }
 
+    ////////////////////////////게시판 단 쿠키확인용///////////////////////////////////
+
+
+
     fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-}
 
+}
 
 
 

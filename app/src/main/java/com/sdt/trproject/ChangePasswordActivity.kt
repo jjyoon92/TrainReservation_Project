@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -37,12 +38,24 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private lateinit var changedPwBtn: Button
 
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
+
     private val httpClient by lazy { OkHttpClient() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_password)
         userNumText = findViewById(R.id.changedPwUserNumText)
+
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("비밀번호 찾기")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
         // 값이없으면 이전화면을
         userNumText.text = intent.getStringExtra(INPUT_USER_NUM)
 
@@ -79,7 +92,7 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private fun updatePw(id: String, pw: String) {
         // 주소 설정
-        val url = "${BuildConfig.SERVER_ADDR}/member/updatePw/applyNewPw"
+        val url = "${BuildConfig.SERVER_ADDR}/member/updatePassword"
         // json 타입 변환
         val gson = Gson()
         val data = MyData(id, pw)
@@ -97,34 +110,23 @@ class ChangePasswordActivity : AppCompatActivity() {
                 // 요청 실패 시 처리
                 e.printStackTrace()
                 lifecycleScope.launch(Dispatchers.Main) {
-                    showToast("비밀번호 변경에 실패하였습니다,io엑셉션 ")
+                    showToast("비밀번호 변경에 실패하였습니다, IOException ")
                     changedPwBtn.isEnabled = true
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                println("김승현")
-                println(response.code)
-                println("김승현")
-                Log.d("dddddqweqwewqdqwdqwd","${response.code}")
 
                 if (!response.isSuccessful) {
-
                     // 요청 실패 처리
-                    println("Request failed")
-
+                    Log.d("updatePw" , "Request failed")
                     lifecycleScope.launch(Dispatchers.Main) {
-
-                        showToast("비밀번호 변경에 실패하였습니다, 리퀘스트 요청 실패")
-                        println(id)
-
+                        showToast("비밀번호 변경에 실패하였습니다, Request Error")
                         changedPwBtn.isEnabled = true
                     }
                     return
                 }
-
                 val responseData = response.body?.string()
-
                 // 응답 데이터 처리
                 println(responseData)
                 lifecycleScope.launch(Dispatchers.Main) {
@@ -135,16 +137,19 @@ class ChangePasswordActivity : AppCompatActivity() {
 
                     when (responseResult) {
 
+                        "failure" -> {
+                            showToast("")
+                        }
+
                         "success" -> {
 
                             showToast("비밀번호 값을 성공적으로 변경했습니다.")
                             val intent =
                                 Intent(this@ChangePasswordActivity, LoginActivity::class.java)
                             this@ChangePasswordActivity.startActivity(intent)
+                            finish()
 
                         }
-
-                        "DataBaseError" -> showToast("디비오류")
 
                         else -> {
 

@@ -16,7 +16,6 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.sdt.trproject.databinding.FragmentLoginUserNumBinding
 import com.google.gson.Gson
-import com.sdt.trproject.network.AppCookieJar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -49,8 +48,7 @@ class LoginUserNumFragment : Fragment() {
     // OkHttpClient 인스턴스 생성
     private val httpClient by lazy {
         OkHttpClient().newBuilder().apply {
-//            cookieJar(JavaNetCookieJar(CookieManager()))
-            cookieJar(AppCookieJar(requireContext()))
+            cookieJar(JavaNetCookieJar(CookieManager()))
         }.build()
     }
 
@@ -185,7 +183,6 @@ class LoginUserNumFragment : Fragment() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                println("응답 뭐옴 : ? $response")
 
                 if (!response.isSuccessful) {
 
@@ -198,10 +195,9 @@ class LoginUserNumFragment : Fragment() {
                 }
 
                 val responseData = response.body?.string()
-                println("responseData : $responseData")
                 // 응답 데이터 처리
                 lifecycleScope.launch(Dispatchers.Main) {
-                    println("여기 실행됨?????")
+
 //                    response.headers.forEach {
 //                        println("${it.first} : ${it.second} ")
 //
@@ -222,16 +218,10 @@ class LoginUserNumFragment : Fragment() {
 
                     // 쿠키 변수
                     val cookies = response.headers(SharedPrefKeys.SET_COOKIE)
-                    println("cookies : $cookies")
 
                     val jsonString = JSONObject(responseData)
 
                     val responseResult = jsonString.getString("result")
-//                    val messageResult: String? = jsonString.getString("message")
-
-//                    Log.d("login에러확인", "$responseResult, $messageResult")
-                    println("responseResult : $responseResult")
-//                    println("messageResult : $messageResult")
 
 
                     // SingUpActivity 로 넘기기
@@ -239,11 +229,23 @@ class LoginUserNumFragment : Fragment() {
                     when (responseResult) {
 
                         "success" -> {
+                            val responseUserData = jsonString.getString("data")
+                            //val responseMemberNAme = responseUserData.split(",")[0]
+                            val dataJsonObject = JSONObject(responseUserData)
+                            val responseUserName = dataJsonObject.getString("memberName")
+                            val responseReservationCnt = dataJsonObject.getString("reservationCnt")
+
+
+                            Log.d(">>>>DataName<<<<<", "${ responseUserName }")
+                            Log.d(">>>>DataName<<<<<", "${ responseReservationCnt }")
+
 
                             val cookieHeaderValue =
                                 response.header(SharedPrefKeys.SET_COOKIE)?.substringBefore(";")
                             val editor = sharedPreferences.edit()
                             editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
+                            editor.putString(SharedPrefKeys.USER_NAME, responseUserName)
+                            editor.putString(SharedPrefKeys.RESULVATION_CNT, responseReservationCnt)
                             editor.apply()
 
                             val activity = requireActivity()
