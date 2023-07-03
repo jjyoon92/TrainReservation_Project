@@ -4,8 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/ticket_base_background">
+    android:layout_height="wrap_content"
+    android:paddingVertical="10dp"
+    >
 
     <LinearLayout
         android:id="@+id/reservationCancelItemLl"
@@ -101,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_medium"
-            android:text="결제 대기 중"
+            android:text="자세히 보기"
             android:background="@drawable/reservation_cancel_item_button"
             />
     </LinearLayout>

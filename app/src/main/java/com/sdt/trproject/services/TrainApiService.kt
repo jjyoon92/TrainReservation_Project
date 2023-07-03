@@ -265,5 +265,8 @@ data class RequestTrainReservationListItem(
     @SerializedName("createdDate")
     val createdDate: String,
     @SerializedName("expiredDate")
-    val expiredDate: String
+    val expiredDate: String,
+    @SerializedName("paymentId")
+    val paymentId: String
+
 )
