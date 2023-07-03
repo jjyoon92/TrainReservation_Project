@@ -67,12 +67,19 @@ class MyProfileActivity : AppCompatActivity() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         photoFile = getPictureFile(FILE_NAME)
 
-        val fileProvider = FileProvider.getUriForFile(this, "com.sdt.trproject.pictures", photoFile!!)
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+        // TODO: 이부분 수정할 것. null 처리
+        if( photoFile == null ) {
+            return
+        } else {
+            val fileProvider = FileProvider.getUriForFile(this, "com.sdt.trproject.pictures", photoFile!!)
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
 
-        if (takePictureIntent.resolveActivity(this.packageManager) != null) {
-            takePictureLauncher.launch(takePictureIntent)
+            if (takePictureIntent.resolveActivity(this.packageManager) != null) {
+                takePictureLauncher.launch(takePictureIntent)
+            }
         }
+
+
 
     }
 
