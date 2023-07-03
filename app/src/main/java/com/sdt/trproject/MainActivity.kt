@@ -2,8 +2,11 @@ package com.sdt.trproject
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.ClipData.Item
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
@@ -29,6 +32,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import android.os.SystemClock
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -107,7 +111,6 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     // ******* 차후 작업 공간 시작 *******
     private lateinit var profilePhotoBtn: ImageView
-    private lateinit var btnBoard: Button
     var getCookie : Boolean = false
 
     // 앱 바 맴버 START
@@ -243,7 +246,7 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
         // ******* 윤차후 추가 *******
-        btnBoard = findViewById(R.id.btnGoBoardPage)
+
 //        if (storedJSessionId != null) {
 //            goLoginButton.setText("로그아웃")
 //        } else {
@@ -412,6 +415,7 @@ class MainActivity : BaseActivity(), OnClickListener {
                         btnReturnOpenCalendar.text = "오는날 : $btnReturnOpenCalendarText"
                 }
             }
+
         }
 
 
@@ -450,6 +454,11 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
         // 차후 작업 공간 끝
+    }
+
+    //
+    override fun onBackPressed() {
+        showExitDialog()
     }
 
     override fun onStart() {
@@ -614,10 +623,13 @@ class MainActivity : BaseActivity(), OnClickListener {
 
             AppbarKeys.LOG_OUT -> {
 
+
                 val sharedPreferences =
                     getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.remove(SharedPrefKeys.SET_COOKIE)
+                editor.putBoolean("isAutoLogin", false)
+                editor.remove("savedUserPw")
                 editor.apply()
 
                 val intent = Intent(this@MainActivity, MainActivity::class.java)
@@ -963,6 +975,31 @@ class MainActivity : BaseActivity(), OnClickListener {
 
     }
 
+    private fun showExitDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.exit_dialog_layout, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+            .setCancelable(false)
+
+        val dialog: AlertDialog = builder.create()
+
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btn_cancel)
+        val btnExit = dialogView.findViewById<TextView>(R.id.btn_exit)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnExit.setOnClickListener {
+            dialog.dismiss()
+            finish()
+        }
+
+        dialog.show()
+    }
+
+
     ////////////////////////////게시판 단 쿠키확인용///////////////////////////////////
 
 
@@ -973,37 +1010,6 @@ class MainActivity : BaseActivity(), OnClickListener {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

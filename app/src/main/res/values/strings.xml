@@ -89,7 +89,6 @@
     <string name="select">선택하기</string>
 
 
-
     <string name="nav_header_non_member">로그인 하세요.  </string>
 
     <string name="footer_1">철도범죄신고 1588-7722</string>
@@ -102,6 +101,10 @@
     <string name="footer_login">  로그인</string>
     <string name="footer_logout"> 로그아웃</string>
     <string name="bottom_logo">혁신 선도, 국민의 철도 플랫폼</string>
+
+
+    <string name="btn_cancel">취소</string>
+    <string name="btn_exit">종료</string>
 
 
     <string name="member_pw_find" translatable="false">
@@ -141,6 +144,14 @@
             다면 이메일 입력후 인증번호 확인을 진행해주세요.</b>
       </string>
 
+    <string name="exit_dialog_massage" translatable="false">
+<h><b>경고</b>
+</h>
+\n
+\n
+앱을 종료하시겠습니까?
+    </string>
+
     <string name="refund_text" translatable="false">
 <b>환불시 환불기한은 영업일을 기준으로
 
@@ -158,7 +169,7 @@
 
     <string name="refund_fee_text" translatable="false">
 <b>본 승차권은 환불 하실 때
-<font color ="#8A62A9">위약금0원</font>이 발생합니다.
+<font color="#8A62A9">위약금0원</font>이 발생합니다.
 
 환불일로부터 약 7일이후 결제가 취소되며,
 카드사에서는 고객님의 결제일에 신용으로
@@ -174,7 +185,7 @@
 외 30배 이내의 부가운임이
 발생됨을 알려드립니다.
 
-<font color ="#8A62A9">환불하시겠습니까?</font></b>
+<font color="#8A62A9">환불하시겠습니까?</font></b>
     </string>
 
     <string name="refund_done_text" translatable="false">
