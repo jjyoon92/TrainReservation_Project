@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +17,10 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 class MyProfileActivity : AppCompatActivity() {
+
+    // appbar 추가
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
 
     private lateinit var photoBtn: TextView
     private lateinit var galleryBtn: TextView
@@ -35,6 +40,16 @@ class MyProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_profile)
+
+        // appbar 추가
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("사진 설정")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
         photoBtn = findViewById(R.id.photoBtn)
         photoBtn.setOnClickListener {
@@ -67,19 +82,12 @@ class MyProfileActivity : AppCompatActivity() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         photoFile = getPictureFile(FILE_NAME)
 
-        // TODO: 이부분 수정할 것. null 처리
-        if( photoFile == null ) {
-            return
-        } else {
-            val fileProvider = FileProvider.getUriForFile(this, "com.sdt.trproject.pictures", photoFile!!)
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+        val fileProvider = FileProvider.getUriForFile(this, "com.sdt.trproject.pictures", photoFile!!)
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
 
-            if (takePictureIntent.resolveActivity(this.packageManager) != null) {
-                takePictureLauncher.launch(takePictureIntent)
-            }
+        if (takePictureIntent.resolveActivity(this.packageManager) != null) {
+            takePictureLauncher.launch(takePictureIntent)
         }
-
-
 
     }
 

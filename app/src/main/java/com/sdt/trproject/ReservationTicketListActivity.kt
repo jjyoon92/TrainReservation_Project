@@ -1,11 +1,14 @@
 package com.sdt.trproject
 
-import android.opengl.Visibility
+import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.sdt.trproject.adapters.TrainReservationTicketAdapter
 import com.sdt.trproject.services.RequestTrainReservationListItem
@@ -17,6 +20,15 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ReservationTicketListActivity: AppCompatActivity() {
+
+//    override val layoutRes: Int
+//        get() = R.layout.activity_reservation_ticket_list
+
+    // appbar 작업
+    private lateinit var navBtn: ImageView
+    private lateinit var sidebar: DrawerLayout;
+    private lateinit var loginBtnInAppbarFooter: TextView
+    private lateinit var appbarTitle: TextView
 
     private lateinit var recyclerView: RecyclerView
 
@@ -35,6 +47,24 @@ class ReservationTicketListActivity: AppCompatActivity() {
         recyclerView = findViewById(R.id.reservationTicketRecyclerView)
         tvEmptyReservationTicketList = findViewById(R.id.tvEmptyReservationTicketList)
 
+        // appbar 작업
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("승차권 확인")
+        }
+        navBtn = findViewById<ImageView>(R.id.nav_btn)
+        sidebar = findViewById(R.id.reservationListSideBar)
+        navBtn.setOnClickListener {
+            if (!sidebar.isDrawerOpen(GravityCompat.START)) {
+                sidebar.openDrawer(GravityCompat.START)
+            } else {
+                sidebar.closeDrawer(GravityCompat.START)
+            }
+        }
+        loginBtnInAppbarFooter = findViewById(R.id.loginBtnInAppbarFooter)
+        loginBtnInAppbarFooter.setOnClickListener {
+            sidebar.closeDrawer(GravityCompat.START)
+            loginFun(loginBtnInAppbarFooter)
+        }
 
         adapter = TrainReservationTicketAdapter(this, trainApiService)
         recyclerView.adapter = adapter
@@ -64,5 +94,25 @@ class ReservationTicketListActivity: AppCompatActivity() {
             tvEmptyReservationTicketList.visibility = View.VISIBLE
         }
 
+    }
+
+    private fun loginFun(loginBtnInAppbarFooter: TextView) {
+
+        when (loginBtnInAppbarFooter.text.toString()) {
+
+            AppbarKeys.LOG_IN -> {
+                finish()
+                val intent = Intent(this@ReservationTicketListActivity, LoginActivity::class.java)
+                startActivity(intent)
+            }
+
+
+            else -> {
+                Log.d("goLoginButton", "코드오류")
+
+                val intent = Intent(this@ReservationTicketListActivity,LoginActivity::class.java)
+                startActivity(intent)
+            }
+        }
     }
 }

@@ -14,9 +14,23 @@
 
     <include layout="@layout/include_guideline_bottom" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/Theme.AppCompat.Light"
+        tools:ignore="MissingConstraints">
+        <!-- 메뉴 설정하는 방법 : https://stackoverflow.com/questions/35648913/how-to-set-menu-to-toolbar-in-android -->
+        <include layout="@layout/appbar_get_back_button"/>
+    </androidx.appcompat.widget.Toolbar>
+
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/margin_nav"
         android:background="@drawable/custom_payment_background"
         app:layout_constraintBottom_toTopOf="@+id/btnWrapReservationDetail"
         app:layout_constraintLeft_toRightOf="@+id/mainGuidelineVerticalLeft"
@@ -137,29 +151,29 @@
                     android:orientation="vertical"
                     >
 
-<!--                    <TextView-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_marginTop="5dp"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:text="1호차(특실)(2B) 어른"-->
-<!--                        android:textColor="@color/dark_gray"-->
-<!--                        android:textSize="14dp"-->
-<!--                        android:textStyle="normal" />-->
+                    <!--                    <TextView-->
+                    <!--                        android:layout_width="match_parent"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_marginTop="5dp"-->
+                    <!--                        android:layout_weight="1"-->
+                    <!--                        android:text="1호차(특실)(2B) 어른"-->
+                    <!--                        android:textColor="@color/dark_gray"-->
+                    <!--                        android:textSize="14dp"-->
+                    <!--                        android:textStyle="normal" />-->
 
                 </LinearLayout>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="30dp"
-                        android:layout_marginBottom="@dimen/margin_bottom"
-                        android:layout_weight="0.3"
-                        android:background="@drawable/discount_select_box_background"
-                        android:text="할인선택"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="@dimen/text_size_medium"
-                        android:textStyle="bold" />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="@dimen/margin_bottom"
+                    android:layout_weight="0.3"
+                    android:background="@drawable/discount_select_box_background"
+                    android:text="할인선택"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/text_size_medium"
+                    android:textStyle="bold" />
 
 
 

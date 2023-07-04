@@ -3,6 +3,7 @@ package com.sdt.trproject
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.os.PersistableBundle
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +35,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ReservationDetailActivity : AppCompatActivity() {
+
+    private lateinit var appbarTitle : TextView
+    private lateinit var backBtn : ImageView
 
     private lateinit var data: String
     private lateinit var seat: String
@@ -71,6 +76,16 @@ class ReservationDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reservation_detail)
 
+        // appbar 추가
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("예약내역")
+        }
+        backBtn = findViewById<ImageView?>(R.id.back_btn).apply {
+            setOnClickListener(){
+                onBackPressed()
+            }
+        }
+
         tvDepartStation = findViewById(R.id.tvReservationDetailDepartStation)
         tvDepartTime = findViewById(R.id.tvReservationDetailDepartTime)
         tvArriveStation = findViewById(R.id.tvReservationDetailArriveStation)
@@ -88,12 +103,13 @@ class ReservationDetailActivity : AppCompatActivity() {
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.confirm_dialog, null)
-
-        dialogBuilder.setView(dialogView)
-
-        val alertDialog = dialogBuilder.create()
+        val tvConfirmMessage = dialogView.findViewById<TextView>(R.id.tvConfirmMessage)
         val confirmButton = dialogView.findViewById<Button>(R.id.btnConfirm)
         val cancelButton = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        dialogBuilder.setView(dialogView)
+        val alertDialog = dialogBuilder.create()
+
 
         data = intent.getStringExtra("DATA") ?: ""
         val gson = Gson()
@@ -143,7 +159,6 @@ class ReservationDetailActivity : AppCompatActivity() {
 
         // 출발일자, 요일, 열차 번호 세팅
         tvDepartDateTrainNo.text = "${formattedDate}(${dayOfWeek}) SRT ${trainNo}"
-
 
         // ticket 개수만큼 TextView 생성
         dataArray.forEach {
@@ -219,10 +234,12 @@ class ReservationDetailActivity : AppCompatActivity() {
 
         // 결제 확정 하기
         btnReservationPaymentConfirm.setOnClickListener {
+            tvConfirmMessage.text = "정말로 결제를 완료 하시겠습니까?" // 다이얼로그 텍스트 변경
             alertDialog.show()
 
             confirmButton.setOnClickListener {
                 // 확인 버튼 동작 처리
+
                 sendRequestReservationPayment(reservationId)
                 alertDialog.dismiss()
             }
@@ -249,51 +266,10 @@ class ReservationDetailActivity : AppCompatActivity() {
             },
             onSuccess = { response ->
                 println("reservationPayment 요청 성공 : Response = $response")
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, ReservationTicketListActivity::class.java)
                 startActivity(intent)
                 finish()
             }
         )
     }
-
-//    private fun handleRequestTrainReservationPaymentResponse(response: RequestTrainReservationPaymentResponse) {
-//
-//    }
-    /* 취소 요청 시작 */
-
-//    private fun sendRequestReservationCancel(id: String) {
-//        val reservationId: String = id
-//
-//        val jsonObject = JSONObject()
-//        jsonObject.put("reservationId", reservationId)
-//
-//        val requestBody = jsonObject.requestBody()
-//        val call = trainApiService.requestTrainReservationCancel(requestBody)
-//
-//        RetrofitModule.executeCall(
-//            call,
-//            onFailure = { message, httpCode ->
-//                println("reservationCancel 요청 실패 : Message = $message, HttpCode = $httpCode")
-//            },
-//            onSuccess = { response ->
-//                println("reservationCancel 요청 성공 : Response = $response")
-//                handleRequestTrainReservationCancelResponse(response)
-//            }
-//        )
-//    }
-//
-//    // 취소 성공 처리
-//    private fun handleRequestTrainReservationCancelResponse(response: RequestTrainReservationCancelResponse) {
-//        val intent = Intent(this, ReservationCancelActivity::class.java).apply {
-//            putExtra("RESERVATION_ID", reservationId)
-//        }
-//
-//        startActivity(intent)
-//    }
-
-
-    /* 취소요청 끝 */
-
-
-
 }

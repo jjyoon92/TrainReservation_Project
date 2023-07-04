@@ -20,14 +20,14 @@
             android:padding="10dp"
             android:textColor="@color/black"
             android:text="@string/refund_done_text"
-            app:layout_constraintBottom_toTopOf="@id/check_btn"
+            app:layout_constraintBottom_toTopOf="@id/tvNoticeConfirmation"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/container"
             />
 
         <TextView
-            android:id="@+id/check_btn"
+            android:id="@+id/tvNoticeConfirmation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_button_mid_gray_refund"
@@ -38,6 +38,7 @@
             android:textStyle="bold"
             android:paddingTop="7dp"
             android:paddingBottom="7dp"
+            android:backgroundTint="@color/secondary"
             app:layout_constraintBottom_toBottomOf="@+id/container"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />

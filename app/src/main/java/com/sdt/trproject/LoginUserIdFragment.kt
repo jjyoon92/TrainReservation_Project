@@ -16,7 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.sdt.trproject.databinding.FragmentLoginEmailBinding
+import com.sdt.trproject.databinding.FragmentLoginUserIdBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -32,18 +32,16 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.CookieManager
 
-class LoginEmailFragment : Fragment() {
+class LoginUserIdFragment : Fragment() {
 
-    lateinit var loginEmailBinding: FragmentLoginEmailBinding
+    lateinit var loginUserNumBinding: FragmentLoginUserIdBinding
 
-    private lateinit var userEmail: TextView
+    private lateinit var userId: TextView
     private lateinit var userPw: TextView
 
-    private lateinit var saveEmailBtn: CheckBox
+    private lateinit var saveUserNumBtn: CheckBox
     private lateinit var autoLoginBtn: CheckBox
     private lateinit var loginBtn: Button
-
-    private lateinit var editor: SharedPreferences.Editor
 
     // OkHttpClient 인스턴스 생성
     private val httpClient by lazy {
@@ -51,6 +49,7 @@ class LoginEmailFragment : Fragment() {
             cookieJar(JavaNetCookieJar(CookieManager()))
         }.build()
     }
+    private lateinit var editor : SharedPreferences.Editor
 
 
     // SharedPreferences 인스턴스 생성
@@ -65,103 +64,97 @@ class LoginEmailFragment : Fragment() {
 
         editor = sharedPreferences.edit()
 
-        loginEmailBinding = FragmentLoginEmailBinding.inflate(inflater, container, false)
+        loginUserNumBinding = FragmentLoginUserIdBinding.inflate(inflater, container, false)
 
         // View 요소 초기화
-        userEmail = loginEmailBinding.root.findViewById(R.id.userNumId)
-        userPw = loginEmailBinding.root.findViewById(R.id.userPw)
+        userId = loginUserNumBinding.root.findViewById(R.id.userNumId)
+        userPw = loginUserNumBinding.root.findViewById(R.id.userPw)
 
-        saveEmailBtn = loginEmailBinding.root.findViewById(R.id.saveUserNumBtn)
-        autoLoginBtn = loginEmailBinding.root.findViewById(R.id.autoLoginBtn)
-        loginBtn = loginEmailBinding.root.findViewById(R.id.loginBtn)
+        saveUserNumBtn = loginUserNumBinding.root.findViewById(R.id.saveUserNumBtn)
+        autoLoginBtn = loginUserNumBinding.root.findViewById(R.id.autoLoginBtn)
+        loginBtn = loginUserNumBinding.root.findViewById(R.id.loginBtn)
 
-        userEmail.text = sharedPreferences.getString(SharedPrefKeys.SAVED_Email, "")
+      userId.text = sharedPreferences.getString(SharedPrefKeys.SAVED_USER_ID, "")
 //        val editor = sharedPreferences.edit()
 //        editor.remove(SharedPrefKeys.IS_USER_ID_CHECK_BOX_CHECKED)
 //        editor.remove(SharedPrefKeys.IS_USER_ID_AUTO_LOGIN)
 //        editor.apply()
 
-        saveEmailBtn.isChecked =
-            sharedPreferences.getBoolean(SharedPrefKeys.IS_Email_CHECK_BOX_CHECKED, false)
-        autoLoginBtn.isChecked =
-            sharedPreferences.getBoolean(SharedPrefKeys.IS_Email_AUTO_LOGIN, false)
+        saveUserNumBtn.isChecked = sharedPreferences.getBoolean(SharedPrefKeys.IS_USER_ID_CHECK_BOX_CHECKED, false)
+        autoLoginBtn.isChecked = sharedPreferences.getBoolean(SharedPrefKeys.IS_USER_ID_AUTO_LOGIN, false)
 
         // 자동 입력 로직
-        if (sharedPreferences.getBoolean(SharedPrefKeys.IS_Email_CHECK_BOX_CHECKED, false)) {
-            val savedUserId = sharedPreferences.getString(SharedPrefKeys.USER_EMAIL, "")
+        if (sharedPreferences.getBoolean(SharedPrefKeys.IS_USER_ID_CHECK_BOX_CHECKED, false)) {
+            val savedUserId = sharedPreferences.getString(SharedPrefKeys.USER_ID, "")
             if (!savedUserId.isNullOrEmpty()) {
-                userEmail.text = savedUserId
+                userId.text = savedUserId
             }
         }
 
         // 자동 로그인 로직
         if (autoLoginBtn.isChecked) {
-            val savedEmail = sharedPreferences.getString(SharedPrefKeys.SAVED_Email, "")
+            val savedUserId = sharedPreferences.getString(SharedPrefKeys.SAVED_USER_ID, "")
             val savedUserPw = sharedPreferences.getString(SharedPrefKeys.SAVED_USER_PW, "")
 
-            if (!savedEmail.isNullOrEmpty() && !savedUserPw.isNullOrEmpty()) {
-                sendCredentials(savedEmail, savedUserPw)
+            if (!savedUserId.isNullOrEmpty() && !savedUserPw.isNullOrEmpty()) {
+                sendCredentials(savedUserId, savedUserPw)
             }
         }
 
 // 체크박스 클릭 시, 상태를 저장하고 member_get 텍스트를 저장 또는 삭제
-        saveEmailBtn.setOnCheckedChangeListener { _, isChecked ->
+        saveUserNumBtn.setOnCheckedChangeListener { _, isChecked ->
             // 체크박스 상태 저장
-            editor.putBoolean(SharedPrefKeys.IS_Email_CHECK_BOX_CHECKED, true)
+            editor.putBoolean(SharedPrefKeys.IS_USER_ID_CHECK_BOX_CHECKED, true)
             // 체크가 되어 있는 경우
             if (isChecked) {
                 showToast("사용자 번호 저장을 활성화하였습니다!")
             } else {
-                editor.remove(SharedPrefKeys.IS_Email_CHECK_BOX_CHECKED)
+                editor.remove(SharedPrefKeys.IS_USER_ID_CHECK_BOX_CHECKED)
                 showToast("사용자 번호 저장을 비활성화하였습니다!")
             }
         }
 
 // 자동 로그인 체크박스 클릭 시 상태 저장
         autoLoginBtn.setOnCheckedChangeListener { _, isChecked ->
-
-            editor.putBoolean(SharedPrefKeys.IS_Email_AUTO_LOGIN, true)
-
+            editor.putBoolean(SharedPrefKeys.IS_USER_ID_AUTO_LOGIN, true)
+            editor.apply()
 
             if (!isChecked) {
-                editor.remove(SharedPrefKeys.SAVED_Email)
+                editor.remove(SharedPrefKeys.SAVED_USER_ID)
                 editor.remove(SharedPrefKeys.SAVED_USER_PW)
+
             }
         }
 
 
         // 로그인 버튼 클릭 시 이벤트 처리
         loginBtn.setOnClickListener {
-            val emailToString = userEmail.text.toString()
+            val userIdToString = userId.text.toString()
             val userPwToString = userPw.text.toString()
             // 회원번호 저장 체크박스가 체크된 경우
-            if (saveEmailBtn.isChecked) {
+            if (saveUserNumBtn.isChecked) {
                 // 사용자 번호 저장
-                editor.putString(SharedPrefKeys.USER_EMAIL, emailToString)
-                editor.putString(SharedPrefKeys.DEFAULT_LOGIN_TYPE, "login_email_fragment")
+                editor.putString(SharedPrefKeys.USER_ID, userIdToString)
+                editor.putString(SharedPrefKeys.DEFAULT_LOGIN_TYPE,"login_user_id_fragment")
             } else {
-
-                editor.remove(SharedPrefKeys.USER_EMAIL)
-
+                editor.remove(SharedPrefKeys.USER_ID)
             }
 
             if (autoLoginBtn.isChecked) { // 자동 로그인 체크박스가 체크된 경우
                 // 사용자 ID, PW 저장
 
-                editor.putString(SharedPrefKeys.SAVED_Email, emailToString)
+                editor.putString(SharedPrefKeys.SAVED_USER_ID, userIdToString)
                 editor.putString(SharedPrefKeys.SAVED_USER_PW, userPwToString)
 
             } else {
-
-                editor.remove(SharedPrefKeys.SAVED_Email)
+                editor.remove(SharedPrefKeys.SAVED_USER_ID)
                 editor.remove(SharedPrefKeys.SAVED_USER_PW)
-
             }
 
-            sendCredentials(emailToString, userPwToString)
+            sendCredentials(userIdToString, userPwToString)
         }
 
-        return loginEmailBinding.root
+        return loginUserNumBinding.root
     }
 
     // 토스트 메시지 출력 함수
@@ -171,7 +164,7 @@ class LoginEmailFragment : Fragment() {
 
     @Parcelize
     data class MyData(
-        val email: String = "",
+        val id: String = "",
         val pw: String = ""
 
     ) : Parcelable
@@ -196,7 +189,7 @@ class LoginEmailFragment : Fragment() {
                 // 요청 실패 시 처리
                 e.printStackTrace()
                 lifecycleScope.launch(Dispatchers.Main) {
-                    showToast("이메일 및 비밀번호 값 전송에 실패하였습니다.")
+                    showToast("아이디 및 비밀번호 값 전송에 실패하였습니다.")
                 }
             }
 
@@ -206,7 +199,7 @@ class LoginEmailFragment : Fragment() {
 
                     // 요청 실패 처리
                     lifecycleScope.launch(Dispatchers.Main) {
-                        showToast("이메일 및 비밀번호 값 전송에 실패하였습니다.")
+                        showToast("아이디 및 비밀번호 값 전송에 실패하였습니다.")
 
                     }
                     return
@@ -238,7 +231,6 @@ class LoginEmailFragment : Fragment() {
 
                             val cookieHeaderValue =
                                 response.header(SharedPrefKeys.SET_COOKIE)?.substringBefore(";")
-
                             editor.putString(SharedPrefKeys.SET_COOKIE, cookieHeaderValue)
                             editor.putString(SharedPrefKeys.USER_NAME, responseUserName)
                             editor.putString(SharedPrefKeys.RESULVATION_CNT, responseReservationCnt)
@@ -253,10 +245,9 @@ class LoginEmailFragment : Fragment() {
 
                         "failure" -> {
                             val messageResult: String? = jsonString.getString("message")
-
-                            if (messageResult.equals("input_error")) showToast("이메일이 존재하지 않습니다.")
+                            if (messageResult.equals("input_error")) showToast("아이디가 존재하지 않습니다.")
                             if (messageResult.equals("password_no_match")) showToast("비밀번호를 확인해주세요.")
-                            if (messageResult.equals("id_no_match")) showToast("이메일이 존재하지 않습니다.")
+                            if (messageResult.equals("id_no_match")) showToast("아이디가 존재하지 않습니다.")
                             Log.d(">>>>DataName<<<<<", "$id")
                             Log.d(">>>>DataName<<<<<", "$pw")
                             Log.d("message", "message: $messageResult")

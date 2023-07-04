@@ -2,14 +2,10 @@ package com.sdt.trproject.services
 
 import com.google.gson.annotations.SerializedName
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
-import retrofit2.http.Path
 
 interface TrainApiService {
 
@@ -44,6 +40,13 @@ interface TrainApiService {
 
     @POST("/train/reservation/list")
     fun requestTrainReservationList(): Call<RequestTrainReservationListResponse>
+
+    @POST("/train/ticket")
+    fun requestTrainSeatTicketList(@Body requestData: RequestBody): Call<RequestTrainReservationSeatTicketListResponse>
+
+    @POST("/train/reservation/payment/refund")
+    fun requestTrainReservationRefund(@Body requestData: RequestBody): Call<RequestTrainReservationRefundResponse>
+
 
 //    @POST("{path}")
 //    override fun onRequest(
@@ -268,5 +271,51 @@ data class RequestTrainReservationListItem(
     val formattedExpiredDate: String,
     @SerializedName("paymentId")
     val paymentId: String
+)
 
+// 승차권 좌석 티켓 Response
+data class RequestTrainReservationSeatTicketListResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("data")
+    val data: List<RequestTrainReservationSeatTicketListItem>,
+    @SerializedName("message")
+    val message: String
+)
+
+data class RequestTrainReservationSeatTicketListItem(
+    @SerializedName("reservationId")
+    val reservationId: String,
+    @SerializedName("ticketId")
+    val ticketId: String,
+    @SerializedName("date")
+    val date: String,
+    @SerializedName("arriveTime")
+    val arriveTime: String,
+    @SerializedName("arriveStation")
+    val arriveStation: String,
+    @SerializedName("departTime")
+    val departTime: String,
+    @SerializedName("departStation")
+    val departStation: String,
+    @SerializedName("trainNo")
+    val trainNo: String,
+    @SerializedName("carriage")
+    val carriage: String,
+    @SerializedName("seat")
+    val seat: String,
+    @SerializedName("price")
+    val price: Int,
+    @SerializedName("discountedPrice")
+    val discountedPrice: Int,
+    @SerializedName("age")
+    val age: String
+)
+
+// 승차권 환불 response
+data class RequestTrainReservationRefundResponse(
+    @SerializedName("result")
+    val result: String,
+    @SerializedName("message")
+    val message: String,
 )

@@ -43,6 +43,7 @@ class ReservationCancelActivity : AppCompatActivity() {
     private lateinit var createdDate: String
     private lateinit var expiredDate: String
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reservation_cancel)
@@ -55,16 +56,16 @@ class ReservationCancelActivity : AppCompatActivity() {
 
         val targetReservationId: String? = intent.getStringExtra("RESERVATION_ID")
 
+        // dialog
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.confirm_dialog, null)
-
-        dialogBuilder.setView(dialogView)
-
-        val alertDialog = dialogBuilder.create()
-
+        val tvConfirmMessage = dialogView.findViewById<TextView>(R.id.tvConfirmMessage)
         val confirmButton = dialogView.findViewById<Button>(R.id.btnConfirm)
         val cancelButton = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        dialogBuilder.setView(dialogView)
+        val alertDialog = dialogBuilder.create()
 
 
         // 현재 로그인된 유저의 예약 목록 불러오기
@@ -73,6 +74,7 @@ class ReservationCancelActivity : AppCompatActivity() {
         if (targetReservationId != null) {
             sendRequestReservationList(targetReservationId)
             btnReservationCancelConfirm.setOnClickListener {
+                tvConfirmMessage.text = "정말로 예약취소 하시겠습니까?" // 다이얼로그 텍스트 변경
                 alertDialog.show()
 
                 confirmButton.setOnClickListener {
@@ -194,7 +196,7 @@ class ReservationCancelActivity : AppCompatActivity() {
 
     // 취소 성공 처리
     private fun handleRequestTrainReservationCancelResponse(response: RequestTrainReservationCancelResponse) {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, ReservationTicketListActivity::class.java)
 
         startActivity(intent)
     }

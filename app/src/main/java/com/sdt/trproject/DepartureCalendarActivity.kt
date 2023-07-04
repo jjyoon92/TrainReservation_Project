@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CalendarView
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +25,10 @@ class DepartureCalendarActivity : AppCompatActivity(), TimeSelectAdapter.OnTimeC
         const val SELECTED_TIME = "SELECTED_TIME"
     }
 
+    // appbar 추가
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
+
     private lateinit var timeSelectAdapter: RecyclerView.Adapter<*>
     private lateinit var selectedDate: String
     private var selectedDateMillis: Long = 0L
@@ -36,6 +42,16 @@ class DepartureCalendarActivity : AppCompatActivity(), TimeSelectAdapter.OnTimeC
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_departure_calendar)
+
+        // appbar 추가
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("도착일시")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
         val calendarView: CalendarView = findViewById(R.id.departureCalendarView)
         val btnGet: Button = findViewById(R.id.btnDepartureDateSelect)

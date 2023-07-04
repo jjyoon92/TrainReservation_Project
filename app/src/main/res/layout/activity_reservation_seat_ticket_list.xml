@@ -24,7 +24,7 @@
         app:layout_constraintTop_toBottomOf="@+id/mainGuidelineHorizontalTop">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trainTimeRecyclerView"
+            android:id="@+id/trainReservationSeatTicketRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
@@ -32,12 +32,13 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/register_btn"
+            app:layout_constraintBottom_toTopOf="@+id/btnReservationSeatTicketRefund"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/register_btn"
+            android:id="@+id/btnReservationSeatTicketRefund"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

@@ -62,6 +62,7 @@
         <activity android:name=".TrainScheduleActivity" />
         <activity android:name=".ReservationDetailActivity" />
         <activity android:name=".ReservationTicketListActivity" />
+        <activity android:name="ReservationSeatTicketListActivity" />
         <activity android:name=".SplashLoadingActivity" />
         <activity android:name=".ReservationCancelActivity" />
         <activity android:name="com.sdt.trproject.MyProfileActivity" />

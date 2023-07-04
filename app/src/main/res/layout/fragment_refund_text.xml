@@ -20,14 +20,14 @@
             android:padding="10dp"
             android:textColor="@color/black"
             android:text="@string/refund_text"
-            app:layout_constraintBottom_toTopOf="@id/check_btn"
+            app:layout_constraintBottom_toTopOf="@id/tvNoticeConfirmation"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/container"
             />
 
         <TextView
-            android:id="@+id/check_btn"
+            android:id="@+id/btn_"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_button_background_refund"

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridView
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -18,6 +19,10 @@ class StationSelectActivity: AppCompatActivity()  {
         const val DEPARTURE_STATION = "DEPARTURE_STATION"
         const val ARRIVAL_STATION = "ARRIVAL_STATION"
     }
+
+    // appbar 작업
+    private lateinit var appbarTitle : TextView
+    private lateinit var clearBtn : ImageView
 
     private lateinit var stationSelectAdapter: GridView
     private var stationGridView: GridView? = null
@@ -32,6 +37,16 @@ class StationSelectActivity: AppCompatActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_station_select)
+
+        // appbar 작업
+        appbarTitle = findViewById<TextView?>(R.id.appbarTitle).apply {
+            setText("역선택")
+        }
+        clearBtn = findViewById<ImageView?>(R.id.clearBtn).apply {
+            setOnClickListener(){
+                finish()
+            }
+        }
 
         stationGridView = findViewById(R.id.stationGridview)
         tvDepartureStation = findViewById(R.id.tvPreSelectedDepartureStation)

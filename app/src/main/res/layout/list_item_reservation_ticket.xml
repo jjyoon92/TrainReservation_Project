@@ -9,7 +9,7 @@
     >
 
     <LinearLayout
-        android:id="@+id/reservationCancelItemLl"
+        android:id="@+id/reservationTicketListItemLl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -97,12 +97,14 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/btnReservationConfirm"
+        <TextView
+            android:id="@+id/tvReservationConfirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_medium"
             android:text="자세히 보기"
+            android:textAlignment="center"
+            android:paddingVertical="10dp"
             android:background="@drawable/reservation_cancel_item_button"
             />
     </LinearLayout>

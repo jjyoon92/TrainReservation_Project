@@ -202,13 +202,16 @@ open class BaseActivity : AppCompatActivity() {
         val bitmap = BitmapFactory.decodeFile(imagePath)
 
         // 이미지 크기 조정
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, targetSize, targetSize, false)
+        // TODO: null 인 경우 로직 구성할것.
+//        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, targetSize, targetSize, false)
 
         // 원형 이미지로 변환
-        val circularBitmap = createCircularBitmap(resizedBitmap)
+        // TODO: null인 경우 로직 구성.
+//        val circularBitmap = createCircularBitmap(resizedBitmap)
 
         // ImageView에 비트맵 이미지 설정
-        profilePhotoBtn.setImageBitmap(circularBitmap)
+        // TODO: Null인 경우 로직 구성
+//        profilePhotoBtn.setImageBitmap(circularBitmap)
     }
 
     private fun createCircularBitmap(bitmap: Bitmap): Bitmap {

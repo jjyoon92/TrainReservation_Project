@@ -14,7 +14,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.sdt.trproject.databinding.ActivityLoginBinding
 import okhttp3.OkHttpClient
-import org.w3c.dom.Text
 
 
 class LoginActivity : AppCompatActivity() {
@@ -43,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
 
     // SharedPreferences 인스턴스 생성
     private val sharedPreferences by lazy {
-        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
+//        getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
         getSharedPreferences(SharedPrefKeys.PREF_NAME, Context.MODE_PRIVATE)
     }
 
@@ -79,10 +78,11 @@ class LoginActivity : AppCompatActivity() {
         email_btn = findViewById(R.id.email_btn)
         phone_btn = findViewById(R.id.phone_btn)
 
-        fragmentController("login_user_num_fragment", false)
+        val defaultLoginType = sharedPreferences.getString(SharedPrefKeys.DEFAULT_LOGIN_TYPE,"login_user_id_fragment")!!
+        fragmentController(defaultLoginType, false)
 
         member_btn.setOnClickListener {
-            fragmentController("login_user_num_fragment", false)
+            fragmentController("login_user_id_fragment", false)
         }
         email_btn.setOnClickListener {
             fragmentController("login_email_fragment", false)
@@ -144,15 +144,15 @@ class LoginActivity : AppCompatActivity() {
 
     fun fragmentController(name: String, add: Boolean) {
         when (name) {
-            "login_user_num_fragment" -> {
-                currentFragment = LoginUserNumFragment()
+            "login_user_id_fragment" -> {
+                currentFragment = LoginUserIdFragment()
             }
-//            "login_email_fragment" -> {
-//                currentFragment = LoginEmailFragment()
-//            }
-//            "login_phone_fragment" -> {
-//                currentFragment = LoginPhoneFragment()
-//            }
+            "login_email_fragment" -> {
+                currentFragment = LoginEmailFragment()
+            }
+            "login_phone_fragment" -> {
+                currentFragment = LoginPhoneFragment()
+            }
 
         }
         val trans = supportFragmentManager.beginTransaction()
