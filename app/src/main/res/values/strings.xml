@@ -231,4 +231,8 @@
 감사합니당.</b>
 </string>
 
+    <string name="reservation_seat_ticket_notice" translatable="false">
+<b>타는 곳은 열차 출발 15분전 역사 내 전광판을 확인하여 주시기 바랍니다.</b>
+</string>
+
 </resources>

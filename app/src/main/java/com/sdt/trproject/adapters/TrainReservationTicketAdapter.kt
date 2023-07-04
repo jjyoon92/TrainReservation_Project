@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.annotations.SerializedName
 import com.sdt.trproject.R
+import com.sdt.trproject.ReservationDetailActivity
 import com.sdt.trproject.services.RequestTrainReservationListItem
 import com.sdt.trproject.services.TrainApiService
 import dagger.hilt.android.qualifiers.ActivityContext
@@ -76,8 +77,8 @@ class TrainReservationTicketAdapter @Inject constructor(
             val departStation: String = item.departStation
             val trainNo: String = item.trainNo
             val ticketCnt: Int = item.ticketCnt
-            val createdDate: String = item.createdDate
-            val expiredDate: String = item.expiredDate
+            val createdDate: String = item.formattedCreatedDate
+            val expiredDate: String = item.formattedExpiredDate
             val paymentId: String? = item.paymentId
 
             // 출발 일자 포맷 변경
@@ -124,8 +125,9 @@ class TrainReservationTicketAdapter @Inject constructor(
                 btnReservationConfirm.text = "결제 대기 중"
 
                 btnReservationConfirm.setOnClickListener {
-
+//                    intent = Intent(this@TrainReservationTicketAdapter, ReservationDetailActivity::class.java)
                 }
+
             } else {
                 tvReservationExpiredDate.visibility = View.GONE
                 btnReservationConfirm.text = "자세히 보기"

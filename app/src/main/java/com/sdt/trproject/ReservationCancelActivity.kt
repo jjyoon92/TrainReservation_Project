@@ -127,8 +127,8 @@ class ReservationCancelActivity : AppCompatActivity() {
                 departStation = it.departStation
                 trainNo = it.trainNo
                 ticketCnt = it.ticketCnt
-                createdDate = it.createdDate
-                expiredDate = it.expiredDate
+                createdDate = it.formattedCreatedDate
+                expiredDate = it.formattedExpiredDate
                 
                 return@forEach
             }

@@ -262,10 +262,10 @@ data class RequestTrainReservationListItem(
     val trainNo: String,
     @SerializedName("ticketCnt")
     val ticketCnt: Int,
-    @SerializedName("createdDate")
-    val createdDate: String,
-    @SerializedName("expiredDate")
-    val expiredDate: String,
+    @SerializedName("formattedCreatedDate")
+    val formattedCreatedDate: String,
+    @SerializedName("formattedExpiredDate")
+    val formattedExpiredDate: String,
     @SerializedName("paymentId")
     val paymentId: String
 

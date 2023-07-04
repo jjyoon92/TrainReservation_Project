@@ -14,14 +14,14 @@ public interface BoardService {
         "content-type: application/json"
     })
 
-    @POST("/board/select")
+    @POST("info/board/select")
     Call<ResponseVo> get_board() ;
 
-    @POST("/board/select/search")
+    @POST("info/board/select/search")
     Call<ResponseVo> get_board_search(@Body BoardVo search);
 
 
-    @POST("/board/select/index")
+    @POST("info/board/select/index")
     Call<ResponseVo> get_board_index(@Body BoardVo index);
 
 

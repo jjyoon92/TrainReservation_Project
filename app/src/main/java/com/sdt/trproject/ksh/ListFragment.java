@@ -93,6 +93,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             //콜백 받는 부분
             @Override
             public void onResponse(@NonNull Call<ResponseVo> call, @NonNull Response<ResponseVo> response) {
+                System.out.println("board response : " + response);
+
                 ResponseVo responses = response.body();
                 if (responses.getResult().equals("success") && responses.getDataList().size() != 0) {
                     boardVo = responses.getDataList();
