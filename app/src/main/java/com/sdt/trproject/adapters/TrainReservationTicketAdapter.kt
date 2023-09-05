@@ -177,7 +177,6 @@ class TrainReservationTicketAdapter @Inject constructor(
 //                if (context is Activity) {
 //                    (context as Activity).finish()
 //                }
-
             }
 
         }

@@ -23,7 +23,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ReservationSeatTicketListActivity : AppCompatActivity() {
-
     private lateinit var btnReservationSeatTicketRefund: Button
     private lateinit var recyclerView: RecyclerView
 
