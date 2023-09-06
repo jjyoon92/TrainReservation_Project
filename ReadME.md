@@ -1,16 +1,6 @@
 # TrainReservation-Server
 
 # SRT Clone 프로젝트
-### 스플래시 화면
-![screenshot1.png](screenshots%2Fscreenshot1.png)
-### 메인 화면
-![screenshot2.png](screenshots%2Fscreenshot2.png)
-### 노선 선택
-![screenshot3.png](screenshots%2Fscreenshot3.png)
-### 날짜 및 시간 선택
-![screenshot4.png](screenshots%2Fscreenshot4.png)
-### 열차 스케줄 조회
-![screenshot5.png](screenshots%2Fscreenshot5.png)
 
 ## 1. 프로젝트 개요
 - 프로젝트명: 기차 예매 앱
@@ -77,3 +67,51 @@
 
 ## 10. 서버 
 - Git URL : https://github.com/kktyal/TrainReservation-Server
+
+
+### 타이틀
+![portfolio01.png](screenshots%2Fportfolio01.png)
+### 목차
+![portfolio02.png](screenshots%2Fportfolio02.png)
+### 팀원 소개
+![portfolio03.png](screenshots%2Fportfolio03.png)
+### 프로젝트 소개
+![portfolio04.png](screenshots%2Fportfolio04.png)
+### 방법론
+![portfolio05.png](screenshots%2Fportfolio05.png)
+### 세부 일정
+![portfolio06.png](screenshots%2Fportfolio06.png)
+### 언어 및 개발 도구
+![portfolio07.png](screenshots%2Fportfolio07.png)
+### 시스템 흐름도(회원가입)
+![portfolio08.png](screenshots%2Fportfolio08.png)
+### 시스템 흐름도(회원번호, 비밀번호 찾기)
+![portfolio09.png](screenshots%2Fportfolio09.png)
+### 시스템 흐름도(열차 예매)
+![portfolio10.png](screenshots%2Fportfolio10.png)
+### 시스템 흐름도(승차권 확인)
+![portfolio11.png](screenshots%2Fportfolio11.png)
+### 앱 디자인(와이어 프레임)
+![portfolio12.png](screenshots%2Fportfolio12.png)
+### 앱 디자인(목업)
+![portfolio13.png](screenshots%2Fportfolio13.png)
+### 앱 디자인(실제 실행 화면)
+![portfolio14.png](screenshots%2Fportfolio14.png)
+### 화면 구성
+![portfolio15.png](screenshots%2Fportfolio15.png)
+### 유스케이스
+![portfolio16.png](screenshots%2Fportfolio16.png)
+### ERD
+![portfolio17.png](screenshots%2Fportfolio17.png)
+### 기능 명세서(로그인)
+![portfolio18.png](screenshots%2Fportfolio18.png)
+### 기능 명세서(기차 조회)
+![portfolio19.png](screenshots%2Fportfolio19.png)
+### 기능 명세서(기차 예약)
+![portfolio20.png](screenshots%2Fportfolio20.png)
+### 기능 명세서(승차권 확인, 결제, 게시판)
+![portfolio21.png](screenshots%2Fportfolio21.png)
+### 고민 & 문제 해결
+![portfolio22.png](screenshots%2Fportfolio22.png)
+### 향후 계획
+![portfolio23.png](screenshots%2Fportfolio23.png)
