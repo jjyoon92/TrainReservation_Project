@@ -2,15 +2,15 @@
 
 # SRT Clone 프로젝트
 ### 스플래시 화면
-![screenshot1.png](..%2F..%2F..%2F..%2Fgithub.com%2Fjjyoon92.github.io%2Fassets%2Fbuilt%2Fimages%2Fproject%2Fproject2%2Fscreenshot1.png)
+![screenshot1.png](screenshots%2Fscreenshot1.png)
 ### 메인 화면
-![screenshot2.png](..%2F..%2F..%2F..%2Fgithub.com%2Fjjyoon92.github.io%2Fassets%2Fbuilt%2Fimages%2Fproject%2Fproject2%2Fscreenshot2.png)
+![screenshot2.png](screenshots%2Fscreenshot2.png)
 ### 노선 선택
-![screenshot3.png](..%2F..%2F..%2F..%2Fgithub.com%2Fjjyoon92.github.io%2Fassets%2Fbuilt%2Fimages%2Fproject%2Fproject2%2Fscreenshot3.png)
+![screenshot3.png](screenshots%2Fscreenshot3.png)
 ### 날짜 및 시간 선택
-![screenshot4.png](..%2F..%2F..%2F..%2Fgithub.com%2Fjjyoon92.github.io%2Fassets%2Fbuilt%2Fimages%2Fproject%2Fproject2%2Fscreenshot4.png)
+![screenshot4.png](screenshots%2Fscreenshot4.png)
 ### 열차 스케줄 조회
-![screenshot5.png](..%2F..%2F..%2F..%2Fgithub.com%2Fjjyoon92.github.io%2Fassets%2Fbuilt%2Fimages%2Fproject%2Fproject2%2Fscreenshot5.png)
+![screenshot5.png](screenshots%2Fscreenshot5.png)
 
 ## 1. 프로젝트 개요
 - 프로젝트명: 기차 예매 앱
